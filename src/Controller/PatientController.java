@@ -1,6 +1,8 @@
 package Controller;
 
 import ADT.ArrayQueue;
+import ADT.AVLTree;
+//import 
 import Entity.Patient;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,6 +12,7 @@ public class PatientController {
     // add static to avoid reset
     private static int patientCounter = 1;
     private final ArrayQueue<Patient> arrayQueue = new ArrayQueue<>(999);;
+    private AVLTree<String, Patient> tree = new AVLTree<>();
     
     public void patientRegistration(String name, String icNumber, int age, char gender, String phoneNumber, String email){ 
         //patient ID generation
@@ -24,6 +27,7 @@ public class PatientController {
         
         Patient patient = new Patient(patientID, name, icNumber, age, gender, phoneNumber, email, null, registrationDate);
         arrayQueue.enqueue(patient);
+        tree.insert(patientID, patient);
         
         System.out.println("========================================");
         System.out.printf("%25s\n", "Appointment done");
@@ -45,4 +49,53 @@ public class PatientController {
         new Boundaries.UIPatientManagement().showOption(); 
     }
     
+    public Patient findPatientByID(String id) {
+        return tree.search(id);
+    }
+    
+    public void deletePatientById(String id){
+        tree.delete(id);
+    }
+    
+    
+    public Patient viewPatientQueue(){
+        return arrayQueue.peek();
+    }
+
+    public boolean updatePatient(String id, String ic,String fieldUpdate, String newValue){
+        Patient patient = tree.search(id);
+        
+        if(patient == null){
+            System.out.println("Patient not found.");
+            return false;
+        }
+        
+        if(!patient.getIc().equals(ic)){
+            System.out.println("IC not match.Please try again");
+            return false;
+        }
+        
+        switch(fieldUpdate.toLowerCase()){
+            case "name":
+                patient.setName(newValue);
+                break;
+            
+            case "ic":
+                patient.setIc(newValue);
+                break;
+                
+            case "phone":
+                patient.setPhoneNumber(newValue);
+                break;
+            
+            case "email":
+                patient.setEmail(newValue);
+                break;
+            
+            default:
+                System.out.println("Invalid option.");
+                return false;
+        }
+        return true;
+    }
 }

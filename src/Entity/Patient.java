@@ -99,6 +99,10 @@ public class Patient {
         this.phoneNumber = phoneNumber;
     }
 
+    public void setEmail(String email){
+        this.email = email;
+    }
+    
     public void setDoctorAssigned(String DoctorAssigned){
         this.DoctorAssigned = DoctorAssigned;
     }
