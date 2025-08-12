@@ -7,6 +7,7 @@ package Main;
 import java.util.Scanner;
 import Boundaries.UIPatientManagement;
 import Boundaries.UIConsultation;
+import Boundaries.UIDoctorManagement;
 
 /**
  *
@@ -41,7 +42,8 @@ public class Asgm {
                 uiPatient.showOption();
                 break;
             case 2:
-                //doctor
+                UIDoctorManagement uiDoctor = new UIDoctorManagement();
+                uiDoctor.showMenu();
                 break;
             case 3:
                 UIConsultation uiConsultation = new UIConsultation();
