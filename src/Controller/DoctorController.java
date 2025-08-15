@@ -1,14 +1,12 @@
 package Controller;
 
 import ADT.AVLTree;
+import ADT.LinkedList;
+import ADT.HashMap;
 import Entity.Doctor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Manages Doctor profiles and schedules.
@@ -18,10 +16,10 @@ public class DoctorController {
 
     // Shared storage across instances
     private static final AVLTree<String, Doctor> doctorIndex = new AVLTree<>();
-    private static final List<Doctor> doctorList = new ArrayList<>();
+    private static final LinkedList<Doctor> doctorList = new LinkedList<>();
 
     // doctorId -> (date -> list of available time slots)
-    private static final Map<String, Map<LocalDate, List<LocalTime>>> doctorSchedules = new HashMap<>();
+    private static final HashMap<String, HashMap<LocalDate, LinkedList<LocalTime>>> doctorSchedules = new HashMap<>();
 
     // ===== Doctor Profile Management =====
     public Doctor addDoctor(String name, String specialization, int yearsOfExperience,
@@ -36,6 +34,10 @@ public class DoctorController {
 
     public Doctor getDoctorById(String doctorId) {
         return doctorIndex.search(doctorId);
+    }
+
+    public LinkedList<Doctor> getAllDoctors() {
+        return doctorList; // Return the ADT LinkedList containing all doctors
     }
 
     public boolean updateDoctorField(String doctorId, String field, String newValue) {
@@ -92,59 +94,104 @@ public class DoctorController {
         Doctor d = doctorIndex.search(doctorId);
         if (d == null) return false;
         doctorIndex.delete(doctorId);
-        doctorList.remove(d);
+        removeFromDoctorList(d);
         doctorSchedules.remove(doctorId);
         return true;
     }
 
-    
-
-    // ===== Schedule Management =====
-    public void defineAvailableSlots(String doctorId, LocalDate date, LocalTime startInclusive,
-                                     LocalTime endExclusive, int intervalMinutes) {
-        List<LocalTime> slots = generateSlots(startInclusive, endExclusive, intervalMinutes);
-        setSlotsForDate(doctorId, date, slots);
-    }
-
-    public Map<LocalDate, List<LocalTime>> getSchedule(String doctorId) {
-        return doctorSchedules.getOrDefault(doctorId, new HashMap<>());
-    }
-
-    public List<LocalTime> getSlotsForDate(String doctorId, LocalDate date) {
-        Map<LocalDate, List<LocalTime>> map = doctorSchedules.get(doctorId);
-        if (map == null) return new ArrayList<>();
-        return new ArrayList<>(map.getOrDefault(date, new ArrayList<>()));
-    }
-
-    public void setSlotsForDate(String doctorId, LocalDate date, List<LocalTime> slots) {
-        doctorSchedules.computeIfAbsent(doctorId, k -> new HashMap<>())
-                .put(date, new ArrayList<>(slots));
-    }
-
-    public boolean addTimeSlot(String doctorId, LocalDate date, LocalTime slot) {
-        Map<LocalDate, List<LocalTime>> map = doctorSchedules.computeIfAbsent(doctorId, k -> new HashMap<>());
-        List<LocalTime> list = map.computeIfAbsent(date, k -> new ArrayList<>());
-        if (!list.contains(slot)) {
-            list.add(slot);
-            list.sort(LocalTime::compareTo);
-            return true;
+    // Helper method to remove doctor from LinkedList
+    private boolean removeFromDoctorList(Doctor doctor) {
+        for (int i = 0; i < doctorList.size(); i++) {
+            Doctor d = doctorList.get(i);
+            if (d.getDoctorId().equals(doctor.getDoctorId())) {
+                doctorList.remove(i);
+                return true;
+            }
         }
         return false;
     }
 
+    // ===== Schedule Management =====
+    public void defineAvailableSlots(String doctorId, LocalDate date, LocalTime startInclusive,
+                                     LocalTime endExclusive, int intervalMinutes) {
+        LinkedList<LocalTime> slots = generateSlots(startInclusive, endExclusive, intervalMinutes);
+        setSlotsForDate(doctorId, date, slots);
+    }
+
+    public HashMap<LocalDate, LinkedList<LocalTime>> getSchedule(String doctorId) {
+        HashMap<LocalDate, LinkedList<LocalTime>> schedule = doctorSchedules.get(doctorId);
+        return schedule != null ? schedule : new HashMap<>();
+    }
+
+    public LinkedList<LocalTime> getSlotsForDate(String doctorId, LocalDate date) {
+        HashMap<LocalDate, LinkedList<LocalTime>> map = doctorSchedules.get(doctorId);
+        if (map == null) return new LinkedList<>();
+        LinkedList<LocalTime> slots = map.get(date);
+        return slots != null ? slots : new LinkedList<>();
+    }
+
+    public void setSlotsForDate(String doctorId, LocalDate date, LinkedList<LocalTime> slots) {
+        HashMap<LocalDate, LinkedList<LocalTime>> map = doctorSchedules.get(doctorId);
+        if (map == null) {
+            map = new HashMap<>();
+            doctorSchedules.put(doctorId, map);
+        }
+        map.put(date, slots);
+    }
+
+    public boolean addTimeSlot(String doctorId, LocalDate date, LocalTime slot) {
+        HashMap<LocalDate, LinkedList<LocalTime>> map = doctorSchedules.get(doctorId);
+        if (map == null) {
+            map = new HashMap<>();
+            doctorSchedules.put(doctorId, map);
+        }
+        
+        LinkedList<LocalTime> list = map.get(date);
+        if (list == null) {
+            list = new LinkedList<>();
+            map.put(date, list);
+        }
+        
+        // Check if slot already exists
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).equals(slot)) {
+                return false; // Slot already exists
+            }
+        }
+        
+        list.add(slot);
+        return true;
+    }
+
     public boolean removeTimeSlot(String doctorId, LocalDate date, LocalTime slot) {
-        Map<LocalDate, List<LocalTime>> map = doctorSchedules.get(doctorId);
+        HashMap<LocalDate, LinkedList<LocalTime>> map = doctorSchedules.get(doctorId);
         if (map == null) return false;
-        List<LocalTime> list = map.get(date);
+        
+        LinkedList<LocalTime> list = map.get(date);
         if (list == null) return false;
-        return list.remove(slot);
+        
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).equals(slot)) {
+                list.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSlotAvailable(String doctorId, LocalDate date, LocalTime slot) {
-        Map<LocalDate, List<LocalTime>> map = doctorSchedules.get(doctorId);
+        HashMap<LocalDate, LinkedList<LocalTime>> map = doctorSchedules.get(doctorId);
         if (map == null) return false;
-        List<LocalTime> list = map.get(date);
-        return list != null && list.contains(slot);
+        
+        LinkedList<LocalTime> list = map.get(date);
+        if (list == null) return false;
+        
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).equals(slot)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Book a slot by removing it from availability
@@ -157,9 +204,10 @@ public class DoctorController {
         defineAvailableSlots(doctorId, date, newStartInclusive, newEndExclusive, intervalMinutes);
     }
 
-    public int removeTimeSlots(String doctorId, LocalDate date, List<LocalTime> slotsToRemove) {
+    public int removeTimeSlots(String doctorId, LocalDate date, LinkedList<LocalTime> slotsToRemove) {
         int removed = 0;
-        for (LocalTime t : slotsToRemove) {
+        for (int i = 0; i < slotsToRemove.size(); i++) {
+            LocalTime t = slotsToRemove.get(i);
             if (removeTimeSlot(doctorId, date, t)) removed++;
         }
         return removed;
@@ -186,8 +234,8 @@ public class DoctorController {
         }
     }
 
-    private List<LocalTime> generateSlots(LocalTime startInclusive, LocalTime endExclusive, int minutes) {
-        List<LocalTime> result = new ArrayList<>();
+    private LinkedList<LocalTime> generateSlots(LocalTime startInclusive, LocalTime endExclusive, int minutes) {
+        LinkedList<LocalTime> result = new LinkedList<>();
         if (startInclusive == null || endExclusive == null || minutes <= 0) return result;
         LocalTime t = startInclusive;
         while (!t.isAfter(endExclusive.minusMinutes(minutes))) {
@@ -196,7 +244,6 @@ public class DoctorController {
         }
         return result;
     }
-
 }
 
 

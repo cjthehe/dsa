@@ -1,26 +1,21 @@
 package Controller;
 
-import ADT.ArrayQueue;
+import ADT.LinkedList;
 import ADT.AVLTree;
 import Entity.FollowUpTask;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Simple follow-up tracker with queue for pending and index for lookup.
- */
 public class FollowUpController {
     private int counter = 1;
-    private final ArrayQueue<FollowUpTask> pending = new ArrayQueue<>(1000);
+
+    private final LinkedList<FollowUpTask> pending = new LinkedList<>();
     private final AVLTree<String, FollowUpTask> index = new AVLTree<>();
-    private final List<FollowUpTask> all = new ArrayList<>();
+    private final LinkedList<FollowUpTask> all = new LinkedList<>();
 
     public FollowUpTask add(String patientId, String doctorId, String note) {
         String id = nextId();
         FollowUpTask t = new FollowUpTask(id, patientId, doctorId, note);
         index.insert(id, t);
-        pending.enqueue(t);
+        pending.add(t);            // enqueue to tail
         all.add(t);
         return t;
     }
@@ -29,6 +24,8 @@ public class FollowUpController {
         FollowUpTask t = index.search(taskId);
         if (t == null) return false;
         t.setCompleted(true);
+        // OPTIONAL: if you only want uncompleted items in the pending queue, uncomment:
+        // removeFromPendingById(taskId);
         return true;
     }
 
@@ -36,16 +33,50 @@ public class FollowUpController {
         FollowUpTask t = index.search(taskId);
         if (t == null) return false;
         index.delete(taskId);
-        all.remove(t);
+        removeFromAllById(taskId);
+        removeFromPendingById(taskId);   // <-- replace pending.remove(t)
         return true;
     }
 
-    public FollowUpTask peek() { return pending.peek(); }
+    public FollowUpTask peek() {
+        return pending.isEmpty() ? null : pending.get(0);
+    }
 
-    public List<FollowUpTask> listAll() { return new ArrayList<>(all); }
+    public LinkedList<FollowUpTask> listAll() {
+        return all; // Return the ADT LinkedList directly
+    }
 
-    private String nextId() { return "F" + String.format("%04d", counter++); }
+    private String nextId() {
+        return "F" + String.format("%04d", counter++);
+    }
+
+    // --- helper: remove by id using index + remove(int)
+    private boolean removeFromPendingById(String taskId) {
+        for (int i = 0; i < pending.size(); i++) {
+            FollowUpTask cur = pending.get(i);
+            // adjust getter name if different
+            if (cur.getTaskId().equals(taskId)) {
+                pending.remove(i);        // uses LinkedList.remove(int)
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // --- helper: remove by id from all list
+    private boolean removeFromAllById(String taskId) {
+        for (int i = 0; i < all.size(); i++) {
+            FollowUpTask cur = all.get(i);
+            if (cur.getTaskId().equals(taskId)) {
+                all.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
 }
+
+
 
 
 
