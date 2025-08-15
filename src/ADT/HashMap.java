@@ -1,7 +1,5 @@
 package ADT;
 
-import java.util.LinkedList;
-
 public class HashMap<K, V> implements HashMapInterface<K, V> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final double LOAD_FACTOR = 0.75;
@@ -18,7 +16,7 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         
         // Initialize all buckets
         for (int i = 0; i < capacity; i++) {
-            buckets[i] = new LinkedList<>();
+            buckets[i] = new LinkedList<Entry<K, V>>();
         }
     }
     
@@ -30,7 +28,7 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         
         // Initialize all buckets
         for (int i = 0; i < capacity; i++) {
-            buckets[i] = new LinkedList<>();
+            buckets[i] = new LinkedList<Entry<K, V>>();
         }
     }
     
@@ -49,7 +47,8 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         LinkedList<Entry<K, V>> bucket = buckets[bucketIndex];
         
         // Check if key already exists
-        for (Entry<K, V> entry : bucket) {
+        for (int i = 0; i < bucket.size(); i++) {
+            Entry<K, V> entry = bucket.get(i);
             if (entry.key.equals(key)) {
                 entry.value = value; // Update existing value
                 return;
@@ -57,7 +56,7 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         }
         
         // Add new entry
-        bucket.add(new Entry<>(key, value));
+        bucket.add(new Entry<K, V>(key, value));
         size++;
     }
     
@@ -70,7 +69,8 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         int bucketIndex = getBucketIndex(key);
         LinkedList<Entry<K, V>> bucket = buckets[bucketIndex];
         
-        for (Entry<K, V> entry : bucket) {
+        for (int i = 0; i < bucket.size(); i++) {
+            Entry<K, V> entry = bucket.get(i);
             if (entry.key.equals(key)) {
                 return entry.value;
             }
@@ -109,7 +109,8 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         int bucketIndex = getBucketIndex(key);
         LinkedList<Entry<K, V>> bucket = buckets[bucketIndex];
         
-        for (Entry<K, V> entry : bucket) {
+        for (int i = 0; i < bucket.size(); i++) {
+            Entry<K, V> entry = bucket.get(i);
             if (entry.key.equals(key)) {
                 return true;
             }
@@ -124,8 +125,10 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
             return false;
         }
         
-        for (LinkedList<Entry<K, V>> bucket : buckets) {
-            for (Entry<K, V> entry : bucket) {
+        for (int bi = 0; bi < capacity; bi++) {
+            LinkedList<Entry<K, V>> bucket = buckets[bi];
+            for (int i = 0; i < bucket.size(); i++) {
+                Entry<K, V> entry = bucket.get(i);
                 if (value.equals(entry.value)) {
                     return true;
                 }
@@ -166,13 +169,25 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
             LinkedList<Entry<K, V>> bucket = buckets[i];
             if (!bucket.isEmpty()) {
                 System.out.print("Bucket " + i + ": ");
-                for (Entry<K, V> entry : bucket) {
+                for (int j = 0; j < bucket.size(); j++) {
+                    Entry<K, V> entry = bucket.get(j);
                     System.out.print("[" + entry.key + "=" + entry.value + "] ");
                 }
                 System.out.println();
             }
         }
         System.out.println("Total entries: " + size);
+    }
+    
+    // Iterate over all key-value pairs using a simple callback (no Java collections exposure)
+    public void forEach(KVConsumer<K, V> consumer) {
+        for (int i = 0; i < capacity; i++) {
+            LinkedList<Entry<K, V>> bucket = buckets[i];
+            for (int j = 0; j < bucket.size(); j++) {
+                Entry<K, V> entry = bucket.get(j);
+                consumer.accept(entry.key, entry.value);
+            }
+        }
     }
     
     // Helper method to get bucket index
@@ -192,13 +207,15 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         
         // Initialize new buckets
         for (int i = 0; i < capacity; i++) {
-            buckets[i] = new LinkedList<>();
+            buckets[i] = new LinkedList<Entry<K, V>>();
         }
         
         // Reset size and rehash all entries
         size = 0;
-        for (LinkedList<Entry<K, V>> bucket : oldBuckets) {
-            for (Entry<K, V> entry : bucket) {
+        for (int bi = 0; bi < oldBuckets.length; bi++) {
+            LinkedList<Entry<K, V>> bucket = oldBuckets[bi];
+            for (int j = 0; j < bucket.size(); j++) {
+                Entry<K, V> entry = bucket.get(j);
                 put(entry.key, entry.value);
             }
         }

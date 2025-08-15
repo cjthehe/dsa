@@ -8,6 +8,7 @@ import java.util.Scanner;
 import Boundaries.UIPatientManagement;
 import Boundaries.UIConsultation;
 import Boundaries.UIDoctorManagement;
+import Boundaries.UIPharmacy;
 
 /**
  *
@@ -53,7 +54,8 @@ public class Asgm {
                 //medical treatment
                 break;
             case 5:
-                //pharmacy
+                UIPharmacy uiPharmacy = new UIPharmacy();
+                uiPharmacy.showMenu();
                 break;
             case 6:
                 System.out.println("Thank you for using the system. Goodbye!");
