@@ -1,11 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Boundaries;
 
 import Controller.PatientController;
 import Entity.Patient;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -14,9 +11,22 @@ import java.util.Scanner;
  */
 public class UIPatientManagement {
     Scanner scanner = new Scanner(System.in);
-    private static final PatientController controller = new PatientController();
+    public PatientController controller = new PatientController();
+    
     public void showOption(){
-        
+        controller.patientRegistration("Alice Tan", "230101145678", "012-3456789", "alice.tan@gmail.com");     // Age ~ 2 (Toddler)
+        controller.patientRegistration("Benjamin Lee", "201230087654", "013-9876543", "benjamin.lee@gmail.com"); // Age ~ 24 (Young Adult)
+        controller.patientRegistration("Catherine Ng", "150215045678", "017-2223344", "catherine.ng@gmail.com"); // Age ~ 32 (Adult)
+        controller.patientRegistration("Daniel Tan", "120512126789", "016-8899776", "daniel.tan@gmail.com");     // Age ~ 35 (Young Adult)
+        controller.patientRegistration("Emily Wong", "210430078945", "014-6655443", "emily.wong@gmail.com");     // Age ~ 13 (Teenager)
+        controller.patientRegistration("Farhan Ahmad", "051021014567", "019-9988776", "farhan.ahmad@gmail.com"); // Age ~ 70 (Senior)
+        controller.patientRegistration("Grace Lim", "220210098765", "011-7766554", "grace.lim@gmail.com");       // Age ~ 3 (Toddler)
+        controller.patientRegistration("Henry Lau", "991105067890", "018-4455667", "henry.lau@gmail.com");       // Age ~ 26 (Young Adult)
+        controller.patientRegistration("Isabelle Chong", "130701034567", "012-5566778", "isabelle.chong@gmail.com"); // Age ~ 11 (Child)
+        controller.patientRegistration("Jason Foo", "000101078954", "013-6677889", "jason.foo@gmail.com");       // Age ~ 25 (Young Adult)
+
+        int choice;
+    do{
         System.out.println(" ===== Clinic name =====");
         //patient appointment management CRUD
         System.out.println("1. Make an registration ");
@@ -24,12 +34,20 @@ public class UIPatientManagement {
         System.out.println("3. Update Profile");
         System.out.println("4. View Queue Status"); 
         System.out.println("5. Delete Patient Record");
-        System.out.println("6. Exit ");
+        System.out.println("6. View report");
+        System.out.println("7. Exit ");
         System.out.println("========================\n");
         
         System.out.print("Select your option: ");
-        int choice = scanner.nextInt();
+        
+        while (!scanner.hasNextInt()) {
+            System.out.println("Invalid input! Please enter a number between 1 and 7.");
+            scanner.next();
+        }
+        
+        choice = scanner.nextInt();
         scanner.nextLine();
+        
         System.out.println("\n");
         
         switch(choice){
@@ -49,53 +67,74 @@ public class UIPatientManagement {
                 deleteProfile();
                 break;
             case 6:
+                viewAgeReport();
+                break;
+            case 7:
                 System.exit(0);
                 break;
             default:
                 System.out.println("Invalid option. Pls try again.");
                 break;
-        }
+            }
+        }while(true);
     }
     
     private void makeRegistration(){
         System.out.println(" ================ new appointment ================");
         
-//        System.out.print("Enter your Student ID ( XXABCXXXXX ):");
-//        String studID = scanner.nextLine();
-        
+        String studName;
+        do{
         System.out.print("Enter your name: ");
-        String studName = scanner.nextLine();
+        studName = scanner.nextLine();
+            if(!controller.NameValidation(studName)){
+                System.out.println("Invalid name. Please try again.");
+            }
+        }while(!controller.NameValidation(studName));
         
         // int ic 
+        String studIC;
+        do{
         System.out.print("Enter your IC number ( without(-) ):");
-        String studIC = scanner.nextLine();
+        studIC = scanner.nextLine();
         
-        System.out.print("Enter your age:");
-        int studAge = scanner.nextInt();
-        scanner.nextLine();
+        if(!controller.ICvalidation(studIC)){
+            System.out.println("Invalid IC. Please try again.");
+        }
         
-        //char gender
-        System.out.print("Enter your gender (M/F):");
-        char studGender = scanner.next().charAt(0);
-        scanner.nextLine();
-
+        }while(!controller.ICvalidation(studIC));
+        
         //String PN
+        String studPhoneNo;
+        do{
         System.out.print("Enter your phone number (with (-)):");
-        String studPhoneNo = scanner.nextLine();
+        studPhoneNo = scanner.nextLine();
+        if(!controller.PhoneValidation(studPhoneNo)){
+            System.out.println("Invalid phone number. Please enter again.");
+        }
+        }while(!controller.PhoneValidation(studPhoneNo));
         
+        String studEmail;
+        do{
         System.out.print("Enter your email:");
-        String studEmail = scanner.nextLine();
+        studEmail = scanner.nextLine();
+            if(!controller.EmailValidation(studEmail)){
+                System.out.println("Invalid Email. Please enter again.");
+            }
+        }while(!controller.EmailValidation(studEmail));
         
         System.out.print("\n\n");
         
-        controller.patientRegistration(studName, studIC, studAge, studGender, studPhoneNo, studEmail);
+        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail);
+        
+        displayPatientDetails(patient);
+        BackToMenu();
     }
     
     private void viewRecord(){
         System.out.print("Enter Patient ID to search: ");
-    String id = scanner.nextLine();
+        String id = scanner.nextLine();
 
-    Patient patient = controller.findPatientByID(id);
+        Patient patient = controller.findPatientByID(id);
         if (patient != null) {
         System.out.print("Enter IC number for verification: ");
         String ic = scanner.nextLine();
@@ -118,9 +157,7 @@ public class UIPatientManagement {
         System.out.println("Patient not found.\n");
     }
 
-    System.out.println("< Press Enter to return to Main Menu >");
-    scanner.nextLine();
-    showOption();
+    BackToMenu();
     }
     
     private void deleteProfile(){        
@@ -143,9 +180,7 @@ public class UIPatientManagement {
                 }
             }
         
-            System.out.println("< Press Enter to return to Main Menu >");
-            scanner.nextLine();
-            showOption();
+            BackToMenu();
         }
     
     private void viewQueue(){
@@ -162,9 +197,7 @@ public class UIPatientManagement {
         }else{
             System.out.println("No patients currently in queue.\n");
         }
-        System.out.println("< Press Enter to return to Main Menu >");
-        scanner.nextLine();
-        showOption();
+        BackToMenu();
     }
     
 private void updateProfile() {
@@ -174,9 +207,7 @@ private void updateProfile() {
     Patient patient = controller.findPatientByID(id);
     if (patient == null) {
         System.out.println("Patient not found.");
-        System.out.println("< Press Enter to return to Main Menu >");
-        scanner.nextLine();
-        showOption();
+        BackToMenu();
         return;
     }
 
@@ -184,9 +215,7 @@ private void updateProfile() {
     String ic = scanner.nextLine();
     if (!ic.equals(patient.getIc())) {
         System.out.println("IC number does not match. Access denied.");
-        System.out.println("< Press Enter to return to Main Menu >");
-        scanner.nextLine();
-        showOption();
+        BackToMenu();
         return;
     }
 
@@ -238,9 +267,88 @@ private void updateProfile() {
         }
     }
 
+        BackToMenu();
+    }
+        
+
+    private void displayPatientDetails(Patient patient){
+        System.out.println("\n=============================================================");
+            System.out.println("Patient ID         : " + patient.getID());
+            System.out.println("Name               : " + patient.getName());
+            System.out.println("IC Number          : " + patient.getIc());
+            System.out.println("Age                : " + patient.getAge());
+            System.out.println("Gender             : " + patient.genderToString());
+            System.out.println("State              : " + patient.getState());
+            System.out.println("Phone              : " + patient.getPhoneNumber());
+            System.out.println("Email              : " + patient.getEmail());
+            System.out.println("Registration Date  : " + patient.getRegistrationDate());
+        System.out.println("\n=============================================================");
+
+    }
+    
+    public void viewReport(){
+        System.out.println("1. View Medical Report.");
+        System.out.println("2. View Age Report.");
+        System.out.println("3. View Disease Report.");
+        int reportChoice = scanner.nextInt();
+        
+        
+    }
+    public void viewAgeReport(){
+        int[] ageCount = controller.calAgeGroup();
+        String[] labels = {"Infant", "Toddler", "Child", "Teenager", "Young Adult", "Adult", "Senior"};
+        
+        int maxCount = Arrays.stream(ageCount).max().orElse(1);
+        
+        
+        
+        String[] colors = {
+            "\u001B[31m", // Red
+            "\u001B[33m", // Yellow
+            "\u001B[32m", // Green
+            "\u001B[36m", // Cyan
+            "\u001B[34m", // Blue
+            "\u001B[35m", // Magenta
+            "\u001B[30m"  // Black
+        };
+        
+        String RESET = "\u001B[0m";
+        
+        for(int i = 0; i < labels.length;i++){
+            System.out.printf(colors[i] + "█" + RESET +  labels[i] + "\n");
+        }
+        
+        System.out.println();
+        // Y-axis
+        for (int level = maxCount; level >= 1; level--) {
+        System.out.printf("%3d |", level);
+        for (int i = 0; i < ageCount.length; i++) {
+            if(ageCount[i] >= level){
+                System.out.print(colors[i] + "  ▍▍  " + RESET);
+            }else{
+                System.out.print("     ");
+            }
+        }
+        
+            System.out.println();
+        }
+
+        // X-axis
+        System.out.print("    |__________________________________________");
+        System.out.println();
+
+        // Labels (first letter)
+        System.out.print("   ");
+        for (String label : labels) {
+            System.out.print("    " + label.charAt(0));
+        }
+        System.out.println();
+        BackToMenu();
+    }
+
+    private void BackToMenu(){
         System.out.println("< Press Enter to return to Main Menu >");
         scanner.nextLine();
         showOption();
     }
-
 }

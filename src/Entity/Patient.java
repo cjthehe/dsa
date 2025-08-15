@@ -5,7 +5,6 @@
 package Entity;
 
 import java.time.LocalDate;
-
 /**
  *
  * @author user
@@ -19,13 +18,16 @@ public class Patient {
     private char gender;
     private String phoneNumber;
     private String email;
+    private String state;
     private String DoctorAssigned;
-//    private String medicalHistory;
+    private String patientDisease;
+    //private String medicalTaken;
     private LocalDate registrationDate;
-    //private Time consultationHours;
+    private String[] disease;
+    // private Time consultationHours;
     
     //Constructor
-    public Patient(String PID,String Pname,String ic, int age, char gender, String phoneNumber, String email, String DoctorAssigned, LocalDate registrationDate){
+    public Patient(String PID,String Pname,String ic, int age, char gender, String phoneNumber, String email, String state, String DoctorAssigned,String patientDisease, LocalDate registrationDate){
         this.PID = PID;
         this.Pname = Pname;
         this.ic= ic;
@@ -33,7 +35,9 @@ public class Patient {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.state = state;
         this.DoctorAssigned = DoctorAssigned;
+        this.patientDisease = patientDisease;
         this.registrationDate = registrationDate;
     }
     
@@ -66,8 +70,16 @@ public class Patient {
         return email;
     }
 
+    public String getState(){
+        return state;
+    }
+    
     public String getDoctorAssigned(){
         return DoctorAssigned;
+    }
+    
+    public String getPatientDisease(){
+        return patientDisease;
     }
     
     public LocalDate getRegistrationDate(){
@@ -103,10 +115,19 @@ public class Patient {
         this.email = email;
     }
     
+    public void setState(String state){
+        this.state = state;
+    }
+    
     public void setDoctorAssigned(String DoctorAssigned){
         this.DoctorAssigned = DoctorAssigned;
     }
-
+    
+    public void setPatientDisease(String patientDisease){
+        this.patientDisease = patientDisease;
+    }
+    
+    
     public void setRegistrationDate(LocalDate registrationDate){
         this.registrationDate = registrationDate;
     }
@@ -122,10 +143,12 @@ public class Patient {
                 return "Other";
         }
     }
-    @Override
-    public String toString(){
-        return Pname + " | " + ic + " | " + age + " | " + gender 
-                + " | " + phoneNumber + " | " + email + " | " + DoctorAssigned
-                + " | " + registrationDate + " | ";
-    } 
+    
+    
+//    @Override
+//    public String toString(){
+//        return Pname + " | " + ic + " | " + age + " | " + gender 
+//                + " | " + phoneNumber + " | " + email + " | " + DoctorAssigned
+//                + " | " + registrationDate + " | ";
+//    } 
 }
