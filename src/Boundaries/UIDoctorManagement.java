@@ -133,9 +133,9 @@ public class UIDoctorManagement {
             System.out.println("|   Doctor Schedule Management   |");
             System.out.println("==================================");
             System.out.println("1. Define Available Slots");
-            System.out.println("2. View Schedule");
-            System.out.println("3. Add Time Slot");
-            System.out.println("4. Remove Time Slot(s)");
+            System.out.println("2. Add Time Slot");
+            System.out.println("3. Remove Time Slot(s)");
+            System.out.println("4. View Schedule");
             System.out.println("5. Update Working Hours");
             System.out.println("6. Back");
             System.out.println("==================================\n");
@@ -146,13 +146,13 @@ public class UIDoctorManagement {
                     defineSlots(); 
                     break;
                 case 2: 
-                    viewSchedule(); 
-                    break;
-                case 3: 
                     addSlot(); 
                     break;
-                case 4: 
+                case 3: 
                     removeSlots(); 
+                    break;
+                case 4: 
+                    viewSchedule(); 
                     break;
                 case 5: 
                     updateWorkingHours(); 
@@ -290,59 +290,189 @@ public class UIDoctorManagement {
 
     private void defineSlots() {
         String id = ask("Doctor ID: ");
-        LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
-        LocalTime start = LocalTime.parse(ask("Start (HH:mm): "));
-        LocalTime end = LocalTime.parse(ask("End (HH:mm): "));
-        int interval = Integer.parseInt(ask("Interval minutes: "));
-        controller.defineAvailableSlots(id, date, start, end, interval);
-        System.out.println("Slots defined.");
+        
+        // Check if doctor exists
+        Doctor doctor = controller.getDoctorById(id);
+        if (doctor == null) {
+            System.out.println("Doctor with ID " + id + " not found!");
+            return;
+        }
+        
+        System.out.println("Name: " + doctor.getName());
+        System.out.println("Specialization: " + doctor.getSpecialization());
+        
+        // Display current time slots for the doctor
+        System.out.println("\n--------------- Current Time Slots -----------------\n");
+        HashMap<LocalDate, LinkedList<LocalTime>> currentSchedule = controller.getSchedule(id);
+        if (currentSchedule.size() == 0) {
+            System.out.println("No time slots found for this doctor.");
+        } else {
+            currentSchedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
+                @Override
+                public void accept(LocalDate date, LinkedList<LocalTime> times) {
+                    System.out.println("Date: " + date);
+                    if (times.size() > 0) {
+                        LocalTime firstSlot = times.get(0);
+                        LocalTime lastSlot = times.get(times.size() - 1);
+                        System.out.println("Time slot: " + firstSlot + " to " + lastSlot);
+                        System.out.print("Available slots: ");
+                        for (int i = 0; i < times.size(); i++) {
+                            System.out.print(times.get(i));
+                            if (i < times.size() - 1) {
+                                System.out.print(", ");
+                            }
+                        }
+                        System.out.println();
+                    }
+                    System.out.println("...");
+                }
+            });
+        }
+        System.out.println("\n----------------------------------------------------\n");
     }
 
     private void viewSchedule() {
         String id = ask("Doctor ID: ");
-        System.out.println("Schedule for Doctor " + id + ":");
+        
+        // First, check if doctor exists
+        Doctor doctor = controller.getDoctorById(id);
+        if (doctor == null) {
+            System.out.println("Doctor with ID " + id + " not found!");
+            return;
+        }
+        
+        System.out.println("Name: " + doctor.getName());
+        System.out.println("Specialization: " + doctor.getSpecialization());
+        
+        System.out.println("\n----------------- Time Slots -----------------\n");
         
         try {
             // Get schedule from controller and display using ADT HashMap methods
             HashMap<LocalDate, LinkedList<LocalTime>> schedule = controller.getSchedule(id);
             if (schedule.size() == 0) {
                 System.out.println("No schedule found for doctor " + id);
-                return;
-            }
-            
-            System.out.println("Schedule retrieved and displayed using ADT methods:");
-            schedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
-                @Override
-                public void accept(LocalDate date, LinkedList<LocalTime> times) {
-                    System.out.println("Date: " + date);
-                    System.out.print("Times: ");
-                    for (int i = 0; i < times.size(); i++) {
-                        System.out.print(times.get(i));
-                        if (i < times.size() - 1) {
-                            System.out.print(", ");
+                System.out.println("Please use 'Define Available Slots' to create a schedule.");
+            } else {
+                System.out.println("Total dates with scheduled slots: " + schedule.size());
+                System.out.println();
+                
+                schedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
+                    @Override
+                    public void accept(LocalDate date, LinkedList<LocalTime> times) {
+                        System.out.println("Date: " + date + " (" + date.getDayOfWeek() + ")");
+                        if (times.size() > 0) {
+                            LocalTime firstSlot = times.get(0);
+                            LocalTime lastSlot = times.get(times.size() - 1);
+                            System.out.println("Time slot: " + firstSlot + " to " + lastSlot + "\n");
                         }
                     }
-                    System.out.println();
-                    System.out.println("---");
-                }
-            });
+                });
+            }
         } catch (Exception e) {
             System.out.println("Error displaying schedule: " + e.getMessage());
         }
+        System.out.println("----------------------------------------------");
     }
 
     private void addSlot() {
         String id = ask("Doctor ID: ");
+        
+        // Check if doctor exists
+        Doctor doctor = controller.getDoctorById(id);
+        if (doctor == null) {
+            System.out.println("Doctor with ID " + id + " not found!");
+            return;
+        }
+        
+        System.out.println("Name: " + doctor.getName());
+        System.out.println("Specialization: " + doctor.getSpecialization());
+        
+        // Display current time slots for the doctor
+        System.out.println("\n--------------- Current Time Slots -----------------\n");
+        HashMap<LocalDate, LinkedList<LocalTime>> currentSchedule = controller.getSchedule(id);
+        if (currentSchedule.size() == 0) {
+            System.out.println("No time slots found for this doctor.");
+        } else {
+            currentSchedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
+                @Override
+                public void accept(LocalDate date, LinkedList<LocalTime> times) {
+                    System.out.println("Date: " + date);
+                    if (times.size() > 0) {
+                        LocalTime firstSlot = times.get(0);
+                        LocalTime lastSlot = times.get(times.size() - 1);
+                        System.out.println("Time slot: " + firstSlot + " to " + lastSlot);
+                        System.out.print("Available slots: ");
+                        for (int i = 0; i < times.size(); i++) {
+                            System.out.print(times.get(i));
+                            if (i < times.size() - 1) {
+                                System.out.print(", ");
+                            }
+                        }
+                        System.out.println();
+                    }
+                    System.out.println("...");
+                }
+            });
+        }
+        System.out.println("\n----------------------------------------------------\n");
+        
+        // Ask for new slot details
         LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
-        LocalTime t = LocalTime.parse(ask("Time (HH:mm): "));
-        boolean ok = controller.addTimeSlot(id, date, t);
-        System.out.println(ok ? "Added" : "Already exists");
+        LocalTime newTime = LocalTime.parse(ask("Time to add (HH:mm): "));
+        
+        boolean added = controller.addTimeSlot(id, date, newTime);
+        if (added) {
+            System.out.println("Added: " + newTime + " to " + date);
+        } else {
+            System.out.println("Time slot " + newTime + " already exists for " + date);
+        }
     }
 
     private void removeSlots() {
         String id = ask("Doctor ID: ");
+        
+        // Check if doctor exists
+        Doctor doctor = controller.getDoctorById(id);
+        if (doctor == null) {
+            System.out.println("Doctor with ID " + id + " not found!");
+            return;
+        }
+        
+        System.out.println("Name: " + doctor.getName());
+        System.out.println("Specialization: " + doctor.getSpecialization());
+        
+        // Display current time slots for the doctor
+        System.out.println("\n--------------- Current Time Slots -----------------\n");
+        HashMap<LocalDate, LinkedList<LocalTime>> currentSchedule = controller.getSchedule(id);
+        if (currentSchedule.size() == 0) {
+            System.out.println("No time slots found for this doctor.");
+        } else {
+            currentSchedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
+                @Override
+                public void accept(LocalDate date, LinkedList<LocalTime> times) {
+                    System.out.println("Date: " + date);
+                    if (times.size() > 0) {
+                        LocalTime firstSlot = times.get(0);
+                        LocalTime lastSlot = times.get(times.size() - 1);
+                        System.out.println("Time slot: " + firstSlot + " to " + lastSlot);
+                        System.out.print("Available slots: ");
+                        for (int i = 0; i < times.size(); i++) {
+                            System.out.print(times.get(i));
+                            if (i < times.size() - 1) {
+                                System.out.print(", ");
+                            }
+                        }
+                        System.out.println();
+                    }
+                    System.out.println("...");
+                }
+            });
+        }
+        System.out.println("\n----------------------------------------------------\n");
+        
+        // Ask for removal details
         LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
-        System.out.println("Enter times to remove separated by comma (e.g., 09:00,09:30): ");
+        System.out.print("Times to remove (e.g., 09:00,09:30): ");
         String[] parts = scanner.nextLine().split(",");
         
         // Use ADT LinkedList to store the times
@@ -353,38 +483,82 @@ public class UIDoctorManagement {
                     LocalTime time = LocalTime.parse(p.trim());
                     times.add(time);
                 } catch (Exception e) {
-                    System.out.println("Invalid time format: " + p.trim());
+                    System.out.println("Invalid time format (Seperate by comma): " + p.trim());
                 }
             }
         }
         
-        // Display the times stored in ADT LinkedList
+        // Display the times to be removed
         System.out.println("Time slots to remove: " + times.size());
         if (times.isEmpty()) {
             System.out.println("No valid time slots to remove.");
             return;
         }
         
-        // Iterate through ADT LinkedList using index-based access
+        // Show what will be removed
         for (int i = 0; i < times.size(); i++) {
             LocalTime time = times.get(i);
             System.out.println("Time " + (i+1) + ": " + time);
         }
         
-        // Now use the ADT LinkedList with the controller
+        // Remove the time slots
         int removed = controller.removeTimeSlots(id, date, times);
-        System.out.println("Successfully removed " + removed + " time slots from doctor " + id + " on " + date);
+        System.out.println("Removed: " + removed + " time slots from " + date);
     }
 
     private void updateWorkingHours() {
         String id = ask("Doctor ID: ");
+        
+        // Check if doctor exists
+        Doctor doctor = controller.getDoctorById(id);
+        if (doctor == null) {
+            System.out.println("Doctor with ID " + id + " not found!");
+            return;
+        }
+        
+        System.out.println("Name: " + doctor.getName());
+        System.out.println("Specialization: " + doctor.getSpecialization());
+        
+        // Display current working hours for the doctor
+        System.out.println("\n--------------- Current Working Hours -----------------\n");
+        HashMap<LocalDate, LinkedList<LocalTime>> currentSchedule = controller.getSchedule(id);
+        if (currentSchedule.size() == 0) {
+            System.out.println("No working hours found for this doctor.");
+        } else {
+            currentSchedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
+                @Override
+                public void accept(LocalDate date, LinkedList<LocalTime> times) {
+                    System.out.println("Date: " + date);
+                    if (times.size() > 0) {
+                        LocalTime firstSlot = times.get(0);
+                        LocalTime lastSlot = times.get(times.size() - 1);
+                        System.out.println("Working hours: " + firstSlot + " to " + lastSlot);
+                        System.out.print("Available slots: ");
+                        for (int i = 0; i < times.size(); i++) {
+                            System.out.print(times.get(i));
+                            if (i < times.size() - 1) {
+                                System.out.print(", ");
+                            }
+                        }
+                        System.out.println();
+                    }
+                    System.out.println("...");
+                }
+            });
+        }
+        System.out.println("\n----------------------------------------------------\n");
+        
+        // Ask for new working hours
         LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
         LocalTime start = LocalTime.parse(ask("New Start (HH:mm): "));
         LocalTime end = LocalTime.parse(ask("New End (HH:mm): "));
         int interval = Integer.parseInt(ask("Interval minutes: "));
+        
         controller.updateWorkingHours(id, date, start, end, interval);
         System.out.println("Working hours updated.");
     }
+
+
 
     private void listAllDoctors() {
         System.out.println("\n==============================================================================================");
