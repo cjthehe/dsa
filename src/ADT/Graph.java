@@ -170,6 +170,15 @@ public class Graph<T> implements GraphInterface<T> {
     }
 
     @Override
+    public ListInterface<T> getAllVertices() {
+        ArrayList<T> result = new ArrayList<>();
+        for (int i = 0; i < vertices.size(); i++) {
+            result.add(vertices.get(i));
+        }
+        return result;
+    }
+
+    @Override
     public void clear() {
         adjacency.clear();
         vertices.clear();

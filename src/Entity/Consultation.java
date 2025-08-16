@@ -17,6 +17,7 @@ public class Consultation {
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String followUpConsultationId; // NEW: Link to follow-up consultation
     
     // Constructor for creating new consultation
     public Consultation(String consultationId, String patientId, String doctorId, 
@@ -28,6 +29,7 @@ public class Consultation {
         this.status = status;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.followUpConsultationId = null;
     }
     
     // Constructor for consultation with medical record
@@ -45,6 +47,7 @@ public class Consultation {
         this.notes = notes;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.followUpConsultationId = null;
     }
     
     // Getters
@@ -59,6 +62,7 @@ public class Consultation {
     public String getNotes() { return notes; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getFollowUpConsultationId() { return followUpConsultationId; }
     
     // Setters
     public void setConsultationId(String consultationId) { this.consultationId = consultationId; }
@@ -85,6 +89,10 @@ public class Consultation {
     }
     public void setNotes(String notes) { 
         this.notes = notes; 
+        this.updatedAt = LocalDateTime.now();
+    }
+    public void setFollowUpConsultationId(String followUpConsultationId) { 
+        this.followUpConsultationId = followUpConsultationId; 
         this.updatedAt = LocalDateTime.now();
     }
     
