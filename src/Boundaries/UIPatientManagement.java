@@ -1,5 +1,6 @@
 package Boundaries;
 
+import java.time.LocalDate;
 import Controller.PatientController;
 import Entity.Patient;
 import java.util.Arrays;
@@ -14,16 +15,6 @@ public class UIPatientManagement {
     public PatientController controller = new PatientController();
     
     public void showOption(){
-        controller.patientRegistration("Alice Tan", "230101145678", "012-3456789", "alice.tan@gmail.com");     // Age ~ 2 (Toddler)
-        controller.patientRegistration("Benjamin Lee", "201230087654", "013-9876543", "benjamin.lee@gmail.com"); // Age ~ 24 (Young Adult)
-        controller.patientRegistration("Catherine Ng", "150215045678", "017-2223344", "catherine.ng@gmail.com"); // Age ~ 32 (Adult)
-        controller.patientRegistration("Daniel Tan", "120512126789", "016-8899776", "daniel.tan@gmail.com");     // Age ~ 35 (Young Adult)
-        controller.patientRegistration("Emily Wong", "210430078945", "014-6655443", "emily.wong@gmail.com");     // Age ~ 13 (Teenager)
-        controller.patientRegistration("Farhan Ahmad", "051021014567", "019-9988776", "farhan.ahmad@gmail.com"); // Age ~ 70 (Senior)
-        controller.patientRegistration("Grace Lim", "220210098765", "011-7766554", "grace.lim@gmail.com");       // Age ~ 3 (Toddler)
-        controller.patientRegistration("Henry Lau", "991105067890", "018-4455667", "henry.lau@gmail.com");       // Age ~ 26 (Young Adult)
-        controller.patientRegistration("Isabelle Chong", "130701034567", "012-5566778", "isabelle.chong@gmail.com"); // Age ~ 11 (Child)
-        controller.patientRegistration("Jason Foo", "000101078954", "013-6677889", "jason.foo@gmail.com");       // Age ~ 25 (Young Adult)
 
         int choice;
     do{
@@ -67,7 +58,7 @@ public class UIPatientManagement {
                 deleteProfile();
                 break;
             case 6:
-                viewAgeReport();
+                viewReport();
                 break;
             case 7:
                 System.exit(0);
@@ -124,7 +115,7 @@ public class UIPatientManagement {
         
         System.out.print("\n\n");
         
-        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail);
+        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail,null);
         
         displayPatientDetails(patient);
         BackToMenu();
@@ -287,11 +278,33 @@ private void updateProfile() {
     }
     
     public void viewReport(){
+
         System.out.println("1. View Medical Report.");
         System.out.println("2. View Age Report.");
         System.out.println("3. View Disease Report.");
+        System.out.println("4. View Registration Report.");
         int reportChoice = scanner.nextInt();
-        
+        scanner.nextLine();
+        switch(reportChoice){
+            case 1:
+                viewAgeReport();
+                break;
+            
+            case 2:
+                break;
+            
+            case 3:
+                break;
+            
+            case 4:
+                viewRegDateReport();
+                break;
+            
+            default:
+                System.out.println("Invalid choice.");
+        }
+        System.out.println("");
+        BackToMenu();
         
     }
     public void viewAgeReport(){
@@ -334,21 +347,115 @@ private void updateProfile() {
         }
 
         // X-axis
-        System.out.print("    |__________________________________________");
+        System.out.print("    |__________________________________________ Age group");
         System.out.println();
 
-        // Labels (first letter)
         System.out.print("   ");
         for (String label : labels) {
             System.out.print("    " + label.charAt(0));
         }
         System.out.println();
         BackToMenu();
+        clearScreen();
+
     }
 
+    public void viewRegDateReport(){
+        int[] monthCount = controller.calRegGroup();
+        String[] monthLabels = {"January","February","March","April","May","June","July","August","September","October","November","December"};
+        
+        int total = 0;
+        for(int i = 0; i < monthCount.length; i++){
+            total += monthCount[i];
+        }
+        
+        String[] colors = {
+            "\u001B[31m", // Red
+            "\u001B[33m", // Yellow
+            "\u001B[32m", // Green
+            "\u001B[36m", // Cyan
+            "\u001B[34m", // Blue
+            "\u001B[35m", // Magenta
+            "\u001B[91m", // Bright Red
+            "\u001B[92m", // Bright Green
+            "\u001B[93m", // Bright Yellow
+            "\u001B[94m", // Bright Blue
+            "\u001B[95m", // Bright Magenta
+            "\u001B[96m"  // Bright Cyan
+        };
+
+        String RESET = "\u001B[0m";
+
+        System.out.print("            ____________________________________________ number of patient");
+        System.out.println();
+        for(int i = 0; i <12;i++ ){
+            double percentage = (monthCount[i] * 100.00) / total;
+            int barCount = (int)percentage;
+            System.out.printf("%-10s  |",monthLabels[i]);
+            
+            for(int j = 0; j < barCount; j++){
+                System.out.print("█");
+            }
+            
+            System.out.printf(" %.2f%%", percentage);
+            System.out.println("");
+        }
+        
+        System.out.printf("Total patient: %d", total);
+    }
+    
+    
     private void BackToMenu(){
         System.out.println("< Press Enter to return to Main Menu >");
         scanner.nextLine();
         showOption();
     }
+    
+   public void DummyData() {
+    // ================= January (2) =================
+    controller.patientRegistration("Alice Tan", "250105123456", "012-3456789", "alice.tan@gmail.com", LocalDate.of(2025, 1, 5));   // Infant
+    controller.patientRegistration("Benjamin Lee", "210120567890", "013-5678901", "ben.lee@yahoo.com", LocalDate.of(2025, 1, 20)); // Toddler
+
+    // ================= February (3) =================
+    controller.patientRegistration("Carmen Wong", "150202234567", "014-6789012", "carmen.wong@hotmail.com", LocalDate.of(2025, 2, 2)); // Child
+    controller.patientRegistration("Daniel Lim", "080214876543", "016-7890123", "daniel.lim@gmail.com", LocalDate.of(2025, 2, 14));   // Teenager
+    controller.patientRegistration("Elaine Ng", "000223112233", "017-8901234", "elaine.ng@yahoo.com", LocalDate.of(2025, 2, 23));    // Young Adult
+
+    // ================= March (4) =================
+    controller.patientRegistration("Felix Tan", "850305998877", "018-9012345", "felix.tan@gmail.com", LocalDate.of(2025, 3, 5));     // Adult
+    controller.patientRegistration("Grace Ho", "550312445566", "019-1234567", "grace.ho@hotmail.com", LocalDate.of(2025, 3, 12));    // Senior
+    controller.patientRegistration("Henry Ong", "230320556677", "011-2345678", "henry.ong@yahoo.com", LocalDate.of(2025, 3, 20));    // Toddler
+    controller.patientRegistration("Ivy Goh", "120328223344", "012-4567890", "ivy.goh@gmail.com", LocalDate.of(2025, 3, 28));        // Child
+
+    // ================= April (1) =================
+    controller.patientRegistration("Jason Lim", "070404667788", "013-5671234", "jason.lim@hotmail.com", LocalDate.of(2025, 4, 4));   // Teenager
+
+    // ================= May (5) =================
+    controller.patientRegistration("Kelly Tan", "950506334455", "014-6782345", "kelly.tan@gmail.com", LocalDate.of(2025, 5, 6));     // Young Adult
+    controller.patientRegistration("Leonard Chua", "740514778899", "016-7893456", "leonard.chua@yahoo.com", LocalDate.of(2025, 5, 14)); // Adult
+    controller.patientRegistration("Michelle Lee", "620521112244", "017-8904567", "michelle.lee@hotmail.com", LocalDate.of(2025, 5, 21)); // Senior
+    controller.patientRegistration("Nicholas Yap", "250528889900", "018-9015678", "nicholas.yap@gmail.com", LocalDate.of(2025, 5, 28)); // Infant
+    controller.patientRegistration("Olivia Chan", "210530667799", "019-1236789", "olivia.chan@yahoo.com", LocalDate.of(2025, 5, 30)); // Toddler
+
+    // ================= June (3) =================
+    controller.patientRegistration("Patrick Wong", "140608223355", "011-2347890", "patrick.wong@gmail.com", LocalDate.of(2025, 6, 8)); // Child
+    controller.patientRegistration("Queenie Lau", "060616445577", "012-3458901", "queenie.lau@hotmail.com", LocalDate.of(2025, 6, 16)); // Teenager
+    controller.patientRegistration("Ryan Tan", "990624998800", "013-5679012", "ryan.tan@yahoo.com", LocalDate.of(2025, 6, 24));      // Young Adult
+
+    // ================= July (6) =================
+    controller.patientRegistration("Samantha Ng", "840703556677", "014-6780123", "samantha.ng@gmail.com", LocalDate.of(2025, 7, 3)); // Adult
+    controller.patientRegistration("Thomas Lee", "540710889922", "016-7891234", "thomas.lee@hotmail.com", LocalDate.of(2025, 7, 10)); // Senior
+    controller.patientRegistration("Uma Devi", "220717334466", "017-8902345", "uma.devi@yahoo.com", LocalDate.of(2025, 7, 17));      // Toddler
+    controller.patientRegistration("Victor Tan", "120724667788", "018-9013456", "victor.tan@gmail.com", LocalDate.of(2025, 7, 24));  // Child
+    controller.patientRegistration("Wendy Ho", "090728223344", "019-1234568", "wendy.ho@hotmail.com", LocalDate.of(2025, 7, 28));    // Teenager
+    controller.patientRegistration("Xavier Lim", "970731445599", "011-2345679", "xavier.lim@yahoo.com", LocalDate.of(2025, 7, 31));  // Young Adult
+}
+
+    
+    public static void clearScreen() {
+        // ANSI escape code to clear the screen and move cursor to top-left
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
 }

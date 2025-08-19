@@ -9,16 +9,18 @@ import java.util.Iterator;
 
 public class PatientController {
     private static int patientCounter = 1;
-    private final QueueADT<Patient> arrayQueue = new QueueADT<>(30);
+    private final QueueADT<Patient> arrayQueue = new QueueADT<>(50);
     private AVLTree<String, Patient> tree = new AVLTree<>();
     private Patient patient;
     
     public Patient patientRegistration(String name, String icNumber, 
-                                   String phoneNumber, String email) {
+                                   String phoneNumber, String email,LocalDate registrationDate) {
 
         String patientID = "P" + String.format("%04d", patientCounter++);
-        LocalDate registrationDate = LocalDate.now();
-
+        if(registrationDate == null){
+            registrationDate = LocalDate.now();
+        }
+        
         int age = Integer.parseInt(calForAge(icNumber));
 
         char gender = calForGender(icNumber);
@@ -204,5 +206,15 @@ public class PatientController {
         }
         return counts;
     }
-
+    
+    public int[] calRegGroup(){
+        int[] monthCount = new int[12];
+        
+        for(Patient patient : arrayQueue){
+            int patientRegMonth = patient.getRegistrationDate().getMonthValue() - 1;
+            monthCount[patientRegMonth]++;
+        }
+        return monthCount;
+    }
+    
 }
