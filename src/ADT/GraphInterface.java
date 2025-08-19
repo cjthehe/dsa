@@ -18,6 +18,8 @@ public interface GraphInterface<T> {
     ListInterface<T> bfs(T startVertex);
     ListInterface<T> dfs(T startVertex);
 
+    ListInterface<T> getAllVertices();
+
     void clear();
 }
 

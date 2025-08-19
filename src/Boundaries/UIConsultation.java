@@ -1,11 +1,14 @@
 package Boundaries;
 
 import Controller.ConsultationController;
+import Controller.ConsultationReportController;
 import Entity.Consultation;
+
+import ADT.HashMap;
+import ADT.ArrayList;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Scanner;
 
 public class UIConsultation {
@@ -23,7 +26,8 @@ public class UIConsultation {
             System.out.println("4. Cancel Consultation (Patient)");
             System.out.println("5. Manage Consultation Record (Doctor)");
             System.out.println("6. View Patient Consultation History (Doctor)");
-            System.out.println("7. Exit");
+            System.out.println("7. View Report (Doctor)");
+            System.out.println("8. Exit");
             System.out.print("Select your option: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -49,6 +53,9 @@ public class UIConsultation {
                     viewConsultationHistory();
                     break;
                 case 7:
+                    viewReports();
+                    break;
+                case 8:
                     System.out.println("Returning to main menu...");
                     return;
                 default:
@@ -72,7 +79,7 @@ public class UIConsultation {
             
             // Show available time slots for the date
             LocalDateTime startOfDay = date.atStartOfDay();
-            List<LocalDateTime> availableSlots = controller.getAvailableTimeSlotsForDate(startOfDay);
+            ArrayList<LocalDateTime> availableSlots = controller.getAvailableTimeSlotsForDate(startOfDay);
             
             if (availableSlots.isEmpty()) {
                 System.out.println("No available slots found for " + date + ".");
@@ -90,15 +97,17 @@ public class UIConsultation {
             System.out.println("Doctor availability by time slot:");
             System.out.println("=================================");
             
-            for (LocalDateTime slot : availableSlots) {
+            for (int i = 0; i < availableSlots.size(); i++) {
+                LocalDateTime slot = availableSlots.get(i);
                 System.out.println("\nTime: " + slot.format(DateTimeFormatter.ofPattern("HH:mm")));
-                List<String> availableDoctors = controller.getAvailableDoctorsForDateTime(slot);
+                ArrayList<String> availableDoctors = controller.getAvailableDoctorsForDateTime(slot);
                 
                 if (availableDoctors.isEmpty()) {
                     System.out.println("  No doctors available");
                 } else {
                     System.out.println("  Available doctors:");
-                    for (String doctor : availableDoctors) {
+                    for (int j = 0; j < availableDoctors.size(); j++) {
+                        String doctor = availableDoctors.get(j);
                         System.out.println("    • " + doctor);
                     }
                 }
@@ -140,7 +149,7 @@ public class UIConsultation {
             
             // Step 3: System shows available doctors for that slot
             System.out.println("\nChecking available doctors for " + dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "...");
-            List<String> availableDoctors = controller.getAvailableDoctorsForDateTime(dateTime);
+            ArrayList<String> availableDoctors = controller.getAvailableDoctorsForDateTime(dateTime);
             
             if (availableDoctors.isEmpty()) {
                 System.out.println("No doctors available at this time. Please choose another time slot.");
@@ -219,7 +228,7 @@ public class UIConsultation {
             
             // Step 4: System checks doctor availability
             System.out.println("\nChecking doctor availability for new time...");
-            List<String> availableDoctors = controller.getAvailableDoctorsForDateTime(newDateTime);
+            ArrayList<String> availableDoctors = controller.getAvailableDoctorsForDateTime(newDateTime);
             
             if (availableDoctors.isEmpty()) {
                 System.out.println("No doctors available at this new time. Please choose another time slot.");
@@ -228,7 +237,8 @@ public class UIConsultation {
             
             // Step 5: Confirm and update appointment
             System.out.println("Available doctors for new time slot:");
-            for (String doctor : availableDoctors) {
+            for (int i = 0; i < availableDoctors.size(); i++) {
+                String doctor = availableDoctors.get(i);
                 System.out.println("• " + doctor);
             }
             
@@ -370,7 +380,7 @@ public class UIConsultation {
             
             // Step 2: Display all past consultations
             System.out.println("\nRetrieving consultation history...");
-            List<Consultation> consultations = controller.getConsultationsByPatient(patientId);
+            ArrayList<Consultation> consultations = controller.getConsultationsByPatient(patientId);
             
             if (consultations.isEmpty()) {
                 System.out.println("No consultation history found for this patient.");
@@ -407,5 +417,276 @@ public class UIConsultation {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+    }
+    
+    private void viewReports() {
+        System.out.println("=== View Reports ===");
+        System.out.println();
+        
+        while (true) {
+            System.out.println("Choose a report type:");
+            System.out.println("1. Doctor-Patient Relationship Report (Bar Chart & Pie Chart)");
+            System.out.println("2. Follow-up Path Report (Timeline & Flowchart)");
+            System.out.println("3. Create Sample Data for Reports");
+            System.out.println("4. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+            
+            switch (choice) {
+                case 1:
+                    showDoctorPatientRelationshipReport();
+                    break;
+                case 2:
+                    showFollowUpPathReport();
+                    break;
+                case 3:
+                    createSampleDataForReports();
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+    
+    private void showDoctorPatientRelationshipReport() {
+        System.out.println("\n=== DOCTOR-PATIENT RELATIONSHIP REPORT ===");
+        System.out.println("Bar Chart: X-axis = Doctors, Y-axis = Number of Patients consulted");
+        System.out.println("Pie Chart: Each slice = proportion of patients per doctor");
+        System.out.println();
+        
+        ConsultationReportController reportController = new ConsultationReportController();
+        
+        // Get all consultations to build the report
+        ArrayList<Consultation> allConsultations = controller.getAllConsultations();
+        
+        if (allConsultations.isEmpty()) {
+            System.out.println("No consultations found. Please create some sample data first.");
+            return;
+        }
+        
+        // Count patients per doctor
+        HashMap<String, Integer> doctorPatientCount = new HashMap<>();
+        HashMap<String, ArrayList<String>> doctorPatients = new HashMap<>();
+        
+        for (int i = 0; i < allConsultations.size(); i++) {
+            Consultation c = allConsultations.get(i);
+            String doctorId = c.getDoctorId();
+            String patientId = c.getPatientId();
+            
+            // Count unique patients per doctor
+            if (!doctorPatients.containsKey(doctorId)) {
+                doctorPatients.put(doctorId, new ArrayList<>());
+            }
+            
+            ArrayList<String> patients = doctorPatients.get(doctorId);
+            if (!patients.contains(patientId)) {
+                patients.add(patientId);
+                doctorPatientCount.put(doctorId, patients.size());
+            }
+        }
+        
+        // Display Bar Chart
+        System.out.println("📊 BAR CHART - Patients per Doctor");
+        System.out.println("==================================");
+        System.out.println("Doctor ID    | Patients | Bar Chart");
+        System.out.println("-------------|----------|----------");
+        
+        int totalPatients = 0;
+        // Get all doctor IDs from the HashMap
+        ArrayList<String> doctorIds = new ArrayList<>();
+        // Since we can't iterate by index through HashMap, we'll collect the doctor IDs as we process consultations
+        for (int i = 0; i < allConsultations.size(); i++) {
+            Consultation c = allConsultations.get(i);
+            String doctorId = c.getDoctorId();
+            if (!doctorIds.contains(doctorId)) {
+                doctorIds.add(doctorId);
+            }
+        }
+        
+        for (int i = 0; i < doctorIds.size(); i++) {
+            String doctorId = doctorIds.get(i);
+            int patientCount = doctorPatientCount.get(doctorId);
+            totalPatients += patientCount;
+            
+            // Create bar chart using ASCII
+            StringBuilder bar = new StringBuilder();
+            for (int j = 0; j < patientCount; j++) {
+                bar.append("█");
+            }
+            
+            System.out.printf("%-12s | %-8d | %s%n", doctorId, patientCount, bar.toString());
+        }
+        
+        System.out.println();
+        
+        // Display Pie Chart
+        System.out.println("🥧 PIE CHART - Patient Distribution");
+        System.out.println("===================================");
+        
+        for (int i = 0; i < doctorIds.size(); i++) {
+            String doctorId = doctorIds.get(i);
+            int patientCount = doctorPatientCount.get(doctorId);
+            double percentage = (double) patientCount / totalPatients * 100;
+            
+            // Create pie slice using ASCII
+            int sliceSize = (int) (percentage / 10);
+            StringBuilder slice = new StringBuilder();
+            for (int j = 0; j < sliceSize; j++) {
+                slice.append("█");
+            }
+            
+            System.out.printf("%-12s | %-8d | %-6.1f%% | %s%n", 
+                doctorId, patientCount, percentage, slice.toString());
+        }
+        
+        System.out.println();
+        System.out.println("📈 SUMMARY:");
+        System.out.println("Total Doctors: " + doctorPatientCount.size());
+        System.out.println("Total Patients: " + totalPatients);
+        
+        // Find doctor with most consultations
+        String busiestDoctor = "";
+        int maxPatients = 0;
+        for (int i = 0; i < doctorIds.size(); i++) {
+            String doctorId = doctorIds.get(i);
+            int patientCount = doctorPatientCount.get(doctorId);
+            if (patientCount > maxPatients) {
+                maxPatients = patientCount;
+                busiestDoctor = doctorId;
+            }
+        }
+        
+        System.out.println("Busiest Doctor: " + busiestDoctor + " (" + maxPatients + " patients)");
+    }
+    
+    private void showFollowUpPathReport() {
+        System.out.println("\n=== FOLLOW-UP PATH REPORT ===");
+        System.out.println("Timeline: X-axis = Consultation dates, Y-axis = Number of follow-ups");
+        System.out.println("Flowchart: Nodes = consultations, Edges = follow-up links");
+        System.out.println();
+        
+        System.out.print("Enter Patient ID to view follow-up path (e.g., P001): ");
+        String patientId = scanner.nextLine();
+        
+        ConsultationReportController reportController = new ConsultationReportController();
+        ArrayList<String> followUpPath = reportController.getFollowUpPathForPatient(patientId);
+        
+        if (followUpPath.isEmpty()) {
+            System.out.println("No follow-up consultations found for patient " + patientId);
+            System.out.println("Try creating sample data first or check the patient ID.");
+            return;
+        }
+        
+        // Display Timeline
+        System.out.println("📅 TIMELINE - Consultation Journey");
+        System.out.println("==================================");
+        
+        for (int i = 0; i < followUpPath.size(); i++) {
+            String consultationId = followUpPath.get(i);
+            Consultation consultation = controller.getConsultationById(consultationId);
+            
+            if (consultation != null) {
+                String date = consultation.getAppointmentDateTime().format(dtf);
+                String doctorId = consultation.getDoctorId();
+                String status = consultation.getStatus();
+                
+                // Create timeline visualization
+                StringBuilder timeline = new StringBuilder();
+                for (int j = 0; j < i; j++) {
+                    timeline.append("    ");
+                }
+                timeline.append("├── ");
+                
+                System.out.printf("%s %s | %s | %s | %s%n", 
+                    timeline.toString(), date, consultationId, doctorId, status);
+            }
+        }
+        
+        System.out.println();
+        
+        // Display Flowchart
+        System.out.println("🔄 FLOWCHART - Follow-up Chain");
+        System.out.println("===============================");
+        
+        for (int i = 0; i < followUpPath.size(); i++) {
+            String consultationId = followUpPath.get(i);
+            Consultation consultation = controller.getConsultationById(consultationId);
+            
+            if (consultation != null) {
+                String date = consultation.getAppointmentDateTime().format(dtf);
+                String doctorId = consultation.getDoctorId();
+                
+                // Create flowchart node
+                System.out.println("┌─────────────────────────────────────┐");
+                System.out.printf("│ Consultation: %s%n", consultationId);
+                System.out.printf("│ Date: %s%n", date);
+                System.out.printf("│ Doctor: %s%n", doctorId);
+                System.out.println("└─────────────────────────────────────┘");
+                
+                // Add arrow to next consultation
+                if (i < followUpPath.size() - 1) {
+                    System.out.println("                    ↓");
+                    System.out.println("              Follow-up");
+                    System.out.println("                    ↓");
+                }
+            }
+        }
+        
+        System.out.println();
+        System.out.println("📊 SUMMARY:");
+        System.out.println("Total Consultations in Chain: " + followUpPath.size());
+        System.out.println("Patient ID: " + patientId);
+        
+        // Show consultation details
+        System.out.println("\n📋 CONSULTATION DETAILS:");
+        for (int i = 0; i < followUpPath.size(); i++) {
+            String consultationId = followUpPath.get(i);
+            Consultation consultation = controller.getConsultationById(consultationId);
+            
+            if (consultation != null) {
+                System.out.printf("%d. %s%n", i + 1, consultation.toString());
+            }
+        }
+    }
+    
+
+    
+    private void createSampleDataForReports() {
+        System.out.println("Creating sample consultation data for reports...");
+        
+        // Create sample consultations
+        LocalDateTime now = LocalDateTime.now();
+        
+        // Sample consultations for Dr. Ahmad (D001)
+        Consultation c1 = controller.createConsultation("P001", "D001", 
+            now.minusDays(5).withHour(9).withMinute(0));
+        Consultation c2 = controller.createConsultation("P002", "D001", 
+            now.minusDays(3).withHour(10).withMinute(0));
+        Consultation c3 = controller.createConsultation("P003", "D001", 
+            now.minusDays(1).withHour(11).withMinute(0));
+        
+        // Sample consultations for Dr. Sarah (D002)
+        Consultation c4 = controller.createConsultation("P001", "D002", 
+            now.minusDays(2).withHour(14).withMinute(0));
+        Consultation c5 = controller.createConsultation("P004", "D002", 
+            now.minusDays(1).withHour(15).withMinute(0));
+        
+        // Sample consultations for Dr. John (D003)
+        Consultation c6 = controller.createConsultation("P002", "D003", 
+            now.minusDays(1).withHour(16).withMinute(0));
+        Consultation c7 = controller.createConsultation("P005", "D003", 
+            now.withHour(9).withMinute(0));
+        
+        // Create follow-up relationships
+        c1.setFollowUpConsultationId(c4.getConsultationId()); // P001: D001 → D002
+        c2.setFollowUpConsultationId(c6.getConsultationId()); // P002: D001 → D003
+        
+        System.out.println("Sample data created successfully!");
+        System.out.println("Created " + controller.getConsultationCount() + " consultations");
+        System.out.println("Created " + controller.getConsultationsWithFollowUps().size() + " follow-up relationships");
     }
 }
