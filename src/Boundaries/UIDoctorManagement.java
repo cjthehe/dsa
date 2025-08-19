@@ -11,6 +11,7 @@ import ADT.KVConsumer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Scanner;
+import java.time.format.DateTimeParseException;
 
 public class UIDoctorManagement {
     private final Scanner scanner = new Scanner(System.in);
@@ -30,6 +31,8 @@ public class UIDoctorManagement {
         
         // Initialize time slots for each doctor with different schedules
         initializeTimeSlots();
+        // Initialize follow-up sample tasks
+        initializeFollowUpDummyData();
         
     }
 
@@ -56,6 +59,16 @@ public class UIDoctorManagement {
         
     }
 
+    private void initializeFollowUpDummyData() {
+        follow.add("P101", "D001", "Check X-ray result", LocalDate.now().plusDays(7));
+        follow.add("P102", "D001", "Blood test review", LocalDate.now().plusDays(14));
+        follow.add("P103", "D001", "Confirm medication", LocalDate.now().plusDays(2));
+        FollowUpTask t4 = follow.add("P104", "D002", "Physio follow-up", LocalDate.now().plusDays(3));
+        follow.add("P105", "D003", "Post-op wound check", LocalDate.now().plusDays(10));
+        // Mark one as completed
+        follow.markCompleted(t4.getTaskId());
+    }
+
     public void showMenu() {
         while (true) {
             System.out.println("\n=================================");
@@ -63,7 +76,7 @@ public class UIDoctorManagement {
             System.out.println("=================================");
             System.out.println("1. Doctor Profile Management");
             System.out.println("2. Doctor Schedule Management");
-            System.out.println("3. Follow-up Tracker");
+            System.out.println("3. Follow-up Task");
             System.out.println("4. Exit");
             System.out.println("=================================\n");
             System.out.print("Select your option: ");
@@ -170,31 +183,35 @@ public class UIDoctorManagement {
 
     private void showFollowUpMenu() {
         while (true) {
-            System.out.println("\n===============================");
-            System.out.println("|       Follow-up Tracker       |");
-            System.out.println("=================================");
-            System.out.println("1. Add Patient");
-            System.out.println("2. View List");
-            System.out.println("3. Mark as Completed");
-            System.out.println("4. Delete");
-            System.out.println("5. Back");
-            System.out.println("=================================\n");
-            System.out.print("Select(1-5): ");
+            System.out.println("\n=========================================");
+            System.out.println("|            Follow-up Task             |");
+            System.out.println("=========================================");
+            System.out.println("1. Add follow-up task");
+            System.out.println("2. View tasks (All/Pending/Completed)");
+            System.out.println("3. Update task (description/due date)");
+            System.out.println("4. Mark as Completed");
+            System.out.println("5. Delete task");
+            System.out.println("6. Back");
+            System.out.println("=========================================\n");
+            System.out.print("Select(1-6): ");
             int c = readInt();
             switch (c) {
                 case 1: 
                     fuAdd(); 
                     break;
                 case 2: 
-                    fuList(); 
+                    fuView(); 
                     break;
                 case 3: 
-                    fuMarkCompleted(); 
+                    fuUpdate();
                     break;
                 case 4: 
-                    fuDelete(); 
+                    fuMarkCompleted(); 
                     break;
                 case 5: 
+                    fuDelete(); 
+                    break;
+                case 6: 
                     return;
                 default: 
                     System.out.println("Invalid option. Pls try again.");
@@ -205,23 +222,48 @@ public class UIDoctorManagement {
     private void fuAdd() {
         String pid = ask("Patient ID: ");
         String did = ask("Doctor ID: ");
-        String note = ask("Note (e.g., Stay Hospital): ");
-        FollowUpTask t = follow.add(pid, did, note);
+        String desc = ask("Description: ");
+        String dueStr = ask("Due Date (yyyy-MM-dd) [optional]: ");
+        FollowUpTask t;
+        if (dueStr == null || dueStr.trim().isEmpty()) {
+            t = follow.add(pid, did, desc);
+        } else {
+            try {
+                java.time.LocalDate due = java.time.LocalDate.parse(dueStr.trim());
+                t = follow.add(pid, did, desc, due);
+            } catch (DateTimeParseException ex) {
+                System.out.println("Invalid date. Adding without due date.");
+                t = follow.add(pid, did, desc);
+            }
+        }
         System.out.println("Added: " + t);
     }
 
-    private void fuList() {
-        // Use ADT methods to display the follow-up list
+    private void fuView() {
+        System.out.println("View filter: 1)All");
+        System.out.println("             2)Pending");
+        System.out.println("             3)Completed");
+        System.out.print("Select(1-3): ");
+        int opt = readInt();
+        LinkedList<FollowUpTask> tasks;
+        switch (opt) {
+            case 2:
+                tasks = follow.listByStatus("Pending");
+                break;
+            case 3:
+                tasks = follow.listByStatus("Completed");
+                break;
+            case 1:
+            default:
+                tasks = follow.listAll();
+        }
+
         System.out.println("Follow-up tasks:");
-        
-        // Get the list from follow-up controller and display using ADT methods
         try {
-            LinkedList<FollowUpTask> tasks = follow.listAll();
             if (tasks.isEmpty()) {
                 System.out.println("(No follow-up tasks found)");
                 return;
             }
-            
             System.out.println("Total tasks: " + tasks.size());
             for (int i = 0; i < tasks.size(); i++) {
                 FollowUpTask task = tasks.get(i);
@@ -230,6 +272,22 @@ public class UIDoctorManagement {
         } catch (Exception e) {
             System.out.println("Error displaying follow-up tasks: " + e.getMessage());
         }
+    }
+
+    private void fuUpdate() {
+        String id = ask("Task ID: ");
+        String newDesc = ask("New description (leave blank to keep): ");
+        String dueStr = ask("New Due Date (yyyy-MM-dd) [leave blank to keep]: ");
+        java.time.LocalDate due = null;
+        if (dueStr != null && !dueStr.trim().isEmpty()) {
+            try {
+                due = java.time.LocalDate.parse(dueStr.trim());
+            } catch (DateTimeParseException ex) {
+                System.out.println("Invalid date. Skipping due date update.");
+            }
+        }
+        boolean ok = follow.update(id, newDesc, due);
+        System.out.println(ok ? "Updated." : "Not found.");
     }
 
     private void fuMarkCompleted() {

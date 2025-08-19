@@ -3,6 +3,7 @@ package Controller;
 import ADT.LinkedList;
 import ADT.AVLTree;
 import Entity.FollowUpTask;
+import java.time.LocalDate;
 
 public class FollowUpController {
     private int counter = 1;
@@ -20,12 +21,33 @@ public class FollowUpController {
         return t;
     }
 
+    public FollowUpTask add(String patientId, String doctorId, String description, LocalDate dueDate) {
+        String id = nextId();
+        FollowUpTask t = new FollowUpTask(id, patientId, doctorId, description, dueDate);
+        index.insert(id, t);
+        pending.add(t);
+        all.add(t);
+        return t;
+    }
+
     public boolean markCompleted(String taskId) {
         FollowUpTask t = index.search(taskId);
         if (t == null) return false;
         t.setCompleted(true);
         // OPTIONAL: if you only want uncompleted items in the pending queue, uncomment:
         // removeFromPendingById(taskId);
+        return true;
+    }
+
+    public boolean update(String taskId, String description, LocalDate dueDate) {
+        FollowUpTask t = index.search(taskId);
+        if (t == null) return false;
+        if (description != null && !description.trim().isEmpty()) {
+            t.setDescription(description.trim());
+        }
+        if (dueDate != null) {
+            t.setDueDate(dueDate);
+        }
         return true;
     }
 
@@ -46,8 +68,34 @@ public class FollowUpController {
         return all; // Return the ADT LinkedList directly
     }
 
+    public LinkedList<FollowUpTask> listByStatus(String status) {
+        LinkedList<FollowUpTask> result = new LinkedList<>();
+        for (int i = 0; i < all.size(); i++) {
+            FollowUpTask t = all.get(i);
+            String s = t.getStatus();
+            if (status == null || status.isEmpty()) {
+                result.add(t);
+            } else if (s != null && s.equalsIgnoreCase(status)) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
+
+    public LinkedList<FollowUpTask> listOverdue(LocalDate today) {
+        LinkedList<FollowUpTask> result = new LinkedList<>();
+        for (int i = 0; i < all.size(); i++) {
+            FollowUpTask t = all.get(i);
+            LocalDate due = t.getDueDate();
+            if (due != null && due.isBefore(today) && !t.isCompleted()) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
+
     private String nextId() {
-        return "F" + String.format("%04d", counter++);
+        return "T" + String.format("%03d", counter++);
     }
 
     // --- helper: remove by id using index + remove(int)
