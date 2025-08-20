@@ -219,89 +219,6 @@ public class UIDoctorManagement {
         }
     }
 
-    private void fuAdd() {
-        String pid = ask("Patient ID: ");
-        String did = ask("Doctor ID: ");
-        String desc = ask("Description: ");
-        String dueStr = ask("Due Date (yyyy-MM-dd) [optional]: ");
-        FollowUpTask t;
-        if (dueStr == null || dueStr.trim().isEmpty()) {
-            t = follow.add(pid, did, desc);
-        } else {
-            try {
-                java.time.LocalDate due = java.time.LocalDate.parse(dueStr.trim());
-                t = follow.add(pid, did, desc, due);
-            } catch (DateTimeParseException ex) {
-                System.out.println("Invalid date. Adding without due date.");
-                t = follow.add(pid, did, desc);
-            }
-        }
-        System.out.println("Added: " + t);
-    }
-
-    private void fuView() {
-        System.out.println("View filter: 1)All");
-        System.out.println("             2)Pending");
-        System.out.println("             3)Completed");
-        System.out.print("Select(1-3): ");
-        int opt = readInt();
-        LinkedList<FollowUpTask> tasks;
-        switch (opt) {
-            case 2:
-                tasks = follow.listByStatus("Pending");
-                break;
-            case 3:
-                tasks = follow.listByStatus("Completed");
-                break;
-            case 1:
-            default:
-                tasks = follow.listAll();
-        }
-
-        System.out.println("Follow-up tasks:");
-        try {
-            if (tasks.isEmpty()) {
-                System.out.println("(No follow-up tasks found)");
-                return;
-            }
-            System.out.println("Total tasks: " + tasks.size());
-            for (int i = 0; i < tasks.size(); i++) {
-                FollowUpTask task = tasks.get(i);
-                System.out.println((i+1) + ". " + task);
-            }
-        } catch (Exception e) {
-            System.out.println("Error displaying follow-up tasks: " + e.getMessage());
-        }
-    }
-
-    private void fuUpdate() {
-        String id = ask("Task ID: ");
-        String newDesc = ask("New description (leave blank to keep): ");
-        String dueStr = ask("New Due Date (yyyy-MM-dd) [leave blank to keep]: ");
-        java.time.LocalDate due = null;
-        if (dueStr != null && !dueStr.trim().isEmpty()) {
-            try {
-                due = java.time.LocalDate.parse(dueStr.trim());
-            } catch (DateTimeParseException ex) {
-                System.out.println("Invalid date. Skipping due date update.");
-            }
-        }
-        boolean ok = follow.update(id, newDesc, due);
-        System.out.println(ok ? "Updated." : "Not found.");
-    }
-
-    private void fuMarkCompleted() {
-        String id = ask("Task ID: ");
-        boolean ok = follow.markCompleted(id);
-        System.out.println(ok ? "Marked." : "Not found.");
-    }
-
-    private void fuDelete() {
-        String id = ask("Task ID: ");
-        boolean ok = follow.delete(id);
-        System.out.println(ok ? "Deleted." : "Not found.");
-    }
-
     private void createProfile() {
         System.out.print("Name: ");
         String name = scanner.nextLine();
@@ -346,6 +263,42 @@ public class UIDoctorManagement {
         System.out.println(ok ? "Deleted" : "Not found");
     }
 
+    private void listAllDoctors() {
+        System.out.println("\n==============================================================================================");
+        System.out.println("|                                  All Registered Doctors                                    |");
+        System.out.println("==============================================================================================");
+        try {
+            // Get all doctors from the controller to show current state
+            LinkedList<Doctor> allDoctors = controller.getAllDoctors();
+            
+            if (allDoctors.isEmpty()) {
+                System.out.println("No doctors found in the system.");
+                System.out.println("==============================================================================================\n");
+                return;
+            }
+            
+            System.out.println("Doctor ID |   Name   | Specialization | Experience | Gender |    Phone    |       Email");
+            
+            // Display all doctors from the controller
+            for (int i = 0; i < allDoctors.size(); i++) {
+                Doctor doctor = allDoctors.get(i);
+                System.out.printf("%-9s | %-8s | %-14s | %-10d | %-6c | %-11s | %-25s%n",
+                    doctor.getDoctorId(),
+                    doctor.getName(),
+                    doctor.getSpecialization(),
+                    doctor.getYearsOfExperience(),
+                    doctor.getGender(),
+                    doctor.getPhoneNumber(),
+                    doctor.getEmail());
+            }
+            
+            System.out.println("==============================================================================================\n");
+            
+        } catch (Exception e) {
+            System.out.println("Error displaying doctors: " + e.getMessage());
+        }
+    }
+
     private void defineSlots() {
         String id = ask("Doctor ID: ");
         
@@ -356,7 +309,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("Name: " + doctor.getName());
+        System.out.println("\nName: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current time slots for the doctor
@@ -389,49 +342,6 @@ public class UIDoctorManagement {
         System.out.println("\n----------------------------------------------------\n");
     }
 
-    private void viewSchedule() {
-        String id = ask("Doctor ID: ");
-        
-        // First, check if doctor exists
-        Doctor doctor = controller.getDoctorById(id);
-        if (doctor == null) {
-            System.out.println("Doctor with ID " + id + " not found!");
-            return;
-        }
-        
-        System.out.println("Name: " + doctor.getName());
-        System.out.println("Specialization: " + doctor.getSpecialization());
-        
-        System.out.println("\n----------------- Time Slots -----------------\n");
-        
-        try {
-            // Get schedule from controller and display using ADT HashMap methods
-            HashMap<LocalDate, LinkedList<LocalTime>> schedule = controller.getSchedule(id);
-            if (schedule.size() == 0) {
-                System.out.println("No schedule found for doctor " + id);
-                System.out.println("Please use 'Define Available Slots' to create a schedule.");
-            } else {
-                System.out.println("Total dates with scheduled slots: " + schedule.size());
-                System.out.println();
-                
-                schedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
-                    @Override
-                    public void accept(LocalDate date, LinkedList<LocalTime> times) {
-                        System.out.println("Date: " + date + " (" + date.getDayOfWeek() + ")");
-                        if (times.size() > 0) {
-                            LocalTime firstSlot = times.get(0);
-                            LocalTime lastSlot = times.get(times.size() - 1);
-                            System.out.println("Time slot: " + firstSlot + " to " + lastSlot + "\n");
-                        }
-                    }
-                });
-            }
-        } catch (Exception e) {
-            System.out.println("Error displaying schedule: " + e.getMessage());
-        }
-        System.out.println("----------------------------------------------");
-    }
-
     private void addSlot() {
         String id = ask("Doctor ID: ");
         
@@ -442,7 +352,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("Name: " + doctor.getName());
+        System.out.println("\nName: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current time slots for the doctor
@@ -496,7 +406,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("Name: " + doctor.getName());
+        System.out.println("\nName: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current time slots for the doctor
@@ -564,6 +474,49 @@ public class UIDoctorManagement {
         System.out.println("Removed: " + removed + " time slots from " + date);
     }
 
+    private void viewSchedule() {
+        String id = ask("Doctor ID: ");
+        
+        // First, check if doctor exists
+        Doctor doctor = controller.getDoctorById(id);
+        if (doctor == null) {
+            System.out.println("Doctor with ID " + id + " not found!");
+            return;
+        }
+        
+        System.out.println("\nName: " + doctor.getName());
+        System.out.println("Specialization: " + doctor.getSpecialization());
+        
+        System.out.println("\n----------------- Time Slots -----------------\n");
+        
+        try {
+            // Get schedule from controller and display using ADT HashMap methods
+            HashMap<LocalDate, LinkedList<LocalTime>> schedule = controller.getSchedule(id);
+            if (schedule.size() == 0) {
+                System.out.println("No schedule found for doctor " + id);
+                System.out.println("Please use 'Define Available Slots' to create a schedule.");
+            } else {
+                System.out.println("Total dates with scheduled slots: " + schedule.size());
+                System.out.println();
+                
+                schedule.forEach(new KVConsumer<LocalDate, LinkedList<LocalTime>>() {
+                    @Override
+                    public void accept(LocalDate date, LinkedList<LocalTime> times) {
+                        System.out.println("Date: " + date + " (" + date.getDayOfWeek() + ")");
+                        if (times.size() > 0) {
+                            LocalTime firstSlot = times.get(0);
+                            LocalTime lastSlot = times.get(times.size() - 1);
+                            System.out.println("Time slot: " + firstSlot + " to " + lastSlot + "\n");
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            System.out.println("Error displaying schedule: " + e.getMessage());
+        }
+        System.out.println("----------------------------------------------");
+    }
+
     private void updateWorkingHours() {
         String id = ask("Doctor ID: ");
         
@@ -574,7 +527,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("Name: " + doctor.getName());
+        System.out.println("\nName: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current working hours for the doctor
@@ -616,42 +569,88 @@ public class UIDoctorManagement {
         System.out.println("Working hours updated.");
     }
 
+    private void fuAdd() {
+        String pid = ask("Patient ID: ");
+        String did = ask("Doctor ID: ");
+        String desc = ask("Description: ");
+        String dueStr = ask("Due Date (yyyy-MM-dd) [optional]: ");
+        FollowUpTask t;
+        if (dueStr == null || dueStr.trim().isEmpty()) {
+            t = follow.add(pid, did, desc);
+        } else {
+            try {
+                java.time.LocalDate due = java.time.LocalDate.parse(dueStr.trim());
+                t = follow.add(pid, did, desc, due);
+            } catch (DateTimeParseException ex) {
+                System.out.println("Invalid date. Adding without due date.");
+                t = follow.add(pid, did, desc);
+            }
+        }
+        System.out.println("Added: " + t);
+    }
 
+    private void fuView() {
+        System.out.println("View filter: 1)All");
+        System.out.println("             2)Pending");
+        System.out.println("             3)Completed");
+        System.out.print("Select(1-3): ");
+        int opt = readInt();
+        LinkedList<FollowUpTask> tasks;
+        switch (opt) {
+            case 2:
+                tasks = follow.listByStatus("Pending");
+                break;
+            case 3:
+                tasks = follow.listByStatus("Completed");
+                break;
+            case 1:
+            default:
+                tasks = follow.listAll();
+        }
 
-    private void listAllDoctors() {
-        System.out.println("\n==============================================================================================");
-        System.out.println("|                                  All Registered Doctors                                    |");
-        System.out.println("==============================================================================================");
+        System.out.println("\nFollow-up tasks:");
         try {
-            // Get all doctors from the controller to show current state
-            LinkedList<Doctor> allDoctors = controller.getAllDoctors();
-            
-            if (allDoctors.isEmpty()) {
-                System.out.println("No doctors found in the system.");
-                System.out.println("==============================================================================================\n");
+            if (tasks.isEmpty()) {
+                System.out.println("(No follow-up tasks found)");
                 return;
             }
-            
-            System.out.println("Doctor ID |   Name   | Specialization | Experience | Gender |    Phone    |       Email");
-            
-            // Display all doctors from the controller
-            for (int i = 0; i < allDoctors.size(); i++) {
-                Doctor doctor = allDoctors.get(i);
-                System.out.printf("%-9s | %-8s | %-14s | %-10d | %-6c | %-11s | %-25s%n",
-                    doctor.getDoctorId(),
-                    doctor.getName(),
-                    doctor.getSpecialization(),
-                    doctor.getYearsOfExperience(),
-                    doctor.getGender(),
-                    doctor.getPhoneNumber(),
-                    doctor.getEmail());
+            System.out.println("Total tasks: " + tasks.size());
+            System.out.println("");
+            for (int i = 0; i < tasks.size(); i++) {
+                FollowUpTask task = tasks.get(i);
+                System.out.println((i+1) + ". " + task);
             }
-            
-            System.out.println("==============================================================================================\n");
-            
         } catch (Exception e) {
-            System.out.println("Error displaying doctors: " + e.getMessage());
+            System.out.println("Error displaying follow-up tasks: " + e.getMessage());
         }
+    }
+
+    private void fuUpdate() {
+        String id = ask("Task ID: ");
+        String newDesc = ask("New description (leave blank to keep): ");
+        String dueStr = ask("New Due Date (yyyy-MM-dd) [leave blank to keep]: ");
+        java.time.LocalDate due = null;
+        if (dueStr != null && !dueStr.trim().isEmpty()) {
+            try {
+                due = java.time.LocalDate.parse(dueStr.trim());
+            } catch (DateTimeParseException ex) {
+                System.out.println("Invalid date. Skipping due date update.");
+            }
+        }
+        boolean ok = follow.update(id, newDesc, due);
+        System.out.println(ok ? "Updated." : "Not found.");
+    }
+
+    private void fuMarkCompleted() {
+        String id = ask("Task ID: ");
+        boolean ok = follow.markCompleted(id);
+        System.out.println(ok ? "Marked." : "Not found.");
+    }
+
+    private void fuDelete() {
+        String id = ask("Task ID: ");
+        boolean ok = follow.delete(id);
+        System.out.println(ok ? "Deleted." : "Not found.");
     }
 
     private int readInt() {

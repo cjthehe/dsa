@@ -9,6 +9,7 @@ import Boundaries.UIPatientManagement;
 import Boundaries.UIConsultation;
 import Boundaries.UIDoctorManagement;
 import Boundaries.UIPharmacy;
+import Boundaries.UIMedicalTreatment;
 
 /**
  *
@@ -51,7 +52,8 @@ public class Asgm {
                 uiConsultation.showMenu();
                 break;
             case 4:
-                //medical treatment
+                UIMedicalTreatment uiTreatment = new UIMedicalTreatment();
+                uiTreatment.showMenu();
                 break;
             case 5:
                 UIPharmacy uiPharmacy = new UIPharmacy();
