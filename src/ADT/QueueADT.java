@@ -42,22 +42,26 @@ public class QueueADT<T> implements QueueInterface<T>, Iterable<T> {
     }
 
     @Override
-    public boolean RemoveSpecificElement(T itemToRemove){
-        int originalSize = size;
+    public boolean RemoveSpecificElement(T itemToRemove) {
+        if (isEmpty()) {
+            return false;
+        }
+
         boolean found = false;
-        
-        if(!isEmpty()){
-            for(int i = 0;i < size;i++){
-                T item = dequeue();
-                if (!found && item.equals(itemToRemove)) {
-                    found = true;  // skip enqueueing this one — effectively removing it
-                    continue;
-                }
-                enqueue(item);
+        int originalSize = size;
+
+        Iterator<T> iter = iterator();
+        while (iter.hasNext()) {
+            T item = iter.next();
+            if (!found && item.equals(itemToRemove)) {
+                found = true;
+                iter.remove(); 
+                break;
             }
         }
         return found;
     }
+
     
     @Override
     public boolean isFull(){
@@ -87,15 +91,17 @@ public class QueueADT<T> implements QueueInterface<T>, Iterable<T> {
         return new Iterator<T>() {
             private int currentIndex = frontIndex;
             private int elementsSeen = 0;
-
+            private int lastReturnedIndex = -1;
+                
         @Override
         public boolean hasNext() {
         return elementsSeen < size;
-            }
+        }
 
         @Override
         public T next() {
             if (hasNext()) {
+                lastReturnedIndex = currentIndex;
                 T item = arrayQueue[currentIndex];
                 currentIndex = (currentIndex + 1) % capacity;
                 elementsSeen++;
@@ -103,7 +109,23 @@ public class QueueADT<T> implements QueueInterface<T>, Iterable<T> {
             }
                 throw new NoSuchElementException();
             }
-        };
+        
+        public void remove(){
+            if (lastReturnedIndex < 0) {
+                throw new IllegalStateException("next() not called before remove()");
+            }
+
+            for (int i = lastReturnedIndex; i < size - 1; i++) {
+                arrayQueue[i] = arrayQueue[(i + 1) % capacity];
+            }
+            arrayQueue[size - 1] = null; // clear last slot
+            size--;
+
+            currentIndex = lastReturnedIndex;
+            lastReturnedIndex = -1;
+            elementsSeen--;
+        }
+        };      
     }
     
 //    @Override

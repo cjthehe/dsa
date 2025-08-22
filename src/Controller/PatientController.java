@@ -5,16 +5,18 @@ import ADT.AVLTree;
 import Entity.Patient;
 import java.time.LocalDate;
 import java.time.Year;
+import ADT.ArrayList;
 import java.util.Iterator;
 
 public class PatientController {
     private static int patientCounter = 1;
     private final QueueADT<Patient> arrayQueue = new QueueADT<>(50);
+    private final ArrayList<Patient> patientSymptoms = new ArrayList<>();
     private AVLTree<String, Patient> tree = new AVLTree<>();
     private Patient patient;
     
     public Patient patientRegistration(String name, String icNumber, 
-                                   String phoneNumber, String email,LocalDate registrationDate) {
+                                   String phoneNumber, String email,ArrayList<String> patientSymptom, LocalDate registrationDate) {
 
         String patientID = "P" + String.format("%04d", patientCounter++);
         if(registrationDate == null){
@@ -27,8 +29,11 @@ public class PatientController {
 
         String state = calFarState(icNumber);
         
+//        patientSymptom = ;
+        
         patient = new Patient(patientID, name, icNumber, age, gender,
-                              phoneNumber, email,state, null, null, registrationDate);
+                              phoneNumber, email,state, null, null,
+                  patientSymptom, registrationDate);
 
         arrayQueue.enqueue(patient); 
         tree.insert(patientID, patient);

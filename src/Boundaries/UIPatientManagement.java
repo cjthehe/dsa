@@ -1,9 +1,9 @@
 package Boundaries;
 
+import ADT.ArrayList;
 import java.time.LocalDate;
 import Controller.PatientController;
 import Entity.Patient;
-import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -113,9 +113,21 @@ public class UIPatientManagement {
             }
         }while(!controller.EmailValidation(studEmail));
         
+        String symContinue;
+        ADT.ArrayList<String> studSymptoms = new ADT.ArrayList<>();
+        do{
+        System.out.print("Enter your symptoms: ");
+        String symptoms = scanner.nextLine();
+        studSymptoms.add(symptoms);
+        
+        System.out.println("Have other symptoms ?");
+        symContinue = scanner.nextLine();
+        
+        }while(symContinue.length() > 0 && Character.toLowerCase(symContinue.charAt(0)) == 'y');
+        
         System.out.print("\n\n");
         
-        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail,null);
+        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail,studSymptoms, null);
         
         displayPatientDetails(patient);
         BackToMenu();
@@ -131,16 +143,7 @@ public class UIPatientManagement {
         String ic = scanner.nextLine();
 
         if (ic.equals(patient.getIc())) {
-            System.out.println("\n===== Patient Found =====");
-            System.out.println("Patient ID         : " + patient.getID());
-            System.out.println("Name               : " + patient.getName());
-            System.out.println("IC Number          : " + patient.getIc());
-            System.out.println("Age                : " + patient.getAge());
-            System.out.println("Gender             : " + patient.genderToString());
-            System.out.println("Phone              : " + patient.getPhoneNumber());
-            System.out.println("Email              : " + patient.getEmail());
-            System.out.println("Registration Date  : " + patient.getRegistrationDate());
-            System.out.println("==========================\n");
+            displayPatientDetails(patient);
         } else {
             System.out.println("IC number does not match. Access denied.\n");
         }
@@ -165,7 +168,7 @@ public class UIPatientManagement {
             
                 if(icReqDelete.equals(patient.getIc())){
                     controller.deletePatientById(id);
-                    System.out.println("Patient " + id + "has been deleted successfully");
+                    System.out.println("Patient " + id + " has been deleted successfully");
                 }else{
                     System.out.println("IC number does not match. Record delete failed.");
                 }
@@ -272,6 +275,7 @@ private void updateProfile() {
             System.out.println("State              : " + patient.getState());
             System.out.println("Phone              : " + patient.getPhoneNumber());
             System.out.println("Email              : " + patient.getEmail());
+            System.out.println("Symptoms           : " + patient.getPatientSymtomps());
             System.out.println("Registration Date  : " + patient.getRegistrationDate());
         System.out.println("\n=============================================================");
 
@@ -311,7 +315,12 @@ private void updateProfile() {
         int[] ageCount = controller.calAgeGroup();
         String[] labels = {"Infant", "Toddler", "Child", "Teenager", "Young Adult", "Adult", "Senior"};
         
-        int maxCount = Arrays.stream(ageCount).max().orElse(1);
+        int maxCount = 1;
+        for (int i = 0; i < ageCount.length; i++) {
+            if (ageCount[i] > maxCount) {
+                maxCount = ageCount[i];
+            }
+        }
         
         
         
@@ -412,44 +421,112 @@ private void updateProfile() {
     }
     
    public void DummyData() {
-    // ================= January (2) =================
-    controller.patientRegistration("Alice Tan", "250105123456", "012-3456789", "alice.tan@gmail.com", LocalDate.of(2025, 1, 5));   // Infant
-    controller.patientRegistration("Benjamin Lee", "210120567890", "013-5678901", "ben.lee@yahoo.com", LocalDate.of(2025, 1, 20)); // Toddler
+        // ================= January (2) =================
+        ADT.ArrayList<String> symptoms1 = new ADT.ArrayList<>();
+        symptoms1.add("Fever");
+        symptoms1.add("Cough");
+        controller.patientRegistration("Alice Tan", "250105123456", "012-3456789", "alice.tan@gmail.com", symptoms1, LocalDate.of(2025, 1, 5));   // Infant
 
-    // ================= February (3) =================
-    controller.patientRegistration("Carmen Wong", "150202234567", "014-6789012", "carmen.wong@hotmail.com", LocalDate.of(2025, 2, 2)); // Child
-    controller.patientRegistration("Daniel Lim", "080214876543", "016-7890123", "daniel.lim@gmail.com", LocalDate.of(2025, 2, 14));   // Teenager
-    controller.patientRegistration("Elaine Ng", "000223112233", "017-8901234", "elaine.ng@yahoo.com", LocalDate.of(2025, 2, 23));    // Young Adult
+        ADT.ArrayList<String> symptoms2 = new ADT.ArrayList<>();
+        symptoms2.add("Runny Nose");
+        controller.patientRegistration("Benjamin Lee", "210120567890", "013-5678901", "ben.lee@yahoo.com", symptoms2, LocalDate.of(2025, 1, 20)); // Toddler
 
-    // ================= March (4) =================
-    controller.patientRegistration("Felix Tan", "850305998877", "018-9012345", "felix.tan@gmail.com", LocalDate.of(2025, 3, 5));     // Adult
-    controller.patientRegistration("Grace Ho", "550312445566", "019-1234567", "grace.ho@hotmail.com", LocalDate.of(2025, 3, 12));    // Senior
-    controller.patientRegistration("Henry Ong", "230320556677", "011-2345678", "henry.ong@yahoo.com", LocalDate.of(2025, 3, 20));    // Toddler
-    controller.patientRegistration("Ivy Goh", "120328223344", "012-4567890", "ivy.goh@gmail.com", LocalDate.of(2025, 3, 28));        // Child
+        // ================= February (3) =================
+        ADT.ArrayList<String> symptoms3 = new ADT.ArrayList<>();
+        symptoms3.add("Headache");
+        controller.patientRegistration("Carmen Wong", "150202234567", "014-6789012", "carmen.wong@hotmail.com", symptoms3, LocalDate.of(2025, 2, 2)); // Child
 
-    // ================= April (1) =================
-    controller.patientRegistration("Jason Lim", "070404667788", "013-5671234", "jason.lim@hotmail.com", LocalDate.of(2025, 4, 4));   // Teenager
+        ADT.ArrayList<String> symptoms4 = new ADT.ArrayList<>();
+        symptoms4.add("Stomach Pain");
+        controller.patientRegistration("Daniel Lim", "080214876543", "016-7890123", "daniel.lim@gmail.com", symptoms4, LocalDate.of(2025, 2, 14));   // Teenager
 
-    // ================= May (5) =================
-    controller.patientRegistration("Kelly Tan", "950506334455", "014-6782345", "kelly.tan@gmail.com", LocalDate.of(2025, 5, 6));     // Young Adult
-    controller.patientRegistration("Leonard Chua", "740514778899", "016-7893456", "leonard.chua@yahoo.com", LocalDate.of(2025, 5, 14)); // Adult
-    controller.patientRegistration("Michelle Lee", "620521112244", "017-8904567", "michelle.lee@hotmail.com", LocalDate.of(2025, 5, 21)); // Senior
-    controller.patientRegistration("Nicholas Yap", "250528889900", "018-9015678", "nicholas.yap@gmail.com", LocalDate.of(2025, 5, 28)); // Infant
-    controller.patientRegistration("Olivia Chan", "210530667799", "019-1236789", "olivia.chan@yahoo.com", LocalDate.of(2025, 5, 30)); // Toddler
+        ADT.ArrayList<String> symptoms5 = new ADT.ArrayList<>();
+        symptoms5.add("Fatigue");
+        controller.patientRegistration("Elaine Ng", "000223112233", "017-8901234", "elaine.ng@yahoo.com", symptoms5, LocalDate.of(2025, 2, 23));    // Young Adult
 
-    // ================= June (3) =================
-    controller.patientRegistration("Patrick Wong", "140608223355", "011-2347890", "patrick.wong@gmail.com", LocalDate.of(2025, 6, 8)); // Child
-    controller.patientRegistration("Queenie Lau", "060616445577", "012-3458901", "queenie.lau@hotmail.com", LocalDate.of(2025, 6, 16)); // Teenager
-    controller.patientRegistration("Ryan Tan", "990624998800", "013-5679012", "ryan.tan@yahoo.com", LocalDate.of(2025, 6, 24));      // Young Adult
+        // ================= March (4) =================
+        ADT.ArrayList<String> symptoms6 = new ADT.ArrayList<>();
+        symptoms6.add("Back Pain");
+        controller.patientRegistration("Felix Tan", "850305998877", "018-9012345", "felix.tan@gmail.com", symptoms6, LocalDate.of(2025, 3, 5));     // Adult
 
-    // ================= July (6) =================
-    controller.patientRegistration("Samantha Ng", "840703556677", "014-6780123", "samantha.ng@gmail.com", LocalDate.of(2025, 7, 3)); // Adult
-    controller.patientRegistration("Thomas Lee", "540710889922", "016-7891234", "thomas.lee@hotmail.com", LocalDate.of(2025, 7, 10)); // Senior
-    controller.patientRegistration("Uma Devi", "220717334466", "017-8902345", "uma.devi@yahoo.com", LocalDate.of(2025, 7, 17));      // Toddler
-    controller.patientRegistration("Victor Tan", "120724667788", "018-9013456", "victor.tan@gmail.com", LocalDate.of(2025, 7, 24));  // Child
-    controller.patientRegistration("Wendy Ho", "090728223344", "019-1234568", "wendy.ho@hotmail.com", LocalDate.of(2025, 7, 28));    // Teenager
-    controller.patientRegistration("Xavier Lim", "970731445599", "011-2345679", "xavier.lim@yahoo.com", LocalDate.of(2025, 7, 31));  // Young Adult
-}
+        ADT.ArrayList<String> symptoms7 = new ADT.ArrayList<>();
+        symptoms7.add("Joint Pain");
+        controller.patientRegistration("Grace Ho", "550312445566", "019-1234567", "grace.ho@hotmail.com", symptoms7, LocalDate.of(2025, 3, 12));    // Senior
+
+        ADT.ArrayList<String> symptoms8 = new ADT.ArrayList<>();
+        symptoms8.add("Cough");
+        controller.patientRegistration("Henry Ong", "230320556677", "011-2345678", "henry.ong@yahoo.com", symptoms8, LocalDate.of(2025, 3, 20));    // Toddler
+
+        ADT.ArrayList<String> symptoms9 = new ADT.ArrayList<>();
+        symptoms9.add("Flu");
+        controller.patientRegistration("Ivy Goh", "120328223344", "012-4567890", "ivy.goh@gmail.com", symptoms9, LocalDate.of(2025, 3, 28));        // Child
+
+        // ================= April (1) =================
+        ADT.ArrayList<String> symptoms10 = new ADT.ArrayList<>();
+        symptoms10.add("Sore Throat");
+        controller.patientRegistration("Jason Lim", "070404667788", "013-5671234", "jason.lim@hotmail.com", symptoms10, LocalDate.of(2025, 4, 4));   // Teenager
+
+        // ================= May (5) =================
+        ADT.ArrayList<String> symptoms11 = new ADT.ArrayList<>();
+        symptoms11.add("Headache");
+        controller.patientRegistration("Kelly Tan", "950506334455", "014-6782345", "kelly.tan@gmail.com", symptoms11, LocalDate.of(2025, 5, 6));     // Young Adult
+
+        ADT.ArrayList<String> symptoms12 = new ADT.ArrayList<>();
+        symptoms12.add("Back Pain");
+        controller.patientRegistration("Leonard Chua", "740514778899", "016-7893456", "leonard.chua@yahoo.com", symptoms12, LocalDate.of(2025, 5, 14)); // Adult
+
+        ADT.ArrayList<String> symptoms13 = new ADT.ArrayList<>();
+        symptoms13.add("Chest Pain");
+        controller.patientRegistration("Michelle Lee", "620521112244", "017-8904567", "michelle.lee@hotmail.com", symptoms13, LocalDate.of(2025, 5, 21)); // Senior
+
+        ADT.ArrayList<String> symptoms14 = new ADT.ArrayList<>();
+        symptoms14.add("Fever");
+        controller.patientRegistration("Nicholas Yap", "250528889900", "018-9015678", "nicholas.yap@gmail.com", symptoms14, LocalDate.of(2025, 5, 28)); // Infant
+
+        ADT.ArrayList<String> symptoms15 = new ADT.ArrayList<>();
+        symptoms15.add("Cough");
+        controller.patientRegistration("Olivia Chan", "210530667799", "019-1236789", "olivia.chan@yahoo.com", symptoms15, LocalDate.of(2025, 5, 30)); // Toddler
+
+        // ================= June (3) =================
+        ADT.ArrayList<String> symptoms16 = new ADT.ArrayList<>();
+        symptoms16.add("Allergy");
+        controller.patientRegistration("Patrick Wong", "140608223355", "011-2347890", "patrick.wong@gmail.com", symptoms16, LocalDate.of(2025, 6, 8)); // Child
+
+        ADT.ArrayList<String> symptoms17 = new ADT.ArrayList<>();
+        symptoms17.add("Flu");
+        controller.patientRegistration("Queenie Lau", "060616445577", "012-3458901", "queenie.lau@hotmail.com", symptoms17, LocalDate.of(2025, 6, 16)); // Teenager
+
+        ADT.ArrayList<String> symptoms18 = new ADT.ArrayList<>();
+        symptoms18.add("Headache");
+        controller.patientRegistration("Ryan Tan", "990624998800", "013-5679012", "ryan.tan@yahoo.com", symptoms18, LocalDate.of(2025, 6, 24));      // Young Adult
+
+        // ================= July (6) =================
+        ADT.ArrayList<String> symptoms19 = new ADT.ArrayList<>();
+        symptoms19.add("Back Pain");
+        controller.patientRegistration("Samantha Ng", "840703556677", "014-6780123", "samantha.ng@gmail.com", symptoms19, LocalDate.of(2025, 7, 3)); // Adult
+
+        ADT.ArrayList<String> symptoms20 = new ADT.ArrayList<>();
+        symptoms20.add("Fatigue");
+        controller.patientRegistration("Thomas Lee", "540710889922", "016-7891234", "thomas.lee@hotmail.com", symptoms20, LocalDate.of(2025, 7, 10)); // Senior
+
+        ADT.ArrayList<String> symptoms21 = new ADT.ArrayList<>();
+        symptoms21.add("Cough");
+        controller.patientRegistration("Uma Devi", "220717334466", "017-8902345", "uma.devi@yahoo.com", symptoms21, LocalDate.of(2025, 7, 17));      // Toddler
+
+        ADT.ArrayList<String> symptoms22 = new ADT.ArrayList<>();
+        symptoms22.add("Flu");
+        controller.patientRegistration("Victor Tan", "120724667788", "018-9013456", "victor.tan@gmail.com", symptoms22, LocalDate.of(2025, 7, 24));  // Child
+
+        ADT.ArrayList<String> symptoms23 = new ADT.ArrayList<>();
+        symptoms23.add("Stomach Pain");
+        controller.patientRegistration("Wendy Ho", "090728223344", "019-1234568", "wendy.ho@hotmail.com", symptoms23, LocalDate.of(2025, 7, 28));    // Teenager
+
+        ADT.ArrayList<String> symptoms24 = new ADT.ArrayList<>();
+        symptoms24.add("Headache");
+        controller.patientRegistration("Xavier Lim", "970731445599", "011-2345679", "xavier.lim@yahoo.com", symptoms24, LocalDate.of(2025, 7, 31));  // Young Adult
+    }
+
+
 
     
     public static void clearScreen() {

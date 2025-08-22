@@ -5,11 +5,13 @@
 package Entity;
 
 import java.time.LocalDate;
+import ADT.ArrayList;
 /**
  *
  * @author user
  */
 public class Patient {
+    private ArrayList<String> patientSymptoms;
     //attribute
     private String PID;
     private String Pname;
@@ -23,11 +25,10 @@ public class Patient {
     private String patientDisease;
     //private String medicalTaken;
     private LocalDate registrationDate;
-    private String[] disease;
     // private Time consultationHours;
     
     //Constructor
-    public Patient(String PID,String Pname,String ic, int age, char gender, String phoneNumber, String email, String state, String DoctorAssigned,String patientDisease, LocalDate registrationDate){
+    public Patient(String PID,String Pname, String ic, int age, char gender, String phoneNumber, String email, String state, String DoctorAssigned,String patientDisease, ArrayList<String> patientSymptoms, LocalDate registrationDate){
         this.PID = PID;
         this.Pname = Pname;
         this.ic= ic;
@@ -38,6 +39,7 @@ public class Patient {
         this.state = state;
         this.DoctorAssigned = DoctorAssigned;
         this.patientDisease = patientDisease;
+        this.patientSymptoms = patientSymptoms;
         this.registrationDate = registrationDate;
     }
     
@@ -80,6 +82,10 @@ public class Patient {
     
     public String getPatientDisease(){
         return patientDisease;
+    }
+    
+    public ArrayList<String> getPatientSymtomps(){
+        return patientSymptoms;
     }
     
     public LocalDate getRegistrationDate(){
@@ -127,6 +133,9 @@ public class Patient {
         this.patientDisease = patientDisease;
     }
     
+    public void addSymptoms(String patientSymptoms){
+        this.patientSymptoms.add(patientSymptoms);
+    }
     
     public void setRegistrationDate(LocalDate registrationDate){
         this.registrationDate = registrationDate;
