@@ -5,42 +5,45 @@ import java.time.LocalDate;
 import Controller.PatientController;
 import Entity.Patient;
 import java.util.Scanner;
-
+import Main.Asgm;
 /**
  *
  * @author user
  */
 public class UIPatientManagement {
+    private Asgm asgm = new Asgm();
     Scanner scanner = new Scanner(System.in);
     public PatientController controller = new PatientController();
     
     public void showOption(){
 
         int choice;
+    
+        asgm.clearScreen();
+        
+        System.out.println(" +-------------------------------- Clinic name --------------------------------+ ");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "1. Make a registration", "");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "2. View Patient Profile", "");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "3. Update Profile", "");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "4. View Queue Status", "");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "5. Delete Patient Record", "");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "6. View Report", "");
+        System.out.printf(" |%23s%-30s%23s |\n", "", "7. Back to menu", "");
+        System.out.println(" +-----------------------------------------------------------------------------+ ");
+
+        System.out.printf("%24s Select your option: ", "");
+
     do{
-        System.out.println(" ===== Clinic name =====");
-        //patient appointment management CRUD
-        System.out.println("1. Make an registration ");
-        System.out.println("2. View Patient Profile ");
-        System.out.println("3. Update Profile");
-        System.out.println("4. View Queue Status"); 
-        System.out.println("5. Delete Patient Record");
-        System.out.println("6. View report");
-        System.out.println("7. Exit ");
-        System.out.println("========================\n");
-        
-        System.out.print("Select your option: ");
-        
         while (!scanner.hasNextInt()) {
-            System.out.println("Invalid input! Please enter a number between 1 and 7.");
+            System.out.printf("%8s Invalid input! Please enter a number between 1 and 7.\n", "");
+            System.out.printf("%24s Select your option: ", "");
+
             scanner.next();
         }
         
         choice = scanner.nextInt();
         scanner.nextLine();
-        
-        System.out.println("\n");
-        
+                
         switch(choice){
             case 1:
                 makeRegistration();
@@ -61,35 +64,36 @@ public class UIPatientManagement {
                 viewReport();
                 break;
             case 7:
-                System.exit(0);
+                asgm.startMenu();
                 break;
             default:
-                System.out.println("Invalid option. Pls try again.");
+                System.out.printf("%21s Invalid option. Pls try again.\n\n","");
+                System.out.printf("%24s Select your option: ", "");
                 break;
             }
         }while(true);
     }
     
     private void makeRegistration(){
-        System.out.println(" ================ new appointment ================");
+        System.out.printf("\n\n%15s ---------------- new appointment ---------------- \n\n","");
         
         String studName;
         do{
-        System.out.print("Enter your name: ");
+        System.out.printf("%20s Enter name: ","");
         studName = scanner.nextLine();
             if(!controller.NameValidation(studName)){
-                System.out.println("Invalid name. Please try again.");
+                System.out.printf("%20s Invalid name. Please try again.","");
             }
         }while(!controller.NameValidation(studName));
         
         // int ic 
         String studIC;
         do{
-        System.out.print("Enter your IC number ( without(-) ):");
+        System.out.printf("\n%20s Enter IC number ( without(-) ):","");
         studIC = scanner.nextLine();
         
         if(!controller.ICvalidation(studIC)){
-            System.out.println("Invalid IC. Please try again.");
+            System.out.printf("\n%20sInvalid IC. Please try again.","");
         }
         
         }while(!controller.ICvalidation(studIC));
@@ -97,30 +101,30 @@ public class UIPatientManagement {
         //String PN
         String studPhoneNo;
         do{
-        System.out.print("Enter your phone number (with (-)):");
+        System.out.printf("\n%20s Enter phone number (with (-)):","");
         studPhoneNo = scanner.nextLine();
         if(!controller.PhoneValidation(studPhoneNo)){
-            System.out.println("Invalid phone number. Please enter again.");
+            System.out.printf("\n%20s Invalid phone number. Please enter again.","");
         }
         }while(!controller.PhoneValidation(studPhoneNo));
         
         String studEmail;
         do{
-        System.out.print("Enter your email:");
+        System.out.printf("\n%20s Enter email:","");
         studEmail = scanner.nextLine();
             if(!controller.EmailValidation(studEmail)){
-                System.out.println("Invalid Email. Please enter again.");
+                System.out.printf("\n%20s Invalid Email. Please enter again.","");
             }
         }while(!controller.EmailValidation(studEmail));
         
         String symContinue;
         ADT.ArrayList<String> studSymptoms = new ADT.ArrayList<>();
         do{
-        System.out.print("Enter your symptoms: ");
+        System.out.printf("\n%20s Enter patient symptoms: ","");
         String symptoms = scanner.nextLine();
         studSymptoms.add(symptoms);
         
-        System.out.println("Have other symptoms ?");
+        System.out.printf("\n%20s Have other symptoms ? (y/n): ","");
         symContinue = scanner.nextLine();
         
         }while(symContinue.length() > 0 && Character.toLowerCase(symContinue.charAt(0)) == 'y');
@@ -134,43 +138,59 @@ public class UIPatientManagement {
     }
     
     private void viewRecord(){
-        System.out.print("Enter Patient ID to search: ");
-        String id = scanner.nextLine();
+        boolean repeat;
+        do{
+            repeat = false;
+            
+            System.out.printf("%20s Enter Patient ID to search: ","");
+            String id = scanner.nextLine();
 
-        Patient patient = controller.findPatientByID(id);
-        if (patient != null) {
-        System.out.print("Enter IC number for verification: ");
-        String ic = scanner.nextLine();
+            Patient patient = controller.findPatientByID(id);
+            if (patient != null){
+                System.out.printf("%20s Enter IC number for verification: ","");
+                String ic = scanner.nextLine();
 
-        if (ic.equals(patient.getIc())) {
-            displayPatientDetails(patient);
-        } else {
-            System.out.println("IC number does not match. Access denied.\n");
-        }
-    } else {
-        System.out.println("Patient not found.\n");
+                if (ic.equals(patient.getIc())){
+                    displayPatientDetails(patient); 
+                }else{
+                    System.out.printf("\n%16s IC number does not match. Access denied.\n","");   
+                    System.out.printf("%24s Try again? (Y/N): ","");
+                    String choice = scanner.nextLine();
+                        if (!choice.isEmpty() && Character.toUpperCase(choice.charAt(0)) == 'Y') {                            
+                            repeat = true;
+                        }
+                }
+            }else{
+                System.out.printf("\n%25s Patient not found.\n","");   
+                System.out.printf("%25s Try again? (Y/N): ","");
+                String choice = scanner.nextLine();
+                if(choice.equalsIgnoreCase("Y")){
+                    repeat = true;
+                }
+            }
+        } while (repeat);
+
+        BackToMenu();
     }
 
-    BackToMenu();
-    }
     
     private void deleteProfile(){        
-        System.out.println("Enter Patient ID to delete: ");
+        System.out.printf("%24s Enter Patient ID to delete: ","");
         String id = scanner.nextLine();
         
         Patient patient = controller.findPatientByID(id);
         
         if(patient == null){
-            System.out.println("Patient not found.");
+            System.out.printf("%24s Patient not found.","");
         }else{
-            System.out.println("Enter your IC number: ");
+            System.out.printf("%24s Enter your IC number: ","");
             String icReqDelete = scanner.nextLine();
             
                 if(icReqDelete.equals(patient.getIc())){
                     controller.deletePatientById(id);
-                    System.out.println("Patient " + id + " has been deleted successfully");
+                    System.out.printf("%20sPatient %s has been deleted successfully\n", "", id);
                 }else{
-                    System.out.println("IC number does not match. Record delete failed.");
+                    System.out.printf("%20s IC number does not match. Record delete failed.\n","");
                 }
             }
         
@@ -181,48 +201,74 @@ public class UIPatientManagement {
         Patient nextPatient = controller.viewPatientQueue();
         
         if(nextPatient != null){
-            System.out.println("\n===== Next Patient in Queue =====");
-            System.out.println("Patient ID         : " + nextPatient.getID());
-            System.out.println("Name               : " + nextPatient.getName());
-            System.out.println("Gender             : " + nextPatient.genderToString());
-            System.out.println("Phone              : " + nextPatient.getPhoneNumber());
-            System.out.println("Email              : " + nextPatient.getEmail());
-            System.out.println("===================================\n");
+            System.out.printf("\n\n%10s---------------- Next Patient in Queue ----------------\n\n", "");
+            System.out.printf("%10sPatient ID   : %s\n", "", nextPatient.getID());
+            System.out.printf("%10sName         : %s\n", "", nextPatient.getName());
+            System.out.printf("%10sGender       : %s\n", "", nextPatient.genderToString());
+            System.out.printf("%10sPhone        : %s\n", "", nextPatient.getPhoneNumber());
+            System.out.printf("%10sEmail        : %s\n", "", nextPatient.getEmail());
+            System.out.printf("\n%10s---------------------------------------------------------\n\n", "");
+
         }else{
-            System.out.println("No patients currently in queue.\n");
+            System.out.printf("%10s No patients currently in queue.\n","");
         }
         BackToMenu();
     }
     
 private void updateProfile() {
-    System.out.print("Enter Patient ID to update: ");
-    String id = scanner.nextLine();
+    System.out.printf("\n\n%10s ---------------- Information Update Center ---------------- \n\n","");
+    Patient patient = null;
+    String id;
+    
+    do{
+    System.out.printf("%10s Enter Patient ID to update: ","");
+    id = scanner.nextLine();
 
-    Patient patient = controller.findPatientByID(id);
+    patient = controller.findPatientByID(id);
     if (patient == null) {
-        System.out.println("Patient not found.");
-        BackToMenu();
-        return;
-    }
+        System.out.printf("\n%25s Patient not found.\n","");
+        System.out.printf("%24s Try again? (Y/N): ","");
+        String retry = scanner.nextLine();
+            if (retry.isEmpty() || Character.toUpperCase(retry.charAt(0)) != 'Y') {
+                BackToMenu();
+                return;
+            }
+        }
+    }while(patient==null);
 
-    System.out.print("Enter IC number for verification: ");
-    String ic = scanner.nextLine();
-    if (!ic.equals(patient.getIc())) {
+    boolean icValidation = false;
+    String ic;
+    do{
+        
+    System.out.printf("\n%10s Enter IC number for verification: ","");
+    ic = scanner.nextLine();
+    if (ic.equals(patient.getIc())) {
+        icValidation = true;
+    }else{
         System.out.println("IC number does not match. Access denied.");
-        BackToMenu();
-        return;
+        System.out.printf("%20s Try again? (Y/N): ","");
+            String retry = scanner.nextLine();
+            if (retry.isEmpty() || Character.toUpperCase(retry.charAt(0)) != 'Y') {
+                BackToMenu();
+                return; 
+            
+            }
     }
+    }while(!icValidation);
 
     boolean updating = true;
+
     while (updating) {
-        System.out.println("\nSelect field to update:");
-        System.out.println("1. Name");
-        System.out.println("2. Age");
-        System.out.println("3. Gender");
-        System.out.println("4. Phone Number");
-        System.out.println("5. Email");
-        System.out.println("6. Exit");
-        System.out.print("Enter choice: ");
+        System.out.printf(" %10s+-----------------------------------------------------------+\n", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "Select field to update:", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "1. Name", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "2. Phone Number", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "3. Email", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "4. Exit", "");  
+        System.out.printf(" %10s+-----------------------------------------------------------+\n", "");  
+        System.out.printf(" %24s  Enter choice: ", "");  
+
+
         int choice = scanner.nextInt();
         scanner.nextLine(); 
 
@@ -232,32 +278,27 @@ private void updateProfile() {
                 field = "name"; 
                 break;
             case 2: 
-                field = "age"; 
-                break;
-            case 3: 
-                field = "gender"; 
-                break;
-            case 4: 
                 field = "phone"; 
                 break;
-            case 5: 
+            case 3: 
                 field = "email"; 
                 break;
-            case 6: 
+            case 4: 
                 updating = false; 
+                displayPatientDetails(patient);
                 continue;
             default:
                 System.out.println("Invalid choice.");
                 continue;
         }
 
-        System.out.print("Enter new value for " + field + ": ");
+        System.out.printf("\n%24s Enter new value for %s: ", "", field);
         String newValue = scanner.nextLine();
         boolean success = controller.updatePatient(id, ic, field, newValue);
         if (success) {
-            System.out.println("Field updated successfully.");
+            System.out.printf("%24s Field updated successfully.\n","");
         } else {
-            System.out.println("Update failed.");
+            System.out.printf("\n%26s Update failed.\n\n","");
         }
     }
 
@@ -266,46 +307,43 @@ private void updateProfile() {
         
 
     private void displayPatientDetails(Patient patient){
-        System.out.println("\n=============================================================");
-            System.out.println("Patient ID         : " + patient.getID());
-            System.out.println("Name               : " + patient.getName());
-            System.out.println("IC Number          : " + patient.getIc());
-            System.out.println("Age                : " + patient.getAge());
-            System.out.println("Gender             : " + patient.genderToString());
-            System.out.println("State              : " + patient.getState());
-            System.out.println("Phone              : " + patient.getPhoneNumber());
-            System.out.println("Email              : " + patient.getEmail());
-            System.out.println("Symptoms           : " + patient.getPatientSymtomps());
-            System.out.println("Registration Date  : " + patient.getRegistrationDate());
-        System.out.println("\n=============================================================");
-
+        System.out.printf("\n %10s+-----------------------------------------------------------+\n", "");
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Patient ID", patient.getID());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Name", patient.getName());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "IC Number", patient.getIc());
+        System.out.printf(" %10s| %-25s : %-29d |\n", "", "Age", patient.getAge());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Gender", patient.genderToString());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "State", patient.getState());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Phone", patient.getPhoneNumber());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Email", patient.getEmail());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Symptoms", patient.getPatientSymtomps());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Registration Date", patient.getRegistrationDate());
+        System.out.printf(" %10s+-----------------------------------------------------------+\n", "");
     }
+
     
     public void viewReport(){
 
-        System.out.println("1. View Medical Report.");
-        System.out.println("2. View Age Report.");
-        System.out.println("3. View Disease Report.");
-        System.out.println("4. View Registration Report.");
+        System.out.printf("\n\n%15s ---------------- Patient Report ---------------- \n\n","");
+        System.out.printf("%20s 1. View Age Report\n", "");
+        System.out.printf("%20s 2. View Registration Report\n", "");
+        System.out.printf("%20s 3. Back to patient menu\n", "");
+        System.out.printf("\n%15s ------------------------------------------------ \n","");
+        System.out.printf("%20s Enter your choice: ","");
         int reportChoice = scanner.nextInt();
         scanner.nextLine();
         switch(reportChoice){
             case 1:
                 viewAgeReport();
                 break;
-            
             case 2:
-                break;
-            
-            case 3:
-                break;
-            
-            case 4:
                 viewRegDateReport();
                 break;
-            
+            case 3:
+                showOption();
+                break;
             default:
-                System.out.println("Invalid choice.");
+                System.out.printf("%20s Invalid choice.","");
         }
         System.out.println("");
         BackToMenu();
@@ -336,37 +374,37 @@ private void updateProfile() {
         
         String RESET = "\u001B[0m";
         
+        System.out.printf("\n\n +----------------------------- Patient Age Group -----------------------------+\n");
+
         for(int i = 0; i < labels.length;i++){
-            System.out.printf(colors[i] + "█" + RESET +  labels[i] + "\n");
+            System.out.printf(" | %s    █%s %-70s|\n", colors[i], RESET, labels[i]);
         }
         
-        System.out.println();
+        System.out.printf(" +------------------------------------------------------------------------------+\n", "");
+
         // Y-axis
         for (int level = maxCount; level >= 1; level--) {
-        System.out.printf("%3d |", level);
+        System.out.printf(" %3d    |", level);
         for (int i = 0; i < ageCount.length; i++) {
             if(ageCount[i] >= level){
                 System.out.print(colors[i] + "  ▍▍  " + RESET);
             }else{
                 System.out.print("     ");
             }
-        }
-        
+        }        
             System.out.println();
         }
 
         // X-axis
-        System.out.print("    |__________________________________________ Age group");
+        System.out.print("        |__________________________________________ Age group");
         System.out.println();
 
-        System.out.print("   ");
+        System.out.print("        ");
         for (String label : labels) {
             System.out.print("    " + label.charAt(0));
         }
         System.out.println();
         BackToMenu();
-        clearScreen();
-
     }
 
     public void viewRegDateReport(){
@@ -378,24 +416,25 @@ private void updateProfile() {
             total += monthCount[i];
         }
         
-        String[] colors = {
-            "\u001B[31m", // Red
-            "\u001B[33m", // Yellow
-            "\u001B[32m", // Green
-            "\u001B[36m", // Cyan
-            "\u001B[34m", // Blue
-            "\u001B[35m", // Magenta
-            "\u001B[91m", // Bright Red
-            "\u001B[92m", // Bright Green
-            "\u001B[93m", // Bright Yellow
-            "\u001B[94m", // Bright Blue
-            "\u001B[95m", // Bright Magenta
-            "\u001B[96m"  // Bright Cyan
-        };
+//        String[] colors = {
+//            "\u001B[31m", // Red
+//            "\u001B[33m", // Yellow
+//            "\u001B[32m", // Green
+//            "\u001B[36m", // Cyan
+//            "\u001B[34m", // Blue
+//            "\u001B[35m", // Magenta
+//            "\u001B[91m", // Bright Red
+//            "\u001B[92m", // Bright Green
+//            "\u001B[93m", // Bright Yellow
+//            "\u001B[94m", // Bright Blue
+//            "\u001B[95m", // Bright Magenta
+//            "\u001B[96m"  // Bright Cyan
+//        };
 
-        String RESET = "\u001B[0m";
+//        String RESET = "\u001B[0m";
 
-        System.out.print("            ____________________________________________ number of patient");
+        System.out.printf("\n\n -------------------- Patient Registration Date Statistic --------------------\n\n");
+        System.out.print("            ____________________________________________> number of patient");
         System.out.println();
         for(int i = 0; i <12;i++ ){
             double percentage = (monthCount[i] * 100.00) / total;
@@ -410,12 +449,14 @@ private void updateProfile() {
             System.out.println("");
         }
         
-        System.out.printf("Total patient: %d", total);
+        System.out.printf("\nTotal patient: %d\n", total);
+        System.out.printf("\n\n -----------------------------------------------------------------------------\n\n");
+
     }
     
     
     private void BackToMenu(){
-        System.out.println("< Press Enter to return to Main Menu >");
+        System.out.printf("%20s < Press Enter to return to Main Menu >","");
         scanner.nextLine();
         showOption();
     }

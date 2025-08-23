@@ -97,7 +97,7 @@ public class PatientController {
     }
     
     public boolean NameValidation(String name){
-        if(name != null && !name.matches("\\d+")){
+        if(name != null && !name.trim().isEmpty() && !name.matches("\\d+")){
             return true;
         }
         return false;
@@ -164,19 +164,25 @@ public class PatientController {
         
         switch (fieldUpdate.toLowerCase()) {
             case "name":
+                if(NameValidation(newValue)){
                 patient.setName(newValue);
-                break;
-            case "age":
-                patient.setAge(Integer.parseInt(newValue));
-                break;
-            case "gender":
-                patient.setGender(newValue.charAt(0));
+                }else{
+                return false;
+                }
                 break;
             case "phone":
+                if (PhoneValidation(newValue)) {
                 patient.setPhoneNumber(newValue);
+                }else{
+                return false; 
+                }
                 break;
             case "email":
-                patient.setEmail(newValue);
+                if (EmailValidation(newValue)) {
+                    patient.setEmail(newValue);
+                }else{
+                    return false;
+                }
                 break;
             default:
                 return false;
