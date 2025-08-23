@@ -1,6 +1,7 @@
 package Controller;
 
 import java.util.Scanner;
+import java.time.LocalDate;
 import ADT.HashMap;
 import ADT.AVLTree;
 import Entity.Patient;
@@ -9,11 +10,57 @@ import Entity.Pharmacy;
 public class PharmacyController {
 	private final HashMap<String, Pharmacy.Medicine> medicines = new HashMap<>(1000);
 	private final HashMap<String, Integer> dispenseCounts = new HashMap<>(256);
+	private final HashMap<String, HashMap<String, Integer>> monthlyDispense = new HashMap<>(64); // yyyy-MM -> (medicineId -> qty)
 	private final HashMap<String, String> reorders = new HashMap<>(256);
 	private final HashMap<String, Pharmacy.Supplier> supplierMap = new HashMap<>(256);
 	private final Scanner scanner = new Scanner(System.in);
 	private int medicineCounter = 1;
 	private int supplierCounter = 1;
+
+	public PharmacyController() {
+		dummyData();
+	}
+
+	public void dummyData() {
+		// Suppliers
+		supplierMap.put("S0001", new Pharmacy.Supplier("S0001", "MediSupply", "012-3456789"));
+		supplierMap.put("S0002", new Pharmacy.Supplier("S0002", "HealthSource", "013-9876543"));
+		supplierMap.put("S0003", new Pharmacy.Supplier("S0003", "PharmaOne", "011-22223333"));
+		supplierCounter = 4;
+
+		// Medicines
+		medicines.put("M0001", new Pharmacy.Medicine("M0001", "Paracetamol", 50, 3.50, "S0001"));
+		medicines.put("M0002", new Pharmacy.Medicine("M0002", "Amoxicillin", 30, 12.90, "S0002"));
+		medicines.put("M0003", new Pharmacy.Medicine("M0003", "Ibuprofen", 8, 5.20, "S0001"));
+		medicines.put("M0004", new Pharmacy.Medicine("M0004", "Vitamin C", 100, 0.80, "S0003"));
+		medicines.put("M0005", new Pharmacy.Medicine("M0005", "Cough Syrup", 15, 9.99, "S0002"));
+		medicineCounter = 6; // next id will be M0006
+
+		// Initial dispensed counts (aggregate)
+		dispenseCounts.put("M0001", 120);
+		dispenseCounts.put("M0002", 90);
+		dispenseCounts.put("M0003", 150);
+		dispenseCounts.put("M0004", 60);
+
+		// Seed monthly breakdown for current month
+		String monthKey = java.time.LocalDate.now().toString().substring(0, 7);
+		HashMap<String, Integer> initMonth = new HashMap<>(32);
+		initMonth.put("M0001", 120);
+		initMonth.put("M0002", 90);
+		initMonth.put("M0003", 150);
+		initMonth.put("M0004", 60);
+		monthlyDispense.put(monthKey, initMonth);
+
+		// Seed previous month breakdown
+		String prevMonthKey = java.time.LocalDate.now().minusMonths(1).toString().substring(0, 7);
+		HashMap<String, Integer> prevMonth = new HashMap<>(32);
+		prevMonth.put("M0001", 80);
+		prevMonth.put("M0002", 110);
+		prevMonth.put("M0003", 40);
+		prevMonth.put("M0004", 75);
+		prevMonth.put("M0005", 20);
+		monthlyDispense.put(prevMonthKey, prevMonth);
+	}
 
 	// ------------------ 1. Medicine Inventory Management ------------------
 	public void addMedicine() {
@@ -23,14 +70,14 @@ public class PharmacyController {
 			System.out.println("================================");
 			System.out.println("           Add Medicine         ");
 			System.out.println("================================");
-			String medicineID = "M" + String.format("%04d", medicineCounter++);
+			String medicineID = "M" + String.format("%04d", medicineCounter);
 			System.out.println("Medicine ID: " + medicineID);
 			System.out.print("Enter Medicine Name: ");
 			String name = scanner.nextLine();
 			System.out.print("Enter Quantity: ");
 			int quantity = Integer.parseInt(scanner.nextLine());
 			System.out.print("Enter Price: ");
-			double price = Double.parseDouble(scanner.nextLine());
+			double price = Double.parseDouble(scanner.nextLine());  
 			System.out.print("Enter Supplier ID: ");
 			String supplierId = scanner.nextLine();
             Pharmacy.Supplier sup = supplierMap.get(supplierId);
@@ -38,6 +85,7 @@ public class PharmacyController {
 				System.out.println("Supplier ID found!");
                 medicines.put(medicineID, new Pharmacy.Medicine(medicineID, name, quantity, price, supplierId));
 			    System.out.println("Medicine added successfully.\n");
+				medicineCounter++; // increment only after successful add
 			}
 			else{
 				System.out.println("Supplier ID not found!");
@@ -130,9 +178,37 @@ public class PharmacyController {
 	}
 
 	public void viewStockReport() {
-		System.out.println("\n--- Stock Level Report ---");
-		System.out.println("Medicine ID | Medicine Name | Quantity In Stock | Price");
-		medicines.forEach((id, med) -> System.out.println(med));
+		final String RESET = "\u001B[0m";
+		final String RED = "\u001B[31m";
+		final int[] totalStock = {0};
+		medicines.forEach((id, med) -> totalStock[0] += med.getQuantityInStock());
+		if (totalStock[0] == 0) {
+			System.out.println("No stock to report.");
+			System.out.println("Press Enter to return to Main Menu");
+			scanner.nextLine();
+			return;
+		}
+		System.out.print("            ______________________________________________________ stock level (quantity)\n");
+		medicines.forEach((id, med) -> {
+			double percentage = (med.getQuantityInStock() * 100.0) / totalStock[0];
+			int barCount = (int) percentage;
+			System.out.printf("%-12s |", med.getMedicineName());
+			for (int j = 0; j < barCount; j++) {
+				if (med.getQuantityInStock() < 10) {
+					System.out.print(RED + "█" + RESET);
+				} else {
+					System.out.print("█");
+				}
+			}
+			System.out.printf(" %d (%.2f%%)\n", med.getQuantityInStock(), percentage);
+		});
+		System.out.printf("\nTotal Stock Across All Medicines: %d\n", totalStock[0]);
+		System.out.println("\nLegend:");
+		System.out.println("█ = Stock Level");
+		System.out.println(RED + "█" + RESET + " = Low Stock (below 10 units)");
+		System.out.println("--------------------------------------------------------------------------------");        
+		System.out.println("Press Enter to return to Main Menu");
+		scanner.nextLine();
 	}
 
 	// ------------------ 2. Medicine Dispensing ------------------
@@ -171,6 +247,16 @@ public class PharmacyController {
 			int newTotal = (current == null ? 0 : current) + qty;
 			dispenseCounts.put(id, newTotal);
 
+			// Track monthly dispense counts
+			String monthKey = LocalDate.now().toString().substring(0, 7); // yyyy-MM
+			HashMap<String, Integer> monthMap = monthlyDispense.get(monthKey);
+			if (monthMap == null) {
+				monthMap = new HashMap<>(32);
+				monthlyDispense.put(monthKey, monthMap);
+			}
+			Integer mcurr = monthMap.get(id);
+			monthMap.put(id, (mcurr == null ? 0 : mcurr) + qty);
+
 			System.out.println("Medicine dispensed to " + patient.getName() + ".\n");
 			System.out.print("Do you want to dispense another medicine? (Y/N): ");
 			choice = scanner.nextLine();
@@ -178,12 +264,43 @@ public class PharmacyController {
 	}
 
 	public void viewDispensedReport() {
-		System.out.println("\n--- Dispensed Medicines Report ---");
-		if (dispenseCounts.isEmpty()) {
-			System.out.println("No medicines dispensed.");
+		System.out.print("Enter month (yyyy-MM): ");
+		String monthKey = scanner.nextLine().trim();
+		HashMap<String, Integer> monthMap = monthlyDispense.get(monthKey);
+		if (monthMap == null || monthMap.isEmpty()) {
+			System.out.println("No dispense data for " + monthKey + ".");
 			return;
 		}
-		dispenseCounts.forEach((id, qty) -> System.out.println(id + " | Qty: " + qty));
+		final int[] totalDispensed = {0};
+		monthMap.forEach((mid, qty) -> totalDispensed[0] += qty);
+		final String[] maxId = {null};
+		final int[] maxQty = {-1};
+		monthMap.forEach((mid, qty) -> {
+			if (qty > maxQty[0]) { maxQty[0] = qty; maxId[0] = mid; }
+		});
+		System.out.println("============= Medical Dispense Report for " + monthKey + " =============");
+		System.out.println("Medicine         | Dispense Count | Percentage | Chart");
+		System.out.println("-----------------------------------------------------------");
+		monthMap.forEach((mid, qty) -> {
+			Pharmacy.Medicine med = medicines.get(mid);
+			String name = med != null ? med.getMedicineName() : mid;
+			double percentage = (qty * 100.0) / totalDispensed[0];
+			System.out.printf("%-15s | %-14d | %8.2f%% | ", name, qty, percentage);
+			int barCount = (int) percentage;
+			for (int j = 0; j < barCount; j++) {
+				System.out.print("█");
+			}
+			System.out.println();
+		});
+		System.out.printf("\nTotal Medicines Dispensed: %d\n", totalDispensed[0]);
+		if (maxId[0] != null) {
+			Pharmacy.Medicine med = medicines.get(maxId[0]);
+			String name = med != null ? med.getMedicineName() : maxId[0];
+			System.out.println("Most Dispensed Medicine: " + name + " (" + maxQty[0] + " units)");
+		}
+        System.out.println("--------------------------------------------------------------------------------");        
+		System.out.println("Press Enter to return to Main Menu");
+		scanner.nextLine();
 	}
 
 	// ------------------ 3. Stock Reordering ------------------
