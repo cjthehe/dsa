@@ -224,25 +224,58 @@ public class UIDoctorManagement {
         String name = scanner.nextLine();
         System.out.print("Specialization: ");
         String spec = scanner.nextLine();
-        System.out.print("Years of Experience: ");
-        int exp = readInt();
-        System.out.print("Gender (M/F): ");
-        String g = scanner.nextLine().trim();
-        char gender = g.isEmpty() ? 'U' : g.charAt(0);
-        System.out.print("Phone: ");
-        String phone = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
+        int exp;
+        while (true) {
+            System.out.print("Years of Experience: ");
+            String expStr = scanner.nextLine().trim();
+            try {
+                exp = Integer.parseInt(expStr);
+                break;
+            } catch (Exception e) {
+                System.out.println("Invalid experience. Please enter a number.");
+            }
+        }
+        char gender;
+        while (true) {
+            System.out.print("Gender (M/F): ");
+            String g = scanner.nextLine().trim();
+            if (isValidGenderInput(g)) {
+                gender = g.charAt(0);
+                break;
+            }
+            System.out.println("Invalid gender. Enter M or F.");
+        }
+        String phone;
+        while (true) {
+            System.out.print("Phone: ");
+            phone = scanner.nextLine().trim();
+            if (isValidPhoneNumber(phone)) break;
+            System.out.println("Invalid phone. Use 01x-xxxxxxx or 01x-xxxxxxxx.");
+        }
+        String email;
+        while (true) {
+            System.out.print("Email: ");
+            email = scanner.nextLine().trim();
+            if (isValidGmail(email)) break;
+            System.out.println("Invalid email. Use format xxx@gmail.com.");
+        }
         LocalDate hired = LocalDate.now();
         Doctor d = controller.addDoctor(name, spec, exp, gender, phone, email, hired);
-        System.out.println("\nCreated: " + d);
+        System.out.println("\nCreated:");
+        printDoctorTableHeader();
+        printDoctorRow(d);
     }
 
     private void viewProfile() {
         System.out.print("Doctor ID: ");
         String id = scanner.nextLine();
         Doctor d = controller.getDoctorById(id);
-        System.out.println(d == null ? "Not found" : d.toString());
+        if (d == null) {
+            System.out.println("Not found");
+        } else {
+            printDoctorTableHeader();
+            printDoctorRow(d);
+        }
     }
 
     private void updateProfile() {
@@ -252,8 +285,55 @@ public class UIDoctorManagement {
         String field = scanner.nextLine();
         System.out.print("New value: ");
         String val = scanner.nextLine();
+        String f = field == null ? "" : field.toLowerCase();
+        switch (f) {
+            case "experience":
+            case "yearsofexperience":
+            case "years_of_experience": {
+                try {
+                    Integer.parseInt(val.trim());
+                } catch (Exception e) {
+                    System.out.println("Invalid experience. Please enter a number.\n");
+                    return;
+                }
+                break;
+            }
+            case "gender": {
+                if (!isValidGenderInput(val)) {
+                    System.out.println("Invalid gender. Enter M or F.\n");
+                    return;
+                }
+                break;
+            }
+            case "phone":
+            case "phonenumber": {
+                if (!isValidPhoneNumber(val)) {
+                    System.out.println("Invalid phone. Use 01x-xxxxxxx or 01x-xxxxxxxx.\n");
+                    return;
+                }
+                break;
+            }
+            case "email": {
+                if (!isValidGmail(val)) {
+                    System.out.println("Invalid email. Use format xxx@gmail.com.\n");
+                    return;
+                }
+                break;
+            }
+            default:
+                break;
+        }
         boolean ok = controller.updateDoctorField(id, field, val);
-        System.out.println(ok ? "Updated" : "Failed");
+        if (!ok) {
+            System.out.println("Failed...\n");
+        } else {
+            System.out.println("Updated.\n");
+            Doctor d = controller.getDoctorById(id);
+            if (d != null) {
+                printDoctorTableHeader();
+                printDoctorRow(d);
+            }
+        }
     }
 
     private void deleteProfile() {
@@ -264,16 +344,15 @@ public class UIDoctorManagement {
     }
 
     private void listAllDoctors() {
-        System.out.println("\n==============================================================================================");
-        System.out.println("|                                  All Registered Doctors                                    |");
-        System.out.println("==============================================================================================");
+        System.out.println("\nAll Registered Doctors:");
+        System.out.println("_______________________________________________________________________________________________\n");
         try {
             // Get all doctors from the controller to show current state
             LinkedList<Doctor> allDoctors = controller.getAllDoctors();
             
             if (allDoctors.isEmpty()) {
                 System.out.println("No doctors found in the system.");
-                System.out.println("==============================================================================================\n");
+                System.out.println("_______________________________________________________________________________________________\n");
                 return;
             }
             
@@ -292,7 +371,7 @@ public class UIDoctorManagement {
                     doctor.getEmail());
             }
             
-            System.out.println("==============================================================================================\n");
+            System.out.println("_______________________________________________________________________________________________\n");
             
         } catch (Exception e) {
             System.out.println("Error displaying doctors: " + e.getMessage());
@@ -385,8 +464,34 @@ public class UIDoctorManagement {
         System.out.println("\n----------------------------------------------------\n");
         
         // Ask for new slot details
-        LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
-        LocalTime newTime = LocalTime.parse(ask("Time to add (HH:mm): "));
+        LocalDate date;
+        while (true) {
+            String dateStr = ask("Date (yyyy-MM-dd): ");
+            if (isValidDateFormat(dateStr)) {
+                try {
+                    date = LocalDate.parse(dateStr);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Invalid date format. Use yyyy-MM-dd.");
+                }
+            } else {
+                System.out.println("Invalid date format. Use yyyy-MM-dd.");
+            }
+        }
+        LocalTime newTime;
+        while (true) {
+            String timeStr = ask("Time to add (HH:mm): ");
+            if (isValidTimeFormat(timeStr)) {
+                try {
+                    newTime = LocalTime.parse(timeStr);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Invalid time format. Use HH:mm.");
+                }
+            } else {
+                System.out.println("Invalid time format. Use HH:mm (00:00 to 23:59).");
+            }
+        }
         
         boolean added = controller.addTimeSlot(id, date, newTime);
         if (added) {
@@ -439,7 +544,20 @@ public class UIDoctorManagement {
         System.out.println("\n----------------------------------------------------\n");
         
         // Ask for removal details
-        LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
+        LocalDate date;
+        while (true) {
+            String dateStr = ask("Date (yyyy-MM-dd): ");
+            if (isValidDateFormat(dateStr)) {
+                try {
+                    date = LocalDate.parse(dateStr);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Invalid date format. Use yyyy-MM-dd.");
+                }
+            } else {
+                System.out.println("Invalid date format. Use yyyy-MM-dd.");
+            }
+        }
         System.out.print("Times to remove (e.g., 09:00,09:30): ");
         String[] parts = scanner.nextLine().split(",");
         
@@ -447,11 +565,15 @@ public class UIDoctorManagement {
         LinkedList<LocalTime> times = new LinkedList<>();
         for (String p : parts) {
             if (!p.trim().isEmpty()) {
-                try {
-                    LocalTime time = LocalTime.parse(p.trim());
-                    times.add(time);
-                } catch (Exception e) {
-                    System.out.println("Invalid time format (Seperate by comma): " + p.trim());
+                if (isValidTimeFormat(p.trim())) {
+                    try {
+                        LocalTime time = LocalTime.parse(p.trim());
+                        times.add(time);
+                    } catch (Exception e) {
+                        System.out.println("Invalid time format (Separate by comma): " + p.trim());
+                    }
+                } else {
+                    System.out.println("Invalid time format. Use HH:mm (00:00 to 23:59): " + p.trim());
                 }
             }
         }
@@ -560,9 +682,48 @@ public class UIDoctorManagement {
         System.out.println("\n----------------------------------------------------\n");
         
         // Ask for new working hours
-        LocalDate date = LocalDate.parse(ask("Date (yyyy-MM-dd): "));
-        LocalTime start = LocalTime.parse(ask("New Start (HH:mm): "));
-        LocalTime end = LocalTime.parse(ask("New End (HH:mm): "));
+        LocalDate date;
+        while (true) {
+            String dateStr = ask("Date (yyyy-MM-dd): ");
+            if (isValidDateFormat(dateStr)) {
+                try {
+                    date = LocalDate.parse(dateStr);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Invalid date format. Use yyyy-MM-dd.");
+                }
+            } else {
+                System.out.println("Invalid date format. Use yyyy-MM-dd.");
+            }
+        }
+        LocalTime start;
+        while (true) {
+            String startStr = ask("New Start (HH:mm): ");
+            if (isValidTimeFormat(startStr)) {
+                try {
+                    start = LocalTime.parse(startStr);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Invalid time format. Use HH:mm.");
+                }
+            } else {
+                System.out.println("Invalid time format. Use HH:mm (00:00 to 23:59).");
+            }
+        }
+        LocalTime end;
+        while (true) {
+            String endStr = ask("New End (HH:mm): ");
+            if (isValidTimeFormat(endStr)) {
+                try {
+                    end = LocalTime.parse(endStr);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Invalid time format. Use HH:mm.");
+                }
+            } else {
+                System.out.println("Invalid time format. Use HH:mm (00:00 to 23:59).");
+            }
+        }
         int interval = Integer.parseInt(ask("Interval minutes: "));
         
         controller.updateWorkingHours(id, date, start, end, interval);
@@ -578,12 +739,17 @@ public class UIDoctorManagement {
         if (dueStr == null || dueStr.trim().isEmpty()) {
             t = follow.add(pid, did, desc);
         } else {
-            try {
-                java.time.LocalDate due = java.time.LocalDate.parse(dueStr.trim());
-                t = follow.add(pid, did, desc, due);
-            } catch (DateTimeParseException ex) {
-                System.out.println("Invalid date. Adding without due date.");
+            if (!isValidDateFormat(dueStr.trim())) {
+                System.out.println("Invalid date format. Use yyyy-MM-dd. Adding without due date.");
                 t = follow.add(pid, did, desc);
+            } else {
+                try {
+                    java.time.LocalDate due = java.time.LocalDate.parse(dueStr.trim());
+                    t = follow.add(pid, did, desc, due);
+                } catch (DateTimeParseException ex) {
+                    System.out.println("Invalid date. Adding without due date.");
+                    t = follow.add(pid, did, desc);
+                }
             }
         }
         System.out.println("Added: " + t);
@@ -631,10 +797,14 @@ public class UIDoctorManagement {
         String dueStr = ask("New Due Date (yyyy-MM-dd) [leave blank to keep]: ");
         java.time.LocalDate due = null;
         if (dueStr != null && !dueStr.trim().isEmpty()) {
-            try {
-                due = java.time.LocalDate.parse(dueStr.trim());
-            } catch (DateTimeParseException ex) {
-                System.out.println("Invalid date. Skipping due date update.");
+            if (!isValidDateFormat(dueStr.trim())) {
+                System.out.println("Invalid date format. Use yyyy-MM-dd. Skipping due date update.");
+            } else {
+                try {
+                    due = java.time.LocalDate.parse(dueStr.trim());
+                } catch (DateTimeParseException ex) {
+                    System.out.println("Invalid date. Skipping due date update.");
+                }
             }
         }
         boolean ok = follow.update(id, newDesc, due);
@@ -664,6 +834,52 @@ public class UIDoctorManagement {
     private String ask(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine();
+    }
+
+    private void printDoctorTableHeader() {
+        System.out.println("----------------------------------------------------------------------------------------------");
+        System.out.println("Doctor ID |   Name   | Specialization | Experience | Gender |    Phone    |       Email");
+    }
+
+    private void printDoctorRow(Doctor doctor) {
+        System.out.printf("%-9s | %-8s | %-14s | %-10d | %-6c | %-11s | %-25s%n",
+                doctor.getDoctorId(),
+                doctor.getName(),
+                doctor.getSpecialization(),
+                doctor.getYearsOfExperience(),
+                doctor.getGender(),
+                doctor.getPhoneNumber(),
+                doctor.getEmail());
+
+        System.out.println("----------------------------------------------------------------------------------------------");
+    }
+
+    private boolean isValidGenderInput(String input) {
+        return input != null && input.matches("[MmFf]");
+    }
+
+    private boolean isValidPhoneNumber(String phone) {
+        return phone != null && phone.matches("01\\d-\\d{7,8}");
+    }
+
+    private boolean isValidGmail(String email) {
+        return email != null && email.matches("[A-Za-z0-9._%+-]+@gmail\\.com");
+    }
+
+    private boolean isValidDateFormat(String date) {
+        return date != null && date.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    private boolean isValidTimeFormat(String time) {
+        if (time == null || !time.matches("\\d{2}:\\d{2}")) {
+            return false;
+        }
+        try {
+            LocalTime.parse(time);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
