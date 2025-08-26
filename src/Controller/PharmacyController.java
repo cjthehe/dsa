@@ -29,12 +29,12 @@ public class PharmacyController {
 		supplierCounter = 4;
 
 		// Medicines
-		medicines.put("M0001", new Pharmacy.Medicine("M0001", "Paracetamol", 50, 3.50, "S0001"));
+		medicines.put("M0001", new Pharmacy.Medicine("M0001", "Paracetamol", 60, 3.50, "S0001"));
 		medicines.put("M0002", new Pharmacy.Medicine("M0002", "Amoxicillin", 30, 12.90, "S0002"));
 		medicines.put("M0003", new Pharmacy.Medicine("M0003", "Ibuprofen", 8, 5.20, "S0001"));
-		medicines.put("M0004", new Pharmacy.Medicine("M0004", "Vitamin C", 100, 0.80, "S0003"));
+		medicines.put("M0004", new Pharmacy.Medicine("M0004", "Vitamin C", 100, 4.60, "S0003"));
 		medicines.put("M0005", new Pharmacy.Medicine("M0005", "Cough Syrup", 15, 9.99, "S0002"));
-		medicines.put("M0006", new Pharmacy.Medicine("M0006", "Cough ", 5, 9.99, "S0002"));
+		medicines.put("M0006", new Pharmacy.Medicine("M0006", "Antihistamine", 5, 6.60, "S0002"));
 		medicineCounter = 6; // next id will be M0006
 
 		// Initial dispensed counts (aggregate)
@@ -117,7 +117,7 @@ public class PharmacyController {
 			System.out.println("(no medicines)");
 		}
 		System.out.println("-------------------------------------------------------------------------------------");
-		System.out.println("Press Enter to return to Main Menu");
+		System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -185,7 +185,7 @@ public class PharmacyController {
 		medicines.forEach((id, med) -> totalStock[0] += med.getQuantityInStock());
 		if (totalStock[0] == 0) {
 			System.out.println("No stock to report.");
-			System.out.println("Press Enter to return to Main Menu");
+			System.out.println("Press Enter to return to Previous Menu");
 			scanner.nextLine();
 			return;
 		}
@@ -193,7 +193,7 @@ public class PharmacyController {
 		medicines.forEach((id, med) -> {
 			double percentage = (med.getQuantityInStock() * 100.0) / totalStock[0];
 			int barCount = (int) percentage;
-			System.out.printf("%-12s |", med.getMedicineName());
+			System.out.printf("%-14s |", med.getMedicineName());
 			for (int j = 0; j < barCount; j++) {
 				if (med.getQuantityInStock() < 10) {
 					System.out.print(RED + "█" + RESET);
@@ -208,7 +208,7 @@ public class PharmacyController {
 		System.out.println("█ = Stock Level");
 		System.out.println(RED + "█" + RESET + " = Low Stock (below 10 units)");
 		System.out.println("--------------------------------------------------------------------------------");        
-		System.out.println("Press Enter to return to Main Menu");
+		System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -300,7 +300,7 @@ public class PharmacyController {
 			System.out.println("Most Dispensed Medicine: " + name + " (" + maxQty[0] + " units)");
 		}
         System.out.println("--------------------------------------------------------------------------------");        
-		System.out.println("Press Enter to return to Main Menu");
+		System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -317,7 +317,7 @@ public class PharmacyController {
 		if (!found[0]) {
 			System.out.println("No low stock items.");
 		}
-        System.out.println("Press Enter to return to Main Menu");
+        System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -338,7 +338,7 @@ public class PharmacyController {
 		reorders.put(id, "COMPLETED");
 
 		System.out.println("Reorder processed. New quantity: " + med.getQuantityInStock() + "\n");
-        System.out.println("Press Enter to return to Main Menu");
+        System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -346,10 +346,12 @@ public class PharmacyController {
 		System.out.println("\n--- Reorder Status ---");
 		if (reorders.isEmpty()) {
 			System.out.println("No reorder requests.");
+            System.out.println("Press Enter to return to Previous Menu");
+		    scanner.nextLine();
 			return;
 		}
 		reorders.forEach((mid, status) -> System.out.println("Medicine ID: " + mid + " | Status: " + status));
-        System.out.println("Press Enter to return to Main Menu");
+        System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -396,7 +398,7 @@ public class PharmacyController {
 			System.out.println("(no suppliers)");
 		}
 		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("Press Enter to return to Main Menu");
+		System.out.println("Press Enter to return to Previous Menu");
 		scanner.nextLine();
 	}
 
@@ -469,6 +471,8 @@ public class PharmacyController {
 		if (!found[0]) {
 			System.out.println("No supplier found with that name.");
 		}
+        System.out.println("Press Enter to return to Previous Menu");
+		scanner.nextLine();
 	}
 
 	public void viewProductsBySupplier() {
@@ -496,5 +500,7 @@ public class PharmacyController {
 			System.out.println("(no products for this supplier)");
 		}
 		System.out.println("--------------------------------------------------------------------------------");
+        System.out.println("Press Enter to return to Previous Menu");
+		scanner.nextLine();
 	}
 }

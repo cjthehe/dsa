@@ -68,16 +68,14 @@ public class Pharmacy {
         private String medicineID;
         private int quantityDispensed;
         private LocalDate dispenseDate;
-        private String pharmacistID;
 
         public Dispense(String dispenseID, String patientID, String medicineID,
-                        int quantityDispensed, LocalDate dispenseDate, String pharmacistID) {
+                        int quantityDispensed, LocalDate dispenseDate) {
             this.dispenseID = dispenseID;
             this.patientID = patientID;
             this.medicineID = medicineID;
             this.quantityDispensed = quantityDispensed;
             this.dispenseDate = dispenseDate;
-            this.pharmacistID = pharmacistID;
         }
 
         public String getDispenseID() { return dispenseID; }
@@ -85,7 +83,6 @@ public class Pharmacy {
         public String getMedicineID() { return medicineID; }
         public int getQuantityDispensed() { return quantityDispensed; }
         public LocalDate getDispenseDate() { return dispenseDate; }
-        public String getPharmacistID() { return pharmacistID; }
     }
 
     // ====== Supplier Management ======
