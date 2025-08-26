@@ -251,7 +251,7 @@ public class UIDoctorManagement {
     private void addProfile() {
         System.out.print("Name: ");
         String name = scanner.nextLine();
-        System.out.print("Specialization: ");
+        System.out.print("Specialization (Basic Cardiology/General Practice/Pediatrics/Orthopedics/Dermatology): ");
         String spec = scanner.nextLine();
         int exp;
         while (true) {
@@ -840,7 +840,6 @@ public class UIDoctorManagement {
         String RESET = "\u001B[0m";
 
         int[] counts = new int[specializations.length];
-        int total = doctors.size();
 
         // Find max value (for chart height)
         for (int i = 0; i < doctors.size(); i++) {

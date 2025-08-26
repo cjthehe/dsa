@@ -565,6 +565,11 @@ private void updateProfile() {
         ADT.ArrayList<String> symptoms24 = new ADT.ArrayList<>();
         symptoms24.add("Headache");
         controller.patientRegistration("Xavier Lim", "970731445599", "011-2345679", "xavier.lim@yahoo.com", symptoms24, LocalDate.of(2025, 7, 31));  // Young Adult
+       
+        ADT.ArrayList<String> symptoms25 = new ADT.ArrayList<>();
+        symptoms25.add("Head");
+        controller.patientRegistration("Xavier ng", "970731445599", "011-2345679", "xavier.lim@yahoo.com", symptoms25, LocalDate.of(2025, 7, 31));  // Young Adult
+    
     }
 
 

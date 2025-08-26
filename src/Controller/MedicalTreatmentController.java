@@ -14,7 +14,7 @@ public class MedicalTreatmentController {
     private final ArrayList<Pharmacy.Medicine> availableMedicines = new ArrayList<>();
     private int treatmentCounter = 1;
 
-    public MedicalTreatmentController() {
+   /* public MedicalTreatmentController() {
         seedDummyMedicines();
     }
 
@@ -25,7 +25,7 @@ public class MedicalTreatmentController {
         availableMedicines.add(new Pharmacy.Medicine("M0003", "Ibuprofen", 80, 0.50, "S0001"));
         availableMedicines.add(new Pharmacy.Medicine("M0004", "Cough Syrup", 40, 2.30, "S0003"));
         availableMedicines.add(new Pharmacy.Medicine("M0005", "Antihistamine", 50, 0.75, "S0002"));
-    }
+    }*/
 
     public ArrayList<Pharmacy.Medicine> getAvailableMedicines() {
         return availableMedicines;

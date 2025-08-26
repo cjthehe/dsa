@@ -34,6 +34,7 @@ public class PharmacyController {
 		medicines.put("M0003", new Pharmacy.Medicine("M0003", "Ibuprofen", 8, 5.20, "S0001"));
 		medicines.put("M0004", new Pharmacy.Medicine("M0004", "Vitamin C", 100, 0.80, "S0003"));
 		medicines.put("M0005", new Pharmacy.Medicine("M0005", "Cough Syrup", 15, 9.99, "S0002"));
+		medicines.put("M0006", new Pharmacy.Medicine("M0006", "Cough ", 5, 9.99, "S0002"));
 		medicineCounter = 6; // next id will be M0006
 
 		// Initial dispensed counts (aggregate)
