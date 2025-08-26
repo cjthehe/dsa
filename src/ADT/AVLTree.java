@@ -198,4 +198,47 @@ public class AVLTree<K extends Comparable<K>, V> implements AVLTreeInterface<K, 
     public void delete(K key) {
         root = delete(root, key);
     }
+    
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+     private int size(AVLNode node) {
+        if (node == null) return 0;
+        return 1 + size(node.left) + size(node.right);
+    }
+
+    public int size() {
+        return size(root);
+    }
+    
+    public K findMin() {
+        if (root == null) return null;
+        return findMin(root).key;
+    }
+    
+    public K findMax() {
+        if (root == null) return null;
+        return findMax(root).key;
+    }
+
+    private AVLNode findMax(AVLNode node) {
+        while (node.right != null) {
+            node = node.right;
+        }
+        return node;
+    }
+    
+    public void clear() {
+        root = null;
+    }
+    
+    public int height() {
+    return height(root);
 }
+    
+    
+}
+
+
+
