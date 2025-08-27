@@ -16,7 +16,7 @@ public class PatientController {
     private Patient patient;
     
     public Patient patientRegistration(String name, String icNumber, 
-                                   String phoneNumber, String email,ArrayList<String> patientSymptom, LocalDate registrationDate) {
+                                   String phoneNumber, String email,String patientFaculty,ArrayList<String> patientSymptom, LocalDate registrationDate) {
 
         String patientID = "P" + String.format("%04d", patientCounter++);
         if(registrationDate == null){
@@ -32,7 +32,7 @@ public class PatientController {
 //        patientSymptom = ;
         
         patient = new Patient(patientID, name, icNumber, age, gender,
-                              phoneNumber, email,state, null, null,
+                              phoneNumber, email,patientFaculty ,state, null, null,
                   patientSymptom, registrationDate);
 
         arrayQueue.enqueue(patient); 
@@ -127,6 +127,21 @@ public class PatientController {
         }
         return false;
     }
+
+    public String mapFaculty(String option) {
+        switch (option) {
+            case "1": return "FAFB";
+            case "2": return "FOCS";
+            case "3": return "FOBE";
+            case "4": return "FCCI";
+            case "5": return "FOAS";
+            case "6": return "FOET";
+            case "7": return "FSSH";
+            default:  return null;
+        }
+    }
+
+
     
     public Patient findPatientByID(String id) {
         return tree.search(id);
@@ -184,32 +199,40 @@ public class PatientController {
                     return false;
                 }
                 break;
+            case "faculty":
+                String facultyName = mapFaculty(newValue);
+                    if (facultyName != null) {
+                        patient.setFaculty(facultyName);
+                    } else {
+                        return false;
+                    }
+                break;
             default:
                 return false;
         }
         return true;
     }
     
-    public int[] calAgeGroup() {
+    public int[] calFacultyGroup() {
         int[] counts = new int[7];
-        // Infant, Toddler, Child, Teenager, Young Adult, Adult, Senior
+        // FAFB, FOCS, FOBE, FOCI, FOAS, FOET, FSSH
         
         
         // for each patient in arrayQueue. do the operation in the for loop
         for (Patient patient : arrayQueue) {
-            int age = patient.getAge();
+            String studFaculty = patient.getFaculty();
             
-             if (age <= 1) {
+             if (studFaculty.equals("FAFB")) {
                 counts[0]++;
-            } else if (age <= 3) { 
+            } else if (studFaculty.equals("FOCS")) { 
                 counts[1]++;
-            } else if (age <= 12) {
+            } else if (studFaculty.equals("FOBE")) {
                 counts[2]++;
-            } else if (age <= 19) {
+            } else if (studFaculty.equals("FOCI")) {
                 counts[3]++;
-            } else if (age <= 35) {
+            } else if (studFaculty.equals("FOAS")) {
                 counts[4]++;
-            } else if (age <= 60) {
+            } else if (studFaculty.equals("FOET")) {
                 counts[5]++;
             } else {
                 counts[6]++;

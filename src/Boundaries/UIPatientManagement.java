@@ -117,6 +117,47 @@ public class UIPatientManagement {
             }
         }while(!controller.EmailValidation(studEmail));
         
+        String faculty = null;
+        do{
+            showFacultyOption();
+            int facultyChoice = scanner.nextInt();
+            scanner.nextLine();
+            switch(facultyChoice){
+                case 1: 
+                    faculty = "FAFB";
+                break;
+                
+                case 2: 
+                    faculty = "FOCS";
+                break;
+                
+                case 3: 
+                    faculty = "FOBE";
+                break;
+                
+                case 4: 
+                    faculty = "FCCI";
+                break;
+                
+                case 5: 
+                    faculty = "FOAS";
+                break;
+                
+                case 6: 
+                    faculty = "FOET";
+                break;
+                
+                case 7: 
+                    faculty = "FSSH";
+                break;
+                
+                default:
+                    System.out.println("Invalid faculty. Please Try Again.");
+                    
+            }
+                
+        }while(faculty == null);
+        
         String symContinue;
         ADT.ArrayList<String> studSymptoms = new ADT.ArrayList<>();
         do{
@@ -131,7 +172,7 @@ public class UIPatientManagement {
         
         System.out.print("\n\n");
         
-        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail,studSymptoms, null);
+        Patient patient = controller.patientRegistration(studName, studIC, studPhoneNo, studEmail, faculty,studSymptoms, null);
         
         displayPatientDetails(patient);
         BackToMenu();
@@ -144,8 +185,9 @@ public class UIPatientManagement {
             
             System.out.printf("%20s Enter Patient ID to search: ","");
             String id = scanner.nextLine();
-
-            Patient patient = controller.findPatientByID(id);
+            
+            String idUpCase = id.toUpperCase();
+            Patient patient = controller.findPatientByID(idUpCase);
             if (patient != null){
                 System.out.printf("%20s Enter IC number for verification: ","");
                 String ic = scanner.nextLine();
@@ -207,6 +249,7 @@ public class UIPatientManagement {
             System.out.printf("%10sGender       : %s\n", "", nextPatient.genderToString());
             System.out.printf("%10sPhone        : %s\n", "", nextPatient.getPhoneNumber());
             System.out.printf("%10sEmail        : %s\n", "", nextPatient.getEmail());
+            System.out.printf("%10sFaculty      : %s\n", "", nextPatient.getFaculty());
             System.out.printf("\n%10s---------------------------------------------------------\n\n", "");
 
         }else{
@@ -264,7 +307,8 @@ private void updateProfile() {
         System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "1. Name", "");  
         System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "2. Phone Number", "");  
         System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "3. Email", "");  
-        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "4. Exit", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "4. Faculty", "");  
+        System.out.printf(" %10s|%18s%-30s%11s|\n", "", "", "5. Exit", "");  
         System.out.printf(" %10s+-----------------------------------------------------------+\n", "");  
         System.out.printf(" %24s  Enter choice: ", "");  
 
@@ -283,7 +327,10 @@ private void updateProfile() {
             case 3: 
                 field = "email"; 
                 break;
-            case 4: 
+            case 4:
+                field = "faculty";
+                break;
+            case 5: 
                 updating = false; 
                 displayPatientDetails(patient);
                 continue;
@@ -291,14 +338,27 @@ private void updateProfile() {
                 System.out.println("Invalid choice.");
                 continue;
         }
-
-        System.out.printf("\n%24s Enter new value for %s: ", "", field);
-        String newValue = scanner.nextLine();
-        boolean success = controller.updatePatient(id, ic, field, newValue);
-        if (success) {
-            System.out.printf("%24s Field updated successfully.\n","");
-        } else {
-            System.out.printf("\n%26s Update failed.\n\n","");
+        if(choice == 4){
+            showFacultyOption();
+            System.out.printf("\n%24s Select options for new %s: ", "", field);
+            String newValue = scanner.nextLine();
+            
+            boolean success = controller.updatePatient(id, ic, field, newValue);
+            if (success) {
+                System.out.printf("\n%24s Field updated successfully.\n",""); 
+            } else {
+                System.out.printf("\n%26s Update failed.\n\n",""); 
+            }
+        }else{
+            System.out.printf("\n%24s Enter new value for %s: ", "", field);
+            String newValue = scanner.nextLine();
+            
+            boolean success = controller.updatePatient(id, ic, field, newValue);
+            if (success) {
+                System.out.printf("\n%24s Field updated successfully.\n","");
+            } else {
+                System.out.printf("\n%26s Update failed.\n\n","");
+            }
         }
     }
 
@@ -316,6 +376,7 @@ private void updateProfile() {
         System.out.printf(" %10s| %-25s : %-29s |\n", "", "State", patient.getState());
         System.out.printf(" %10s| %-25s : %-29s |\n", "", "Phone", patient.getPhoneNumber());
         System.out.printf(" %10s| %-25s : %-29s |\n", "", "Email", patient.getEmail());
+        System.out.printf(" %10s| %-25s : %-29s |\n", "", "Faculty", patient.getFaculty());
         System.out.printf(" %10s| %-25s : %-29s |\n", "", "Symptoms", patient.getPatientSymtomps());
         System.out.printf(" %10s| %-25s : %-29s |\n", "", "Registration Date", patient.getRegistrationDate());
         System.out.printf(" %10s+-----------------------------------------------------------+\n", "");
@@ -325,7 +386,7 @@ private void updateProfile() {
     public void viewReport(){
 
         System.out.printf("\n\n%15s ---------------- Patient Report ---------------- \n\n","");
-        System.out.printf("%20s 1. View Age Report\n", "");
+        System.out.printf("%20s 1. View Faculty Report\n", "");
         System.out.printf("%20s 2. View Registration Report\n", "");
         System.out.printf("%20s 3. Back to patient menu\n", "");
         System.out.printf("\n%15s ------------------------------------------------ \n","");
@@ -334,10 +395,17 @@ private void updateProfile() {
         scanner.nextLine();
         switch(reportChoice){
             case 1:
-                viewAgeReport();
+                viewFacultyReport();
                 break;
             case 2:
-                viewRegDateReport();
+                System.out.printf("%20s Do you want to sort the table? (y/n)","");
+                String sortChoice = scanner.nextLine();
+
+                if (!sortChoice.isEmpty() && Character.toLowerCase(sortChoice.charAt(0)) == 'y') {
+                    viewSortedRegDateReport();
+                } else {
+                    viewRegDateReport();
+                }
                 break;
             case 3:
                 showOption();
@@ -349,18 +417,16 @@ private void updateProfile() {
         BackToMenu();
         
     }
-    public void viewAgeReport(){
-        int[] ageCount = controller.calAgeGroup();
-        String[] labels = {"Infant", "Toddler", "Child", "Teenager", "Young Adult", "Adult", "Senior"};
+    public void viewFacultyReport(){
+        int[] facultyCount = controller.calFacultyGroup();
+        String[] labels = {"FAFB", "FOCS", "FOBE", "FOCI", "FOAS", "FOET", "FSSH"};
         
         int maxCount = 1;
-        for (int i = 0; i < ageCount.length; i++) {
-            if (ageCount[i] > maxCount) {
-                maxCount = ageCount[i];
+        for (int count : facultyCount) {
+            if (count > maxCount) {
+                maxCount = count;
             }
         }
-        
-        
         
         String[] colors = {
             "\u001B[31m", // Red
@@ -374,7 +440,7 @@ private void updateProfile() {
         
         String RESET = "\u001B[0m";
         
-        System.out.printf("\n\n +----------------------------- Patient Age Group -----------------------------+\n");
+        System.out.printf("\n\n +----------------------------- Patient Faculty Group -----------------------------+\n");
 
         for(int i = 0; i < labels.length;i++){
             System.out.printf(" | %s    █%s %-70s|\n", colors[i], RESET, labels[i]);
@@ -385,23 +451,23 @@ private void updateProfile() {
         // Y-axis
         for (int level = maxCount; level >= 1; level--) {
         System.out.printf(" %3d    |", level);
-        for (int i = 0; i < ageCount.length; i++) {
-            if(ageCount[i] >= level){
-                System.out.print(colors[i] + "  ▍▍  " + RESET);
+        for (int i = 0; i < facultyCount.length; i++) {
+            if(facultyCount[i] >= level){
+                System.out.print(colors[i] + "    ▍▍   " + RESET);
             }else{
-                System.out.print("     ");
+                System.out.print("        ");
             }
         }        
             System.out.println();
         }
 
         // X-axis
-        System.out.print("        |__________________________________________ Age group");
+        System.out.print("        |______________________________________________________________ Fcaulty group");
         System.out.println();
 
         System.out.print("        ");
         for (String label : labels) {
-            System.out.print("    " + label.charAt(0));
+            System.out.print("    " + label);
         }
         System.out.println();
         BackToMenu();
@@ -451,126 +517,186 @@ private void updateProfile() {
         
         System.out.printf("\nTotal patient: %d\n", total);
         System.out.printf("\n\n -----------------------------------------------------------------------------\n\n");
-
+        
     }
     
     
+    public void viewSortedRegDateReport(){
+        int[] monthCount = controller.calRegGroup();
+        String[] monthLabels = {"January","February","March","April","May","June","July","August","September","October","November","December"};
+        
+        int total = 0;
+        for(int i = 0; i < monthCount.length; i++){
+            total += monthCount[i];
+        }
+        
+        for (int i = 0; i < monthCount.length - 1; i++) {
+            for (int j = i + 1; j < monthCount.length; j++) {
+                if (monthCount[j] > monthCount[i]) {
+                    
+                    int tempCount = monthCount[i];
+                    monthCount[i] = monthCount[j];
+                    monthCount[j] = tempCount;
+
+                    String tempLabel = monthLabels[i];
+                    monthLabels[i] = monthLabels[j];
+                    monthLabels[j] = tempLabel;
+                }
+            }
+        }
+        System.out.printf("\n\n -------------------- Patient Registration Date Statistic --------------------\n\n");
+        System.out.print("            ____________________________________________> number of patient");
+        System.out.println();
+        for(int i = 0; i <12;i++ ){
+            double percentage = (monthCount[i] * 100.00) / total;
+            int barCount = (int)percentage;
+            System.out.printf("%-10s  |",monthLabels[i]);
+            
+            for(int j = 0; j < barCount; j++){
+                System.out.print("█");
+            }
+            
+            System.out.printf(" %.2f%%", percentage);
+            System.out.println("");
+        }
+        
+        System.out.printf("\nTotal patient: %d\n", total);
+        System.out.printf("\n\n -----------------------------------------------------------------------------\n\n");
+
+        
+    }
     private void BackToMenu(){
         System.out.printf("%20s < Press Enter to return to Main Menu >","");
         scanner.nextLine();
         showOption();
     }
     
-   public void DummyData() {
-        // ================= January (2) =================
-        ADT.ArrayList<String> symptoms1 = new ADT.ArrayList<>();
-        symptoms1.add("Fever");
-        symptoms1.add("Cough");
-        controller.patientRegistration("Alice Tan", "250105123456", "012-3456789", "alice.tan@gmail.com", symptoms1, LocalDate.of(2025, 1, 5));   // Infant
-
-        ADT.ArrayList<String> symptoms2 = new ADT.ArrayList<>();
-        symptoms2.add("Runny Nose");
-        controller.patientRegistration("Benjamin Lee", "210120567890", "013-5678901", "ben.lee@yahoo.com", symptoms2, LocalDate.of(2025, 1, 20)); // Toddler
-
-        // ================= February (3) =================
-        ADT.ArrayList<String> symptoms3 = new ADT.ArrayList<>();
-        symptoms3.add("Headache");
-        controller.patientRegistration("Carmen Wong", "150202234567", "014-6789012", "carmen.wong@hotmail.com", symptoms3, LocalDate.of(2025, 2, 2)); // Child
-
-        ADT.ArrayList<String> symptoms4 = new ADT.ArrayList<>();
-        symptoms4.add("Stomach Pain");
-        controller.patientRegistration("Daniel Lim", "080214876543", "016-7890123", "daniel.lim@gmail.com", symptoms4, LocalDate.of(2025, 2, 14));   // Teenager
-
-        ADT.ArrayList<String> symptoms5 = new ADT.ArrayList<>();
-        symptoms5.add("Fatigue");
-        controller.patientRegistration("Elaine Ng", "000223112233", "017-8901234", "elaine.ng@yahoo.com", symptoms5, LocalDate.of(2025, 2, 23));    // Young Adult
-
-        // ================= March (4) =================
-        ADT.ArrayList<String> symptoms6 = new ADT.ArrayList<>();
-        symptoms6.add("Back Pain");
-        controller.patientRegistration("Felix Tan", "850305998877", "018-9012345", "felix.tan@gmail.com", symptoms6, LocalDate.of(2025, 3, 5));     // Adult
-
-        ADT.ArrayList<String> symptoms7 = new ADT.ArrayList<>();
-        symptoms7.add("Joint Pain");
-        controller.patientRegistration("Grace Ho", "550312445566", "019-1234567", "grace.ho@hotmail.com", symptoms7, LocalDate.of(2025, 3, 12));    // Senior
-
-        ADT.ArrayList<String> symptoms8 = new ADT.ArrayList<>();
-        symptoms8.add("Cough");
-        controller.patientRegistration("Henry Ong", "230320556677", "011-2345678", "henry.ong@yahoo.com", symptoms8, LocalDate.of(2025, 3, 20));    // Toddler
-
-        ADT.ArrayList<String> symptoms9 = new ADT.ArrayList<>();
-        symptoms9.add("Flu");
-        controller.patientRegistration("Ivy Goh", "120328223344", "012-4567890", "ivy.goh@gmail.com", symptoms9, LocalDate.of(2025, 3, 28));        // Child
-
-        // ================= April (1) =================
-        ADT.ArrayList<String> symptoms10 = new ADT.ArrayList<>();
-        symptoms10.add("Sore Throat");
-        controller.patientRegistration("Jason Lim", "070404667788", "013-5671234", "jason.lim@hotmail.com", symptoms10, LocalDate.of(2025, 4, 4));   // Teenager
-
-        // ================= May (5) =================
-        ADT.ArrayList<String> symptoms11 = new ADT.ArrayList<>();
-        symptoms11.add("Headache");
-        controller.patientRegistration("Kelly Tan", "950506334455", "014-6782345", "kelly.tan@gmail.com", symptoms11, LocalDate.of(2025, 5, 6));     // Young Adult
-
-        ADT.ArrayList<String> symptoms12 = new ADT.ArrayList<>();
-        symptoms12.add("Back Pain");
-        controller.patientRegistration("Leonard Chua", "740514778899", "016-7893456", "leonard.chua@yahoo.com", symptoms12, LocalDate.of(2025, 5, 14)); // Adult
-
-        ADT.ArrayList<String> symptoms13 = new ADT.ArrayList<>();
-        symptoms13.add("Chest Pain");
-        controller.patientRegistration("Michelle Lee", "620521112244", "017-8904567", "michelle.lee@hotmail.com", symptoms13, LocalDate.of(2025, 5, 21)); // Senior
-
-        ADT.ArrayList<String> symptoms14 = new ADT.ArrayList<>();
-        symptoms14.add("Fever");
-        controller.patientRegistration("Nicholas Yap", "250528889900", "018-9015678", "nicholas.yap@gmail.com", symptoms14, LocalDate.of(2025, 5, 28)); // Infant
-
-        ADT.ArrayList<String> symptoms15 = new ADT.ArrayList<>();
-        symptoms15.add("Cough");
-        controller.patientRegistration("Olivia Chan", "210530667799", "019-1236789", "olivia.chan@yahoo.com", symptoms15, LocalDate.of(2025, 5, 30)); // Toddler
-
-        // ================= June (3) =================
-        ADT.ArrayList<String> symptoms16 = new ADT.ArrayList<>();
-        symptoms16.add("Allergy");
-        controller.patientRegistration("Patrick Wong", "140608223355", "011-2347890", "patrick.wong@gmail.com", symptoms16, LocalDate.of(2025, 6, 8)); // Child
-
-        ADT.ArrayList<String> symptoms17 = new ADT.ArrayList<>();
-        symptoms17.add("Flu");
-        controller.patientRegistration("Queenie Lau", "060616445577", "012-3458901", "queenie.lau@hotmail.com", symptoms17, LocalDate.of(2025, 6, 16)); // Teenager
-
-        ADT.ArrayList<String> symptoms18 = new ADT.ArrayList<>();
-        symptoms18.add("Headache");
-        controller.patientRegistration("Ryan Tan", "990624998800", "013-5679012", "ryan.tan@yahoo.com", symptoms18, LocalDate.of(2025, 6, 24));      // Young Adult
-
-        // ================= July (6) =================
-        ADT.ArrayList<String> symptoms19 = new ADT.ArrayList<>();
-        symptoms19.add("Back Pain");
-        controller.patientRegistration("Samantha Ng", "840703556677", "014-6780123", "samantha.ng@gmail.com", symptoms19, LocalDate.of(2025, 7, 3)); // Adult
-
-        ADT.ArrayList<String> symptoms20 = new ADT.ArrayList<>();
-        symptoms20.add("Fatigue");
-        controller.patientRegistration("Thomas Lee", "540710889922", "016-7891234", "thomas.lee@hotmail.com", symptoms20, LocalDate.of(2025, 7, 10)); // Senior
-
-        ADT.ArrayList<String> symptoms21 = new ADT.ArrayList<>();
-        symptoms21.add("Cough");
-        controller.patientRegistration("Uma Devi", "220717334466", "017-8902345", "uma.devi@yahoo.com", symptoms21, LocalDate.of(2025, 7, 17));      // Toddler
-
-        ADT.ArrayList<String> symptoms22 = new ADT.ArrayList<>();
-        symptoms22.add("Flu");
-        controller.patientRegistration("Victor Tan", "120724667788", "018-9013456", "victor.tan@gmail.com", symptoms22, LocalDate.of(2025, 7, 24));  // Child
-
-        ADT.ArrayList<String> symptoms23 = new ADT.ArrayList<>();
-        symptoms23.add("Stomach Pain");
-        controller.patientRegistration("Wendy Ho", "090728223344", "019-1234568", "wendy.ho@hotmail.com", symptoms23, LocalDate.of(2025, 7, 28));    // Teenager
-
-        ADT.ArrayList<String> symptoms24 = new ADT.ArrayList<>();
-        symptoms24.add("Headache");
-        controller.patientRegistration("Xavier Lim", "970731445599", "011-2345679", "xavier.lim@yahoo.com", symptoms24, LocalDate.of(2025, 7, 31));  // Young Adult
-       
-        ADT.ArrayList<String> symptoms25 = new ADT.ArrayList<>();
-        symptoms25.add("Head");
-        controller.patientRegistration("Xavier ng", "970731445599", "011-2345679", "xavier.lim@yahoo.com", symptoms25, LocalDate.of(2025, 7, 31));  // Young Adult
-    
+    public void showFacultyOption(){
+        System.out.printf("\n%20s Select faculty:","");
+                System.out.printf("\n%20s 1. Faculty of Accountancy, Finance & Business (FAFB)","");
+                System.out.printf("\n%20s 2. Faculty of Computing and Information Technology (FOCS)","");
+                System.out.printf("\n%20s 3. Faculty of the Built Environment (FOBE)","");
+                System.out.printf("\n%20s 4. Faculty of Communication and Creative Industries (FCCI)","");
+                System.out.printf("\n%20s 5. Faculty of Arts & Social Sciences (FOAS)","");
+                System.out.printf("\n%20s 6. Faculty of Engineering & Technology (FOET)","");
+                System.out.printf("\n%20s 7. Faculty of Social Sciences & Humanities (FSSH)","");
     }
+   public void DummyData(){
+    ADT.ArrayList<String> symptoms1 = new ADT.ArrayList<>();
+    symptoms1.add("Fever");
+    symptoms1.add("Cough");   // extra
+    controller.patientRegistration("Alice Tan", "060105123456", "012-3456789", "alice.tan@gmail.com", "FAFB", symptoms1, LocalDate.of(2025, 1, 5));   
+
+    ADT.ArrayList<String> symptoms2 = new ADT.ArrayList<>();
+    symptoms2.add("Runny Nose");
+    controller.patientRegistration("Benjamin Lee", "050120567890", "013-5678901", "ben.lee@yahoo.com", "FOCS", symptoms2, LocalDate.of(2025, 1, 20)); 
+
+    // ================= February (3) =================
+    ADT.ArrayList<String> symptoms3 = new ADT.ArrayList<>();
+    symptoms3.add("Headache");
+    symptoms3.add("Fatigue");   // extra
+    controller.patientRegistration("Carmen Wong", "040202234567", "014-6789012", "carmen.wong@hotmail.com", "FOBE", symptoms3, LocalDate.of(2025, 2, 2)); 
+
+    ADT.ArrayList<String> symptoms4 = new ADT.ArrayList<>();
+    symptoms4.add("Stomach Pain");
+    controller.patientRegistration("Daniel Lim", "030214876543", "016-7890123", "daniel.lim@gmail.com", "FCCI", symptoms4, LocalDate.of(2025, 2, 14));   
+
+    ADT.ArrayList<String> symptoms5 = new ADT.ArrayList<>();
+    symptoms5.add("Fatigue");
+    symptoms5.add("Headache");   // extra
+    controller.patientRegistration("Elaine Ng", "020223112233", "017-8901234", "elaine.ng@yahoo.com", "FOAS", symptoms5, LocalDate.of(2025, 2, 23));    
+
+    // ================= March (4) =================
+    ADT.ArrayList<String> symptoms6 = new ADT.ArrayList<>();
+    symptoms6.add("Back Pain");
+    controller.patientRegistration("Felix Tan", "010305998877", "018-9012345", "felix.tan@gmail.com", "FOET", symptoms6, LocalDate.of(2025, 3, 5));     
+
+    ADT.ArrayList<String> symptoms7 = new ADT.ArrayList<>();
+    symptoms7.add("Joint Pain");
+    symptoms7.add("Back Pain");   // extra
+    symptoms7.add("Fatigue");     // extra
+    controller.patientRegistration("Grace Ho", "060312445566", "019-1234567", "grace.ho@hotmail.com", "FSSH", symptoms7, LocalDate.of(2025, 3, 12));    
+
+    ADT.ArrayList<String> symptoms8 = new ADT.ArrayList<>();
+    symptoms8.add("Cough");
+    controller.patientRegistration("Henry Ong", "050320556677", "011-2345678", "henry.ong@yahoo.com", "FAFB", symptoms8, LocalDate.of(2025, 3, 20));    
+
+    ADT.ArrayList<String> symptoms9 = new ADT.ArrayList<>();
+    symptoms9.add("Flu");
+    symptoms9.add("Sore Throat");   // extra
+    controller.patientRegistration("Ivy Goh", "040328223344", "012-4567890", "ivy.goh@gmail.com", "FOCS", symptoms9, LocalDate.of(2025, 3, 28));        
+
+    // ================= April (1) =================
+    ADT.ArrayList<String> symptoms10 = new ADT.ArrayList<>();
+    symptoms10.add("Sore Throat");
+    controller.patientRegistration("Jason Lim", "030404667788", "013-5671234", "jason.lim@hotmail.com", "FOBE", symptoms10, LocalDate.of(2025, 4, 4));   
+
+    // ================= May (5) =================
+    ADT.ArrayList<String> symptoms11 = new ADT.ArrayList<>();
+    symptoms11.add("Headache");
+    symptoms11.add("Nausea");   // extra (new symptom)
+    controller.patientRegistration("Kelly Tan", "020506334455", "014-6782345", "kelly.tan@gmail.com", "FCCI", symptoms11, LocalDate.of(2025, 5, 6));     
+
+    ADT.ArrayList<String> symptoms12 = new ADT.ArrayList<>();
+    symptoms12.add("Back Pain");
+    controller.patientRegistration("Leonard Chua", "010514778899", "016-7893456", "leonard.chua@yahoo.com", "FOAS", symptoms12, LocalDate.of(2025, 5, 14)); 
+
+    ADT.ArrayList<String> symptoms13 = new ADT.ArrayList<>();
+    symptoms13.add("Chest Pain");
+    controller.patientRegistration("Michelle Lee", "060521112244", "017-8904567", "michelle.lee@hotmail.com", "FOET", symptoms13, LocalDate.of(2025, 5, 21)); 
+
+    ADT.ArrayList<String> symptoms14 = new ADT.ArrayList<>();
+    symptoms14.add("Fever");
+    symptoms14.add("Cough");   // extra
+    controller.patientRegistration("Nicholas Yap", "050528889900", "018-9015678", "nicholas.yap@gmail.com", "FSSH", symptoms14, LocalDate.of(2025, 5, 28)); 
+
+    ADT.ArrayList<String> symptoms15 = new ADT.ArrayList<>();
+    symptoms15.add("Cough");
+    controller.patientRegistration("Olivia Chan", "040530667799", "019-1236789", "olivia.chan@yahoo.com", "FAFB", symptoms15, LocalDate.of(2025, 5, 30)); 
+
+    // ================= June (3) =================
+    ADT.ArrayList<String> symptoms16 = new ADT.ArrayList<>();
+    symptoms16.add("Allergy");
+    controller.patientRegistration("Patrick Wong", "030608223355", "011-2347890", "patrick.wong@gmail.com", "FOCS", symptoms16, LocalDate.of(2025, 6, 8)); 
+
+    ADT.ArrayList<String> symptoms17 = new ADT.ArrayList<>();
+    symptoms17.add("Flu");
+    symptoms17.add("Cough");   // extra
+    controller.patientRegistration("Queenie Lau", "020616445577", "012-3458901", "queenie.lau@hotmail.com", "FOBE", symptoms17, LocalDate.of(2025, 6, 16)); 
+
+    ADT.ArrayList<String> symptoms18 = new ADT.ArrayList<>();
+    symptoms18.add("Headache");
+    controller.patientRegistration("Ryan Tan", "010624998800", "013-5679012", "ryan.tan@yahoo.com", "FCCI", symptoms18, LocalDate.of(2025, 6, 24));      
+
+    // ================= July (6) =================
+    ADT.ArrayList<String> symptoms19 = new ADT.ArrayList<>();
+    symptoms19.add("Back Pain");
+    symptoms19.add("Joint Pain");   // extra
+    controller.patientRegistration("Samantha Ng", "060703556677", "014-6780123", "samantha.ng@gmail.com", "FOAS", symptoms19, LocalDate.of(2025, 7, 3)); 
+
+    ADT.ArrayList<String> symptoms20 = new ADT.ArrayList<>();
+    symptoms20.add("Fatigue");
+    controller.patientRegistration("Thomas Lee", "050710889922", "016-7891234", "thomas.lee@hotmail.com", "FOET", symptoms20, LocalDate.of(2025, 7, 10)); 
+
+    ADT.ArrayList<String> symptoms21 = new ADT.ArrayList<>();
+    symptoms21.add("Cough");
+    symptoms21.add("Fever");   // extra
+    controller.patientRegistration("Uma Devi", "040717334466", "017-8902345", "uma.devi@yahoo.com", "FSSH", symptoms21, LocalDate.of(2025, 7, 17));      
+
+    ADT.ArrayList<String> symptoms22 = new ADT.ArrayList<>();
+    symptoms22.add("Flu");
+    controller.patientRegistration("Victor Tan", "030724667788", "018-9013456", "victor.tan@gmail.com", "FAFB", symptoms22, LocalDate.of(2025, 7, 24));  
+
+    ADT.ArrayList<String> symptoms23 = new ADT.ArrayList<>();
+    symptoms23.add("Stomach Pain");
+    symptoms23.add("Nausea");   // extra (new symptom)
+    controller.patientRegistration("Wendy Ho", "020728223344", "019-1234568", "wendy.ho@hotmail.com", "FOCS", symptoms23, LocalDate.of(2025, 7, 28));    
+
+    ADT.ArrayList<String> symptoms24 = new ADT.ArrayList<>();
+    symptoms24.add("Headache");
+    symptoms24.add("Dizziness");   // extra (new symptom)
+    controller.patientRegistration("Xavier Lim", "010731445599", "011-2345679", "xavier.lim@yahoo.com", "FOBE", symptoms24, LocalDate.of(2025, 7, 31));  
+}
 
 
 

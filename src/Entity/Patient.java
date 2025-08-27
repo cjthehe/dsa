@@ -20,6 +20,7 @@ public class Patient {
     private char gender;
     private String phoneNumber;
     private String email;
+    private String faculty;
     private String state;
     private String DoctorAssigned;
     private String patientDisease;
@@ -28,7 +29,7 @@ public class Patient {
     // private Time consultationHours;
     
     //Constructor
-    public Patient(String PID,String Pname, String ic, int age, char gender, String phoneNumber, String email, String state, String DoctorAssigned,String patientDisease, ArrayList<String> patientSymptoms, LocalDate registrationDate){
+    public Patient(String PID,String Pname, String ic, int age, char gender, String phoneNumber, String email,String faculty, String state, String DoctorAssigned,String patientDisease, ArrayList<String> patientSymptoms, LocalDate registrationDate){
         this.PID = PID;
         this.Pname = Pname;
         this.ic= ic;
@@ -36,6 +37,7 @@ public class Patient {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.faculty = faculty;
         this.state = state;
         this.DoctorAssigned = DoctorAssigned;
         this.patientDisease = patientDisease;
@@ -71,7 +73,11 @@ public class Patient {
     public String getEmail(){
         return email;
     }
-
+    
+    public String getFaculty(){
+        return faculty;
+    }
+    
     public String getState(){
         return state;
     }
@@ -121,6 +127,9 @@ public class Patient {
         this.email = email;
     }
     
+    public void setFaculty(String faculty){
+        this.faculty = faculty;
+    }
     public void setState(String state){
         this.state = state;
     }
