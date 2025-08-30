@@ -120,6 +120,7 @@ public class UIPatientManagement {
         String faculty = null;
         do{
             showFacultyOption();
+            System.out.printf("%24s Select your option: ", "");
             int facultyChoice = scanner.nextInt();
             scanner.nextLine();
             switch(facultyChoice){
