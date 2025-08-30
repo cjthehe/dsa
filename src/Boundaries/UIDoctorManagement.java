@@ -30,11 +30,11 @@ public class UIDoctorManagement {
         controller.addDoctor("Dr. WN", "Orthopedics", 12, 'F', "012-3456791", "wn@clinic.com", LocalDate.of(2013, 1, 10));
         controller.addDoctor("Dr. JW", "Orthopedics", 30, 'M', "012-3456792", "jw@clinic.com", LocalDate.of(1995, 7, 18));
         controller.addDoctor("Dr. CGZ", "Dermatology", 11, 'M', "012-3456793", "cgz@clinic.com", LocalDate.of(2014, 5, 30));
-        controller.addDoctor("Dr. DFG", "Dermatology", 11, 'F', "012-3456793", "cgz@clinic.com", LocalDate.of(2014, 5, 30));
-        controller.addDoctor("Dr. QWE", "Basic Cardiology", 20, 'M', "012-3456793", "cgz@clinic.com", LocalDate.of(2005, 5, 30));
-        controller.addDoctor("Dr. RTY", "General Practice", 16, 'F', "012-3456793", "cgz@clinic.com", LocalDate.of(2009, 5, 30));
-        controller.addDoctor("Dr. UIO", "Dermatology", 7, 'F', "012-3456793", "cgz@clinic.com", LocalDate.of(2018, 5, 30));
-        controller.addDoctor("Dr. PAS", "General Practice", 12, 'M', "012-3456793", "cgz@clinic.com", LocalDate.of(2014, 5, 30));
+        controller.addDoctor("Dr. ABC", "Dermatology", 11, 'F', "012-3458293", "abc@clinic.com", LocalDate.of(2014, 5, 30));
+        controller.addDoctor("Dr. DEF", "Basic Cardiology", 20, 'M', "012-3456523", "def@clinic.com", LocalDate.of(2005, 6, 12));
+        controller.addDoctor("Dr. GHI", "General Practice", 16, 'F', "012-3489793", "ghi@clinic.com", LocalDate.of(2009, 12, 30));
+        controller.addDoctor("Dr. JKL", "Dermatology", 7, 'F', "012-3456803", "jkl@clinic.com", LocalDate.of(2018, 1, 29));
+        controller.addDoctor("Dr. MNO", "General Practice", 12, 'M', "012-3946793", "mno@clinic.com", LocalDate.of(2014, 4, 23));
         
         // Initialize time slots for each doctor with different schedules
         scheduleDummyData();
@@ -79,13 +79,13 @@ public class UIDoctorManagement {
     public void showMenu() {
         while (true) {
             asgm.clearScreen();
-            System.out.println(" +------------------------------ Doctor Management ------------------------------+");
-            System.out.printf(" |%23s%-33s%23s|\n", "", "1. Doctor Profile Management", "");
-            System.out.printf(" |%23s%-33s%23s|\n", "", "2. Doctor Schedule Management", "");
-            System.out.printf(" |%23s%-33s%23s|\n", "", "3. Follow-up Task", "");
-            System.out.printf(" |%23s%-33s%23s|\n", "", "4. View Report", "");
-            System.out.printf(" |%23s%-33s%23s|\n", "", "5. Back to Menu", "");
-            System.out.println(" +-------------------------------------------------------------------------------+");
+            System.out.println(" +---------------------------- Doctor Management ----------------------------+");
+            System.out.printf(" |%23s%-33s%19s|\n", "", "1. Doctor Profile Management", "");
+            System.out.printf(" |%23s%-33s%19s|\n", "", "2. Doctor Schedule Management", "");
+            System.out.printf(" |%23s%-33s%19s|\n", "", "3. Follow-up Task", "");
+            System.out.printf(" |%23s%-33s%19s|\n", "", "4. View Report", "");
+            System.out.printf(" |%23s%-33s%19s|\n", "", "5. Back to Menu", "");
+            System.out.println(" +---------------------------------------------------------------------------+");
             System.out.print("Select your option: ");
 
             int choice = readInt();
@@ -104,10 +104,10 @@ public class UIDoctorManagement {
                     viewReport();
                     break;
                 case 5:
-                    System.out.println("Returning to main menu...");
+                    System.out.println("\nReturning to main menu...\n");
                     asgm.startMenu();
                     break;
-                default: System.out.println("Invalid option. Pls try again.");
+                default: System.out.println("Invalid option. Pls try again.\n");
             }
         }
     }
@@ -115,12 +115,12 @@ public class UIDoctorManagement {
     // ===== Module 1: Profile Management =====
     private void showProfileMenu() {
         while (true) {
-            System.out.println(" +------------------------ Doctor Profile Management ------------------------+");
-            System.out.printf(" |%23s%-30s%23s|\n", "", "1. Add Doctor", "");
-            System.out.printf(" |%23s%-30s%23s|\n", "", "2. View Doctor Profile", "");
-            System.out.printf(" |%23s%-30s%23s|\n", "", "3. Update Doctor Details", "");
-            System.out.printf(" |%23s%-30s%23s|\n", "", "4. Delete Doctor", "");
-            System.out.printf(" |%23s%-30s%23s|\n", "", "5. Back", "");
+            System.out.println("\n +------------------------ Doctor Profile Management ------------------------+");
+            System.out.printf(" |%23s%-30s%22s|\n", "", "1. Add Doctor", "");
+            System.out.printf(" |%23s%-30s%22s|\n", "", "2. View Doctor Profile", "");
+            System.out.printf(" |%23s%-30s%22s|\n", "", "3. Update Doctor Details", "");
+            System.out.printf(" |%23s%-30s%22s|\n", "", "4. Delete Doctor", "");
+            System.out.printf(" |%23s%-30s%22s|\n", "", "5. Back", "");
             System.out.println(" +---------------------------------------------------------------------------+");
             System.out.print("Select(1-5): ");
             int c = readInt();
@@ -148,14 +148,14 @@ public class UIDoctorManagement {
     // ===== Module 2: Schedule Management =====
     private void showScheduleMenu() {
         while (true) {
-            System.out.println(" +------------------------- Doctor Schedule Management -------------------------+");
-            System.out.printf(" |%23s%-32s%23s|\n", "", "1. Define Available Slots", "");
-            System.out.printf(" |%23s%-32s%23s|\n", "", "2. Add Time Slot", "");
-            System.out.printf(" |%23s%-32s%23s|\n", "", "3. Remove Time Slot(s)", "");
-            System.out.printf(" |%23s%-32s%23s|\n", "", "4. View Schedule", "");
-            System.out.printf(" |%23s%-32s%23s|\n", "", "5. Update Working Hours", "");
-            System.out.printf(" |%23s%-32s%23s|\n", "", "6. Back", "");
-            System.out.println(" +------------------------------------------------------------------------------+");
+            System.out.println("\n +----------------------- Doctor Schedule Management ------------------------+");
+            System.out.printf(" |%23s%-32s%20s|\n", "", "1. Define Available Slots", "");
+            System.out.printf(" |%23s%-32s%20s|\n", "", "2. Add Time Slot", "");
+            System.out.printf(" |%23s%-32s%20s|\n", "", "3. Remove Time Slot(s)", "");
+            System.out.printf(" |%23s%-32s%20s|\n", "", "4. View Schedule", "");
+            System.out.printf(" |%23s%-32s%20s|\n", "", "5. Update Working Hours", "");
+            System.out.printf(" |%23s%-32s%20s|\n", "", "6. Back", "");
+            System.out.println(" +---------------------------------------------------------------------------+");
             System.out.print("Select(1-6): ");
             int c = readInt();
             switch (c) {
@@ -187,14 +187,14 @@ public class UIDoctorManagement {
 
     private void showFollowUpMenu() {
         while (true) {
-            System.out.println(" +--------------------------------- Follow-up Task ---------------------------------+");
-            System.out.printf(" |%23s%-37s%23s|\n", "", "1. Add Follow-up Task", "");
-            System.out.printf(" |%23s%-37s%23s|\n", "", "2. View Tasks (All/Pending/Completed)", "");
-            System.out.printf(" |%23s%-37s%23s|\n", "", "3. Update Task (Description/Due Date)", "");
-            System.out.printf(" |%23s%-37s%23s|\n", "", "4. Mark as Completed", "");
-            System.out.printf(" |%23s%-37s%23s|\n", "", "5. Delete Task", "");
-            System.out.printf(" |%23s%-37s%23s|\n", "", "6. Back", "");
-            System.out.println(" +---------------------------------------------------------------------------------+");
+            System.out.println("\n +------------------------------ Follow-up Task -----------------------------+");
+            System.out.printf(" |%21s%-37s%17s|\n", "", "1. Add Follow-up Task", "");
+            System.out.printf(" |%21s%-37s%17s|\n", "", "2. View Tasks (All/Pending/Completed)", "");
+            System.out.printf(" |%21s%-37s%17s|\n", "", "3. Update Task (Description/Due Date)", "");
+            System.out.printf(" |%21s%-37s%17s|\n", "", "4. Mark as Completed", "");
+            System.out.printf(" |%21s%-37s%17s|\n", "", "5. Delete Task", "");
+            System.out.printf(" |%21s%-37s%17s|\n", "", "6. Back", "");
+            System.out.println(" +---------------------------------------------------------------------------+");
             System.out.print("Select(1-6): ");
             int c = readInt();
             switch (c) {
@@ -222,12 +222,12 @@ public class UIDoctorManagement {
     }
 
     private void viewReport() {
-        System.out.println(" +------------------------------- Doctor Report -------------------------------+");
-        System.out.printf(" |%19s%-39s%19s|\n", "", "1. View Doctor Experience Report", "");
-        System.out.printf(" |%19s%-39s%19s|\n", "", "2. View Doctor Specialization Report", "");
-        System.out.printf(" |%19s%-39s%19s|\n", "", "3. Back to Doctor Management", "");
-        System.out.println(" +-----------------------------------------------------------------------------+");
-        System.out.print("\nSelect your option: ");
+        System.out.println("\n +------------------------------ Doctor Report ------------------------------+");
+        System.out.printf(" |%21s%-39s%15s|\n", "", "1. View Doctor Experience Report", "");
+        System.out.printf(" |%21s%-39s%15s|\n", "", "2. View Doctor Specialization Report", "");
+        System.out.printf(" |%21s%-39s%15s|\n", "", "3. Back to Doctor Management", "");
+        System.out.println(" +---------------------------------------------------------------------------+");
+        System.out.print("Select your option: ");
         int choice = readInt();
         
         switch (choice) {
@@ -245,7 +245,7 @@ public class UIDoctorManagement {
     }
 
     private void addProfile() {
-        System.out.print("Name: ");
+        System.out.print("\nName: ");
         String name = scanner.nextLine();
         System.out.print("Specialization (Basic Cardiology/General Practice/Orthopedics/Dermatology): ");
         String spec = scanner.nextLine();
@@ -286,24 +286,25 @@ public class UIDoctorManagement {
         }
         LocalDate hired = LocalDate.now();
         Doctor d = controller.addDoctor(name, spec, exp, gender, phone, email, hired);
-        System.out.println("\nAdded");
+        System.out.println("\nAdded.");
         printDoctorHeader();
         printDoctorData(d);
     }
 
     private void viewProfile() {
         System.out.println("\nALL REGISTERED DOCTORS:");
-        System.out.println("_______________________________________________________________________________________________\n");
+        System.out.println("________________________________________________________________________________________________\n");
         try {
             LinkedList<Doctor> allDoctors = controller.getAllDoctors();
             
             if (allDoctors.isEmpty()) {
                 System.out.println("No doctors found in the system.");
-                System.out.println("_______________________________________________________________________________________________\n");
+                System.out.println("________________________________________________________________________________________________\n");
                 return;
             }
             
-            System.out.println("Doctor ID |   Name   |  Specialization  | Experience | Gender |    Phone     |       Email");
+            System.out.println("Doctor ID |   Name   |  Specialization  | Experience | Gender |    Phone     |     Email");
+            System.out.println("------------------------------------------------------------------------------------------------");
             
             for (int i = 0; i < allDoctors.size(); i++) {
                 Doctor doctor = allDoctors.get(i);
@@ -317,7 +318,7 @@ public class UIDoctorManagement {
                     doctor.getEmail());
             }
             
-            System.out.println("_______________________________________________________________________________________________\n");
+            System.out.println("________________________________________________________________________________________________\n");
             
         } catch (Exception e) {
             System.out.println("Error displaying doctors: " + e.getMessage());
@@ -325,7 +326,7 @@ public class UIDoctorManagement {
     }
 
     private void updateProfile() {
-        System.out.print("Doctor ID: ");
+        System.out.print("\nDoctor ID: ");
         String id = scanner.nextLine();
         System.out.print("Field (name/specialization/experience/gender/phone/email/hiredDate/active): ");
         String field = scanner.nextLine();
@@ -371,21 +372,21 @@ public class UIDoctorManagement {
         }
         boolean ok = controller.updateDoctorField(id, field, val);
         if (!ok) {
-            System.out.println("Failed\n");
+            System.out.println("Failed.\n");
         } else {
-            System.out.println("Updated\n");
+            System.out.println("Updated.\n");
         }
     }
 
     private void deleteProfile() {
-        System.out.print("Doctor ID: ");
+        System.out.print("\nDoctor ID: ");
         String id = scanner.nextLine();
         boolean ok = controller.deleteDoctor(id);
-        System.out.println(ok ? "Deleted" : "Not found");
+        System.out.println(ok ? "Deleted." : "Not found.");
     }
 
     private void defineSlots() {
-        String id = ask("Doctor ID: ");
+        String id = ask("\nDoctor ID: ");
         
         // Check if doctor exists
         Doctor doctor = controller.getDoctorById(id);
@@ -394,7 +395,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("\nName: " + doctor.getName());
+        System.out.println("Name: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current time slots for the doctor
@@ -402,7 +403,7 @@ public class UIDoctorManagement {
     }
 
     private void addSlot() {
-        String id = ask("Doctor ID: ");
+        String id = ask("\nDoctor ID: ");
         
         // Check if doctor exists
         Doctor doctor = controller.getDoctorById(id);
@@ -411,7 +412,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("\nName: " + doctor.getName());
+        System.out.println("Name: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current time slots for the doctor
@@ -456,7 +457,7 @@ public class UIDoctorManagement {
     }
 
     private void removeSlots() {
-        String id = ask("Doctor ID: ");
+        String id = ask("\nDoctor ID: ");
         
         // Check if doctor exists
         Doctor doctor = controller.getDoctorById(id);
@@ -465,7 +466,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("\nName: " + doctor.getName());
+        System.out.println("Name: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current time slots for the doctor
@@ -524,7 +525,7 @@ public class UIDoctorManagement {
     }
 
     private void viewSchedule() {
-        String id = ask("Doctor ID: ");
+        String id = ask("\nDoctor ID: ");
         
         Doctor doctor = controller.getDoctorById(id);
         if (doctor == null) {
@@ -532,10 +533,10 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("\nName: " + doctor.getName());
+        System.out.println("Name: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
-        System.out.println("\n__________________________________________________________________________________________");
+        System.out.println("\n_______________________________________________");
         System.out.println("\nTIME SLOTS:\n");
         
         try {
@@ -563,11 +564,11 @@ public class UIDoctorManagement {
         } catch (Exception e) {
             System.out.println("Error displaying schedule: " + e.getMessage());
         }
-        System.out.println("__________________________________________________________________________________________\n");
+        System.out.println("_______________________________________________\n");
     }
 
     private void updateWorkingHours() {
-        String id = ask("Doctor ID: ");
+        String id = ask("\nDoctor ID: ");
         
         // Check if doctor exists
         Doctor doctor = controller.getDoctorById(id);
@@ -576,7 +577,7 @@ public class UIDoctorManagement {
             return;
         }
         
-        System.out.println("\nName: " + doctor.getName());
+        System.out.println("Name: " + doctor.getName());
         System.out.println("Specialization: " + doctor.getSpecialization());
         
         // Display current working hours for the doctor
@@ -659,7 +660,7 @@ public class UIDoctorManagement {
     }
 
     private void fuAdd() {
-        String pid = ask("Patient ID: ");
+        String pid = ask("\nPatient ID: ");
         String did = ask("Doctor ID: ");
         String desc = ask("Description: ");
         String dueStr = ask("Due Date (yyyy-MM-dd) [optional]: ");
@@ -680,11 +681,11 @@ public class UIDoctorManagement {
                 }
             }
         }
-        System.out.println("Added: " + t);
+        System.out.println("\nAdded: " + t);
     }
 
     private void fuView() {
-        System.out.println("View filter: 1)All");
+        System.out.println("\nView filter: 1)All");
         System.out.println("             2)Pending");
         System.out.println("             3)Completed");
         System.out.print("Select(1-3): ");
@@ -702,13 +703,12 @@ public class UIDoctorManagement {
                 tasks = follow.listAll();
         }
 
-        System.out.println("\nFollow-up tasks:");
         try {
             if (tasks.isEmpty()) {
                 System.out.println("(No follow-up tasks found)");
                 return;
             }
-            System.out.println("Total tasks: " + tasks.size());
+            System.out.println("\nTotal tasks: " + tasks.size());
             System.out.println("");
             for (int i = 0; i < tasks.size(); i++) {
                 FollowUpTask task = tasks.get(i);
@@ -720,7 +720,7 @@ public class UIDoctorManagement {
     }
 
     private void fuUpdate() {
-        String id = ask("Task ID: ");
+        String id = ask("\nTask ID: ");
         String newDesc = ask("New description (leave blank to keep): ");
         String dueStr = ask("New Due Date (yyyy-MM-dd) [leave blank to keep]: ");
         java.time.LocalDate due = null;
@@ -740,13 +740,13 @@ public class UIDoctorManagement {
     }
 
     private void fuMarkCompleted() {
-        String id = ask("Task ID: ");
+        String id = ask("\nTask ID: ");
         boolean ok = follow.markCompleted(id);
         System.out.println(ok ? "Marked." : "Not found.");
     }
 
     private void fuDelete() {
-        String id = ask("Task ID: ");
+        String id = ask("\nTask ID: ");
         boolean ok = follow.delete(id);
         System.out.println(ok ? "Deleted." : "Not found.");
     }
@@ -899,8 +899,8 @@ public class UIDoctorManagement {
     }
 
     private void printDoctorHeader() {
-        System.out.println("______________________________________________________________________________________________\n");
-        System.out.println("Doctor ID |   Name   |  Specialization  | Experience | Gender |    Phone     |       Email");
+        System.out.println("_______________________________________________________________________________________________\n");
+        System.out.println("Doctor ID |   Name   |  Specialization  | Experience | Gender |    Phone     |     Email");
     }
 
     private void printDoctorData(Doctor doctor) {
@@ -913,7 +913,7 @@ public class UIDoctorManagement {
                 doctor.getPhoneNumber(),
                 doctor.getEmail());
 
-        System.out.println("______________________________________________________________________________________________");
+        System.out.println("_______________________________________________________________________________________________");
     }
 
     public void printTimeSlots(HashMap<LocalDate, LinkedList<LocalTime>> schedule, String id) {
