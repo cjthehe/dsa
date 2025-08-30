@@ -1,4 +1,9 @@
-package Controller;
+/**
+ * DoctorController class
+ * Author: NG WEI NEE
+ */
+
+ package Controller;
 
 import ADT.AVLTree;
 import ADT.LinkedList;
@@ -237,5 +242,3 @@ public class DoctorController {
         return result;
     }
 }
-
-

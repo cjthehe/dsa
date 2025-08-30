@@ -13,7 +13,7 @@ import Main.Asgm;
 public class UIPatientManagement {
     private Asgm asgm = new Asgm();
     Scanner scanner = new Scanner(System.in);
-    public PatientController controller = new PatientController();
+    public PatientController controller = PatientController.getInstance();
     
     public void showOption(){
 

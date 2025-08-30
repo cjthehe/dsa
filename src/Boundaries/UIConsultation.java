@@ -1,7 +1,9 @@
 package Boundaries;
 
 import Controller.ConsultationController;
+import Controller.PatientController;
 import Entity.Consultation;
+import Entity.Patient;
 import Main.Asgm;
 
 import ADT.HashMap;
@@ -47,13 +49,79 @@ public class UIConsultation {
             }
             
             if (!Consultation.isValidPatientId(patientId)) {
-                System.out.println("Error: Invalid patient ID format. Expected: P + 3 digits (e.g., P001)");
+                System.out.println("Error: Invalid patient ID format. Expected: P + 4 digits (e.g., P0001)");
                 continue;
             }
             
             if (!controller.validatePatientId(patientId)) {
                 System.out.println("Error: Patient ID not found. Please register the patient first.");
                 continue;
+            }
+            
+            // Check if patient is the first in the queue (only first patient can create consultation)
+            PatientController patientController = PatientController.getInstance();
+            if (!patientController.isFirstPatientInQueue(patientId)) {
+                if (!patientController.isPatientInQueue(patientId)) {
+                    System.out.println("Error: Patient " + patientId + " is not in the queue.");
+                    System.out.println("Only patients in the queue can create consultation appointments.");
+                    System.out.println("Please register the patient first or ensure they are added to the queue.");
+                } else {
+                    System.out.println("Error: Patient " + patientId + " is not the first in queue.");
+                    System.out.println("Only the first patient in the queue can create consultation appointments.");
+                    System.out.println("Please wait for your turn or check your position in the queue.");
+                }
+                continue;
+            }
+            
+            break; 
+        } while (true);
+        
+        return patientId;
+    }
+
+    private String getValidPatientIdForHistory() {
+        String patientId;
+        do {
+            System.out.print("Enter Patient ID: ");
+            patientId = scanner.nextLine().trim();
+            
+            if (patientId.isEmpty()) {
+                System.out.println("Error: Patient ID cannot be empty. Please try again.");
+                continue;
+            }
+            
+            if (!Consultation.isValidPatientId(patientId)) {
+                System.out.println("Error: Invalid patient ID format. Expected: P + 4 digits (e.g., P0001)");
+                continue;
+            }
+            
+            // Check if patient exists in the system (either in queue or has consultation history)
+            PatientController patientController = PatientController.getInstance();
+            boolean patientExists = controller.validatePatientId(patientId);
+            boolean hasHistory = !controller.getConsultationsByPatient(patientId).isEmpty();
+            
+            if (!patientExists && !hasHistory) {
+                System.out.println("Error: Patient ID " + patientId + " not found in the system.");
+                System.out.println("This patient has never been registered or has no consultation history.");
+                continue;
+            }
+            
+            // Show patient status information
+            if (patientExists) {
+                if (patientController.isPatientInQueue(patientId)) {
+                    int position = patientController.getPatientQueuePosition(patientId);
+                    if (position == 1) {
+                        System.out.println("✓ Patient " + patientId + " is currently 1st in queue (NEXT)");
+                    } else {
+                        System.out.println("✓ Patient " + patientId + " is currently #" + position + " in queue");
+                    }
+                } else {
+                    System.out.println("✓ Patient " + patientId + " is registered but not currently in queue");
+                }
+            }
+            
+            if (hasHistory) {
+                System.out.println("✓ Patient " + patientId + " has consultation history available");
             }
             
             break; 
@@ -370,10 +438,45 @@ public class UIConsultation {
         }
     }
 
+    private void displayPatientQueue() {
+        PatientController patientController = PatientController.getInstance();
+        ArrayList<Entity.Patient> patientsInQueue = patientController.getAllPatientsInQueue();
+        
+        System.out.println("\n +------------------------- Current Patient Queue -------------------------+ ");
+        
+        if (patientsInQueue.isEmpty()) {
+            System.out.println("No patients currently in queue.");
+            System.out.println("Patients must be registered and added to queue before they can create consultations.");
+        } else {
+            System.out.println("Patients currently in queue:");
+            System.out.println("+--------+----------------------+------------------+------------------+--------+");
+            System.out.println("| ID     | Name                 | Faculty          | Registration Date| Position|");
+            System.out.println("+--------+----------------------+------------------+------------------+--------+");
+            
+            for (int i = 0; i < patientsInQueue.size(); i++) {
+                Entity.Patient patient = patientsInQueue.get(i);
+                String position = (i == 0) ? "1st (NEXT)" : String.valueOf(i + 1);
+                System.out.printf("| %-6s | %-20s | %-16s | %-16s | %-6s |\n",
+                    patient.getID(),
+                    patient.getName(),
+                    patient.getFaculty(),
+                    patient.getRegistrationDate().format(dateFormatter),
+                    position);
+            }
+            System.out.println("+--------+----------------------+------------------+------------------+--------+");
+            System.out.println("Note: Only the FIRST patient in queue (marked as '1st (NEXT)') can create consultation appointments.");
+        }
+        
+        System.out.println("\nPress Enter to continue...");
+        scanner.nextLine();
+    }
+
     private void createAppointment() {
         System.out.println("\n +------------------------- Create Consultation Appointment -------------------------+ ");
         System.out.println("Pre-condition: Patient should check doctor availability first (Option 1)");
         System.out.println();
+        
+        displayPatientQueue();
         
         // Initialize doctors if needed
         initializeDoctorsIfNeeded();
@@ -608,7 +711,7 @@ public class UIConsultation {
             
             String symptoms = getValidConsultationRecordInput("Symptoms", 3, 500, true);
             String diagnosis = getValidConsultationRecordInput("Diagnosis", 3, 200, true);
-            String prescription = getValidConsultationRecordInput("Prescription", 0, 300, true);
+            String prescription = getValidConsultationRecordInput("Prescription", 3, 300, true);
             String notes = getValidConsultationRecordInput("Notes", 0, 1000, false);
             double consultationHr = getValidConsultationHours();
             
@@ -630,6 +733,38 @@ public class UIConsultation {
                 if (success) {
                     System.out.println("\nConsultation record updated successfully!");
                     System.out.println("Status changed to: COMPLETED");
+                    
+                                         // Dequeue the patient from the queue after consultation completion
+                     PatientController patientController = PatientController.getInstance();
+                     Patient dequeuedPatient = patientController.dequeueFirstPatient();
+                     
+                     if (dequeuedPatient != null) {
+                         System.out.println("\n" + dequeuedPatient.getName() + " (ID: " + dequeuedPatient.getID() + ") has been removed from the queue.");
+                         System.out.println("The next patient in queue can now create a consultation appointment.");
+                         
+                         // Show updated queue status
+                         ArrayList<Entity.Patient> remainingPatients = patientController.getAllPatientsInQueue();
+                         if (!remainingPatients.isEmpty()) {
+                             System.out.println("\nUpdated Queue Status:");
+                             System.out.println("+--------+----------------------+------------------+--------+");
+                             System.out.println("| ID     | Name                 | Faculty          | Position|");
+                             System.out.println("+--------+----------------------+------------------+--------+");
+                             
+                             for (int i = 0; i < remainingPatients.size(); i++) {
+                                 Entity.Patient nextPatient = remainingPatients.get(i);
+                                 String position = (i == 0) ? "1st (NEXT)" : String.valueOf(i + 1);
+                                 System.out.printf("| %-6s | %-20s | %-16s | %-6s |\n",
+                                     nextPatient.getID(),
+                                     nextPatient.getName(),
+                                     nextPatient.getFaculty(),
+                                     position);
+                             }
+                             System.out.println("+--------+----------------------+------------------+--------+");
+                             System.out.println("Note: " + remainingPatients.get(0).getName() + " (ID: " + remainingPatients.get(0).getID() + ") is now NEXT in line.");
+                         } else {
+                             System.out.println("\nQueue is now empty. No patients waiting for consultation.");
+                         }
+                     }
                 } else {
                     System.out.println("Error: Failed to update consultation record.");
                 }
@@ -647,7 +782,7 @@ public class UIConsultation {
         System.out.println();
         
         try {
-            String patientId = getValidPatientId();
+            String patientId = getValidPatientIdForHistory();
             
             System.out.println("\nRetrieving consultation history...");
             ArrayList<Consultation> consultations = controller.getConsultationsByPatient(patientId);
@@ -659,29 +794,81 @@ public class UIConsultation {
                 return;
             }
             
+            // Get patient information and current status
+            PatientController patientController = PatientController.getInstance();
+            Entity.Patient patient = patientController.findPatientByID(patientId);
+            
             System.out.println("\n=== Consultation History for Patient " + patientId + " ===");
+            if (patient != null) {
+                System.out.println("Patient Name: " + patient.getName());
+                System.out.println("Faculty: " + patient.getFaculty());
+                System.out.println("Registration Date: " + patient.getRegistrationDate().format(dateFormatter));
+            }
+            
+            // Show current queue status
+            if (patientController.isPatientInQueue(patientId)) {
+                int position = patientController.getPatientQueuePosition(patientId);
+                if (position == 1) {
+                    System.out.println("Current Status: 1st in queue (NEXT to be seen)");
+                } else {
+                    System.out.println("Current Status: #" + position + " in queue");
+                }
+            } else {
+                System.out.println("Current Status: Not in queue (may have completed consultation)");
+            }
+            
             System.out.println("Total consultations: " + consultations.size());
             System.out.println();
             
+            // Group consultations by status
+            ArrayList<Consultation> completedConsultations = new ArrayList<>();
+            ArrayList<Consultation> scheduledConsultations = new ArrayList<>();
+            ArrayList<Consultation> cancelledConsultations = new ArrayList<>();
+            
             for (int i = 0; i < consultations.size(); i++) {
                 Consultation c = consultations.get(i);
-                System.out.println("Consultation " + (i + 1) + ":");
-                System.out.println("  ID: " + c.getConsultationId());
-                System.out.println("  Date: " + c.getAppointmentDateTime().format(dtf));
-                System.out.println("  Doctor: " + c.getDoctorId());
-                System.out.println("  Status: " + c.getStatus());
-                
-                if (c.getSymptoms() != null && !c.getSymptoms().isEmpty()) {
-                    System.out.println("  Symptoms: " + c.getSymptoms());
+                switch (c.getStatus().toUpperCase()) {
+                    case "COMPLETED":
+                        completedConsultations.add(c);
+                        break;
+                    case "SCHEDULED":
+                        scheduledConsultations.add(c);
+                        break;
+                    case "CANCELLED":
+                        cancelledConsultations.add(c);
+                        break;
+                    default:
+                        scheduledConsultations.add(c);
+                        break;
                 }
-                if (c.getDiagnosis() != null && !c.getDiagnosis().isEmpty()) {
-                    System.out.println("  Diagnosis: " + c.getDiagnosis());
+            }
+            
+            // Display completed consultations first (most recent first)
+            if (!completedConsultations.isEmpty()) {
+                System.out.println("=== COMPLETED CONSULTATIONS ===");
+                for (int i = completedConsultations.size() - 1; i >= 0; i--) {
+                    Consultation c = completedConsultations.get(i);
+                    displayConsultationDetails(c, "Completed", i + 1);
                 }
-                if (c.getPrescription() != null && !c.getPrescription().isEmpty()) {
-                    System.out.println("  Prescription: " + c.getPrescription());
+                System.out.println();
+            }
+            
+            // Display scheduled consultations
+            if (!scheduledConsultations.isEmpty()) {
+                System.out.println("=== SCHEDULED CONSULTATIONS ===");
+                for (int i = 0; i < scheduledConsultations.size(); i++) {
+                    Consultation c = scheduledConsultations.get(i);
+                    displayConsultationDetails(c, "Scheduled", i + 1);
                 }
-                if (c.getNotes() != null && !c.getNotes().isEmpty()) {
-                    System.out.println("  Notes: " + c.getNotes());
+                System.out.println();
+            }
+            
+            // Display cancelled consultations
+            if (!cancelledConsultations.isEmpty()) {
+                System.out.println("=== CANCELLED CONSULTATIONS ===");
+                for (int i = 0; i < cancelledConsultations.size(); i++) {
+                    Consultation c = cancelledConsultations.get(i);
+                    displayConsultationDetails(c, "Cancelled", i + 1);
                 }
                 System.out.println();
             }
@@ -689,6 +876,37 @@ public class UIConsultation {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+        
+        System.out.println("\nPress Enter to return to main menu...");
+        scanner.nextLine();
+    }
+    
+    private void displayConsultationDetails(Consultation c, String status, int index) {
+        System.out.println(status + " Consultation " + index + ":");
+        System.out.println("  ID: " + c.getConsultationId());
+        System.out.println("  Date: " + c.getAppointmentDateTime().format(dtf));
+        System.out.println("  Doctor: " + c.getDoctorId());
+        System.out.println("  Status: " + c.getStatus());
+        
+        if (c.getSymptoms() != null && !c.getSymptoms().isEmpty()) {
+            System.out.println("  Symptoms: " + c.getSymptoms());
+        }
+        if (c.getDiagnosis() != null && !c.getDiagnosis().isEmpty()) {
+            System.out.println("  Diagnosis: " + c.getDiagnosis());
+        }
+        if (c.getPrescription() != null && !c.getPrescription().isEmpty()) {
+            System.out.println("  Prescription: " + c.getPrescription());
+        }
+        if (c.getNotes() != null && !c.getNotes().isEmpty()) {
+            System.out.println("  Notes: " + c.getNotes());
+        }
+        if (c.getConsultationHr() > 0) {
+            System.out.println("  Duration: " + c.getConsultationHr() + " hours");
+        }
+        if (c.getFollowUpConsultationId() != null) {
+            System.out.println("  Follow-up: " + c.getFollowUpConsultationId());
+        }
+        System.out.println();
     }
     
     private boolean seededReports = false;
@@ -896,27 +1114,27 @@ public class UIConsultation {
         
         LocalDateTime now = LocalDateTime.now();
         
-        Consultation c1 = controller.addConsultation("P001", "D001", 
+        Consultation c1 = controller.addConsultation("P0001", "D001", 
             now.minusDays(5).withHour(9).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
-        Consultation c2 = controller.addConsultation("P002", "D001", 
+        Consultation c2 = controller.addConsultation("P0002", "D001", 
             now.minusDays(3).withHour(10).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
-        Consultation c3 = controller.addConsultation("P003", "D001", 
+        Consultation c3 = controller.addConsultation("P0003", "D001", 
             now.minusDays(1).withHour(11).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
         
-        Consultation c4 = controller.addConsultation("P001", "D002", 
+        Consultation c4 = controller.addConsultation("P0001", "D002", 
             now.minusDays(2).withHour(14).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
-        Consultation c5 = controller.addConsultation("P004", "D002", 
+        Consultation c5 = controller.addConsultation("P0004", "D002", 
             now.minusDays(1).withHour(15).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
         
-        Consultation c6 = controller.addConsultation("P002", "D003", 
+        Consultation c6 = controller.addConsultation("P0002", "D003", 
             now.minusDays(1).withHour(16).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
-        Consultation c7 = controller.addConsultation("P005", "D003", 
+        Consultation c7 = controller.addConsultation("P0005", "D003", 
             now.withHour(9).withMinute(0),
             "SCHEDULED", null, null, null, null, 0.0);
         
@@ -927,8 +1145,8 @@ public class UIConsultation {
         controller.updateConsultationRecord(c5.getConsultationId(), "Allergy", "Allergic rhinitis", "Antihistamine (M0006)", "Keep windows closed", 0.25);
         controller.updateConsultationRecord(c6.getConsultationId(), "Fatigue", "Vitamin deficiency", "Vitamin C (M0004)", "Eat more fruits", 0.5);
 
-        c1.setFollowUpConsultationId(c4.getConsultationId()); // P001: D001 → D002
-        c2.setFollowUpConsultationId(c6.getConsultationId()); // P002: D001 → D003
+        c1.setFollowUpConsultationId(c4.getConsultationId()); // P0001: D001 → D002
+        c2.setFollowUpConsultationId(c6.getConsultationId()); // P0002: D001 → D003
         
     }
 }

@@ -1,3 +1,8 @@
+/**
+ * ConsultationController class
+ * Author: Chan Jean Theng
+ */
+
 package Controller;
 
 import Entity.Consultation;
@@ -29,7 +34,7 @@ public class ConsultationController {
         
         // Validate patient ID
         if (!Consultation.isValidPatientId(patientId)) {
-            result.addError("Invalid patient ID format. Expected: P + 3 digits");
+            result.addError("Invalid patient ID format. Expected: P + 4 digits");
         } else if (!validatePatientId(patientId)) {
             result.addError("Patient ID not found in system");
         }
@@ -47,7 +52,7 @@ public class ConsultationController {
         if (!Consultation.isValidAppointmentDateTime(dateTime)) {
             result.addError("Invalid appointment date/time. Must be within valid range");
         } else if (!Consultation.isWorkingHours(dateTime)) {
-            result.addError("Appointment must be during working hours (Monday-Friday, 9 AM - 5 PM)");
+            result.addError("Appointment must be during working hours (8AM - 7PM)");
         } else if (!isSlotAvailable(dateTime)) {
             result.addError("Time slot is not available");
         } else if (doctorId != null && !doctorId.trim().isEmpty() && isDoctorBusyAtTime(doctorId, dateTime)) {
@@ -81,7 +86,7 @@ public class ConsultationController {
         if (!Consultation.isValidAppointmentDateTime(newDateTime)) {
             result.addError("Invalid new appointment date/time. Must be within valid range");
         } else if (!Consultation.isWorkingHours(newDateTime)) {
-            result.addError("New appointment must be during working hours (Monday-Friday, 9 AM - 5 PM)");
+            result.addError("New appointment must be during working hours (Monday-Friday, 8 AM - 7 PM)");
         } else if (!isSlotAvailable(newDateTime)) {
             result.addError("New time slot is not available");
         } else if (isDoctorBusyAtTime(consultation.getDoctorId(), newDateTime)) {
@@ -503,6 +508,7 @@ public class ConsultationController {
             if (c.getDoctorId().equals(doctorId) && 
                 c.getAppointmentDateTime().equals(dateTime) &&
                 !c.getStatus().equals("CANCELLED")) {
+                System.out.println("    Doctor has existing consultation at this time");
                 return false;
             }
         }
@@ -512,11 +518,20 @@ public class ConsultationController {
         LocalDate date = dateTime.toLocalDate();
         LocalTime time = dateTime.toLocalTime();
         
-        if (!doctorController.isSlotAvailable(doctorId, date, time)) {
-            return false;
+        // Get all available time slots for this doctor on this date
+        ADT.LinkedList<java.time.LocalTime> availableSlots = doctorController.getSlotsForDate(doctorId, date);
+        
+        // Check if the requested time falls within any available slot
+        for (int i = 0; i < availableSlots.size(); i++) {
+            java.time.LocalTime slotTime = availableSlots.get(i);
+            // Each slot represents a 60-minute period starting at slotTime
+            // For example, if slotTime is 10:00, it covers 10:00-11:00
+            if (time.compareTo(slotTime) >= 0 && time.compareTo(slotTime.plusMinutes(60)) < 0) {
+                return true;
+            }
         }
         
-        return true;
+        return false;
     }
     
     // Get available time slots for a specific date

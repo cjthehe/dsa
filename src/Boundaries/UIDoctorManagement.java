@@ -67,11 +67,11 @@ public class UIDoctorManagement {
     }
 
     private void followUpDummyData() {
-        follow.add("P101", "D001", "Follow up on imaging results", LocalDate.now().plusDays(7));
-        follow.add("P102", "D003", "Check lab results", LocalDate.now().plusDays(14));
-        follow.add("P103", "D002", "Confirm medication", LocalDate.now().plusDays(2));
-        FollowUpTask t4 = follow.add("P104", "D002", "Monitor treatment progress", LocalDate.now().plusDays(3));
-        follow.add("P105", "D005", "Assess patient recovery", LocalDate.now().plusDays(10));
+        follow.add("P0001", "D001", "Follow up on imaging results", LocalDate.now().plusDays(7));
+        follow.add("P0002", "D003", "Check lab results", LocalDate.now().plusDays(14));
+        follow.add("P0003", "D002", "Confirm medication", LocalDate.now().plusDays(2));
+        FollowUpTask t4 = follow.add("P0004", "D002", "Monitor treatment progress", LocalDate.now().plusDays(3));
+        follow.add("P0005", "D005", "Assess patient recovery", LocalDate.now().plusDays(10));
         // Mark one as completed
         follow.markCompleted(t4.getTaskId());
     }
@@ -805,14 +805,14 @@ public class UIDoctorManagement {
     }
 
     private void viewDoctorSpecializationReport() {
-        System.out.println("\n______________________________________________________________");
+        System.out.println("\n__");
         System.out.println("\nDOCTOR SPECIALIZATION ANALYSIS REPORT:\n");
     
         LinkedList<Doctor> doctors = controller.getAllDoctors();
     
         if (doctors.isEmpty()) {
             System.out.println("No doctors found in the system.");
-            System.out.println("______________________________________________________________\n");
+            System.out.println("\n");
             return;
         }
     
@@ -851,10 +851,13 @@ public class UIDoctorManagement {
 
         System.out.println(" ------------------------------");
         for (int i = 0; i < specializations.length; i++) {
-            System.out.printf("| %s%-28s%s |\n", colors[i], specializations[i], RESET);
+            System.out.printf("| %-10s%-23s%s |\n", colors[i], specializations[i], RESET);
         }
         System.out.println(" ------------------------------\n");
 
+        System.out.println("Number of Doctors");
+        System.out.println("   ^");
+        System.out.println("   |");
         for (int level = max; level >= 1; level--) {
             System.out.printf("%2d | ", level);
             for (int i = 0; i < counts.length; i++) {
@@ -878,9 +881,9 @@ public class UIDoctorManagement {
         for (String l : labels) {
             System.out.print(l + "   ");
         }
-        System.out.println();
+        System.out.println("  <---- Specialization");
     
-        System.out.println("\n______________________________________________________________");
+        System.out.println("\n__");
         System.out.print("\nPress Enter to return to Doctor Management Menu...\n"); 
         scanner.nextLine();
     }

@@ -1,3 +1,7 @@
+/**
+ * MedicalTreatmentController class
+ * Author: Lim Jing Wei
+ */
 package Controller;
 
 import ADT.HashMap;

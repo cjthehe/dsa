@@ -68,8 +68,8 @@ public class Consultation {
     
     public static boolean isValidPatientId(String patientId) {
         return patientId != null && 
-               patientId.matches("^P\\d{3}$") && // P + 3 digits
-               patientId.length() == 4;
+               patientId.matches("^P\\d{4}$") && // P + 4 digits
+               patientId.length() == 5;
     }
     
     public static boolean isValidDoctorId(String doctorId) {
@@ -82,10 +82,8 @@ public class Consultation {
         if (dateTime == null) return false;
         
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime minDateTime = now.minusDays(1); // Allow appointments up to 1 day in the past
         
-        // Check if appointment is not too far in the past
-        if (dateTime.isBefore(minDateTime)) {
+        if (dateTime.isBefore(now)) {
             return false;
         }
         
@@ -155,7 +153,8 @@ public class Consultation {
         int hour = dateTime.getHour();
         int dayOfWeek = dateTime.getDayOfWeek().getValue();
         
-        return dayOfWeek >= 1 && dayOfWeek <= 7 && hour >= 9 && hour < 17;
+        // Allow appointments from 8 AM to 7 PM (matching the time slots defined in setupTimeSlotsForDate)
+        return dayOfWeek >= 1 && dayOfWeek <= 7 && hour >= 8 && hour < 19;
     }
     
     public static boolean canBeCompleted(String currentStatus) {

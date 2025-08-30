@@ -20,7 +20,8 @@ public class UIPharmacy {
             System.out.printf(" |%22s%-35s%22s |\n", "", "2. Medicine Dispensing", "");
             System.out.printf(" |%22s%-35s%22s |\n", "", "3. Stock Reordering", "");
             System.out.printf(" |%22s%-35s%22s |\n", "", "4. Supplier Management", "");
-            System.out.printf(" |%22s%-35s%22s |\n", "", "5. Exit", "");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "5. Report", "");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "6. Exit", "");
             System.out.println(" +--------------------------------------------------------------------------------+");
 
             System.out.print("Enter choice: ");
@@ -41,6 +42,9 @@ public class UIPharmacy {
                     supplierManagementMenu();
                     break;
                 case 5:
+                    viewReports();
+                    break;
+                case 6:
                     System.out.println("Returning to main menu...");
                     asgm.startMenu();
                     break;
@@ -61,8 +65,7 @@ public class UIPharmacy {
             System.out.printf(" |%23s%-30s%23s |\n", "", "2. Add Medicine", "");
             System.out.printf(" |%23s%-30s%23s |\n", "", "3. Edit Medicine", "");
             System.out.printf(" |%23s%-30s%23s |\n", "", "4. Delete Medicine", "");
-            System.out.printf(" |%23s%-30s%23s |\n", "", "5. View Stock Level Report", "");
-            System.out.printf(" |%23s%-30s%23s |\n", "", "6. Back to Main Menu", "");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "5. Back to Main Menu", "");
             System.out.println(" +-----------------------------------------------------------------------------+");
             
             System.out.print("Enter choice: ");
@@ -83,9 +86,6 @@ public class UIPharmacy {
                     controller.deleteMedicine();
                     break;
                 case 5:
-                    controller.viewStockReport();
-                    break;
-                case 6:
                     System.out.println("Returning to Main Menu...");
                     break;
                 default:
@@ -101,8 +101,7 @@ public class UIPharmacy {
             System.out.println("\n");
             System.out.println(" +--------------------------- Medicine Dispensing ---------------------------+");
             System.out.printf(" |%20s%-35s%20s|\n", "", "1. Dispense Medicine to Patient", "");
-            System.out.printf(" |%20s%-35s%20s|\n", "", "2. View Dispensed Medicines Report", "");
-            System.out.printf(" |%20s%-35s%20s|\n", "", "3. Back to Main Menu", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "2. Back to Main Menu", "");
             System.out.println(" +---------------------------------------------------------------------------+");
             
             System.out.print("Enter choice: ");
@@ -114,9 +113,6 @@ public class UIPharmacy {
                     controller.dispenseMedicine(patientTree);
                     break;
                 case 2:
-                    controller.viewDispensedReport();
-                    break;
-                case 3:
                     System.out.println("Returning to Main Menu...");
                     break;
                 default:
@@ -206,7 +202,36 @@ public class UIPharmacy {
         } while (choice != 7);
     }
 
-    public static void main(String[] args) {
-        new UIPharmacy().showMenu();
+    private void viewReports(){
+        System.out.println("\n +-------------------------- View Reports -------------------------+ ");
+        System.out.println();
+            System.out.println("\n +--------------------------- Pharmacy Reports Menu ---------------------------+ ");
+            System.out.printf(" |%20s%-34s%23s|\n", "", "1. Stock Level Report", "");
+            System.out.printf(" |%20s%-34s%23s|\n", "", "2. Dispensed Medicine Report", "");
+            System.out.printf(" |%20s%-34s%23s|\n", "", "3. Exit", "");
+            System.out.println(" +-----------------------------------------------------------------------------+ ");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1: {
+                    controller.viewStockReport();
+                    showMenu();
+                    break;
+                }
+                case 2: {
+                    controller.viewDispensedReport();
+                    showMenu();
+                    break;
+                }
+                case 3:
+                    System.out.println("\nPress Enter to return to main menu...");
+                    scanner.nextLine();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+            
+
     }
 }

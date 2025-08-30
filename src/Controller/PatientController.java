@@ -1,3 +1,7 @@
+/**
+ * PatientController class
+ * Author: Chan Guo Zhe
+ */
 package Controller;
 
 import ADT.QueueADT;
@@ -9,11 +13,22 @@ import ADT.ArrayList;
 import java.util.Iterator;
 
 public class PatientController {
+    private static PatientController instance = null;
+    
     private static int patientCounter = 1;
     private final QueueADT<Patient> arrayQueue = new QueueADT<>(50);
     private final ArrayList<Patient> patientSymptoms = new ArrayList<>();
     private AVLTree<String, Patient> tree = new AVLTree<>();
     private Patient patient;
+    
+    private PatientController() {}
+    
+    public static PatientController getInstance() {
+        if (instance == null) {
+            instance = new PatientController();
+        }
+        return instance;
+    }
     
     public Patient patientRegistration(String name, String icNumber, 
                                    String phoneNumber, String email,String patientFaculty,ArrayList<String> patientSymptom, LocalDate registrationDate) {
@@ -163,6 +178,93 @@ public class PatientController {
     
     public Patient viewPatientQueue() {
         return arrayQueue.getFront();
+    }
+
+    /**
+     * Check if a patient is currently in the queue
+     * @param patientId the patient ID to check
+     * @return true if patient is in queue, false otherwise
+     */
+    public boolean isPatientInQueue(String patientId) {
+        if (patientId == null || patientId.trim().isEmpty()) {
+            return false;
+        }
+        
+        for (Patient patient : arrayQueue) {
+            if (patient.getID().equals(patientId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Check if a patient is the first in the queue (only first patient can create consultation)
+     * @param patientId the patient ID to check
+     * @return true if patient is first in queue, false otherwise
+     */
+    public boolean isFirstPatientInQueue(String patientId) {
+        if (patientId == null || patientId.trim().isEmpty()) {
+            return false;
+        }
+        
+        Patient firstPatient = arrayQueue.getFront();
+        return firstPatient != null && firstPatient.getID().equals(patientId);
+    }
+
+    /**
+     * Get all patients currently in the queue
+     * @return ArrayList of patients in queue
+     */
+    public ArrayList<Patient> getAllPatientsInQueue() {
+        ArrayList<Patient> patientsInQueue = new ArrayList<>();
+        
+        // Use iterator to traverse the queue
+        Iterator<Patient> iterator = arrayQueue.iterator();
+        while (iterator.hasNext()) {
+            Patient patient = iterator.next();
+            if (patient != null) {
+                patientsInQueue.add(patient);
+            }
+        }
+        
+        return patientsInQueue;
+    }
+    
+    /**
+     * Dequeue the first patient from the queue after consultation completion
+     * @return the dequeued patient, or null if queue is empty
+     */
+    public Patient dequeueFirstPatient() {
+        if (arrayQueue.isEmpty()) {
+            return null;
+        }
+        
+        Patient dequeuedPatient = arrayQueue.dequeue();
+        System.out.println("Patient " + dequeuedPatient.getID() + " (" + dequeuedPatient.getName() + ") has been removed from the queue after consultation completion.");
+        return dequeuedPatient;
+    }
+    
+    /**
+     * Get the position of a patient in the queue
+     * @param patientId the patient ID to check
+     * @return the position (1-based), or -1 if not found
+     */
+    public int getPatientQueuePosition(String patientId) {
+        if (patientId == null || patientId.trim().isEmpty()) {
+            return -1;
+        }
+        
+        int position = 1;
+        Iterator<Patient> iterator = arrayQueue.iterator();
+        while (iterator.hasNext()) {
+            Patient patient = iterator.next();
+            if (patient != null && patient.getID().equals(patientId)) {
+                return position;
+            }
+            position++;
+        }
+        return -1; // Patient not found in queue
     }
 
     
