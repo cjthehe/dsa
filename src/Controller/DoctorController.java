@@ -8,17 +8,12 @@ import Entity.Doctor;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * Manages Doctor profiles and schedules.
- */
 public class DoctorController {
     private static int doctorCounter = 1;
 
-    // Shared storage across instances
     private static final AVLTree<String, Doctor> doctorIndex = new AVLTree<>();
     private static final LinkedList<Doctor> doctorList = new LinkedList<>();
 
-    // doctorId -> (date -> list of available time slots)
     private static final HashMap<String, HashMap<LocalDate, LinkedList<LocalTime>>> doctorSchedules = new HashMap<>();
 
     // ===== Doctor Profile Management =====
@@ -37,7 +32,7 @@ public class DoctorController {
     }
 
     public LinkedList<Doctor> getAllDoctors() {
-        return doctorList; // Return the ADT LinkedList containing all doctors
+        return doctorList;
     }
 
     public boolean updateDoctorField(String doctorId, String field, String newValue) {
@@ -85,7 +80,6 @@ public class DoctorController {
                 return false;
         }
         if (changed) {
-            // Data updated in memory
         }
         return true;
     }
@@ -99,7 +93,6 @@ public class DoctorController {
         return true;
     }
 
-    // Helper method to remove doctor from LinkedList
     private boolean removeFromDoctorList(Doctor doctor) {
         for (int i = 0; i < doctorList.size(); i++) {
             Doctor d = doctorList.get(i);
@@ -155,7 +148,7 @@ public class DoctorController {
         // Check if slot already exists
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).equals(slot)) {
-                return false; // Slot already exists
+                return false; 
             }
         }
         
@@ -213,7 +206,6 @@ public class DoctorController {
         return removed;
     }
 
-    // ===== Helpers =====
     private String generateDoctorId() {
         return "D" + String.format("%03d", doctorCounter++);
     }

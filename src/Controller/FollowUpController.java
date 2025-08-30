@@ -34,8 +34,6 @@ public class FollowUpController {
         FollowUpTask t = index.search(taskId);
         if (t == null) return false;
         t.setCompleted(true);
-        // OPTIONAL: if you only want uncompleted items in the pending queue, uncomment:
-        // removeFromPendingById(taskId);
         return true;
     }
 
@@ -65,7 +63,7 @@ public class FollowUpController {
     }
 
     public LinkedList<FollowUpTask> listAll() {
-        return all; // Return the ADT LinkedList directly
+        return all;
     }
 
     public LinkedList<FollowUpTask> listByStatus(String status) {
@@ -98,7 +96,7 @@ public class FollowUpController {
         return "T" + String.format("%03d", counter++);
     }
 
-    // --- helper: remove by id using index + remove(int)
+    //  remove by id using index + remove(int)
     private boolean removeFromPendingById(String taskId) {
         for (int i = 0; i < pending.size(); i++) {
             FollowUpTask cur = pending.get(i);
@@ -111,7 +109,7 @@ public class FollowUpController {
         return false;
     }
 
-    // --- helper: remove by id from all list
+    // remove by id from all list
     private boolean removeFromAllById(String taskId) {
         for (int i = 0; i < all.size(); i++) {
             FollowUpTask cur = all.get(i);

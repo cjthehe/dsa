@@ -128,17 +128,5 @@ public class QueueADT<T> implements QueueInterface<T>, Iterable<T> {
         };      
     }
     
-//    @Override
-//    public void clear(){
-//        for(int i = 0; i < size ; i++){
-//            int count = (frontIndex + i) % capacity;
-//            arrayQueue[count] = null;
-//        }
-//        
-//        frontIndex = 0;
-//        size = 0;
-//        backIndex = -1;
-//    }
-    
     
 }

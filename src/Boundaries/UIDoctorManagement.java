@@ -295,7 +295,6 @@ public class UIDoctorManagement {
         System.out.println("\nALL REGISTERED DOCTORS:");
         System.out.println("_______________________________________________________________________________________________\n");
         try {
-            // Get all doctors from the controller to show current state
             LinkedList<Doctor> allDoctors = controller.getAllDoctors();
             
             if (allDoctors.isEmpty()) {
@@ -306,7 +305,6 @@ public class UIDoctorManagement {
             
             System.out.println("Doctor ID |   Name   |  Specialization  | Experience | Gender |    Phone     |       Email");
             
-            // Display all doctors from the controller
             for (int i = 0; i < allDoctors.size(); i++) {
                 Doctor doctor = allDoctors.get(i);
                 System.out.printf("%-9s | %-8s | %-16s | %-10d | %-6c | %-12s | %-25s%n",
@@ -491,7 +489,6 @@ public class UIDoctorManagement {
         System.out.print("Times to remove (e.g., 09:00,09:30): ");
         String[] parts = scanner.nextLine().split(",");
         
-        // Use ADT LinkedList to store the times
         LinkedList<LocalTime> times = new LinkedList<>();
         for (String p : parts) {
             if (!p.trim().isEmpty()) {
@@ -529,7 +526,6 @@ public class UIDoctorManagement {
     private void viewSchedule() {
         String id = ask("Doctor ID: ");
         
-        // First, check if doctor exists
         Doctor doctor = controller.getDoctorById(id);
         if (doctor == null) {
             System.out.println("Doctor with ID " + id + " not found!");
@@ -837,7 +833,7 @@ public class UIDoctorManagement {
 
         int[] counts = new int[specializations.length];
 
-        // Find max value (for chart height)
+        // Find max value
         for (int i = 0; i < doctors.size(); i++) {
             Doctor d = doctors.get(i);
             for (int j = 0; j < specializations.length; j++) {
@@ -853,14 +849,12 @@ public class UIDoctorManagement {
             if (c > max) max = c;
         }
 
-        // Print legend
         System.out.println(" ------------------------------");
         for (int i = 0; i < specializations.length; i++) {
             System.out.printf("| %s%-28s%s |\n", colors[i], specializations[i], RESET);
         }
         System.out.println(" ------------------------------\n");
 
-        // Draw vertical bar chart
         for (int level = max; level >= 1; level--) {
             System.out.printf("%2d | ", level);
             for (int i = 0; i < counts.length; i++) {
@@ -880,7 +874,6 @@ public class UIDoctorManagement {
         }
         System.out.println();
 
-        // Labels under bars
         System.out.print("     ");
         for (String l : labels) {
             System.out.print(l + "   ");

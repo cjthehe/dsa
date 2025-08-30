@@ -2,9 +2,6 @@ package Entity;
 
 import java.time.LocalDate;
 
-/**
- * Represents a follow-up record linking a patient to a doctor until completed.
- */
 public class FollowUpTask {
     private String taskId;     // e.g., T001
     private String patientId;  // e.g., P0001

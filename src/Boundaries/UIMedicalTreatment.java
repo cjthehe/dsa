@@ -284,14 +284,13 @@ public class UIMedicalTreatment {
 
         MedicalTreatment mt = controller.createTreatment(patient, doctor);
         if (!diagnosis.isEmpty()) {
-            // Persist diagnosis on patient entity and as a treatment note for visibility
             patient.setPatientDisease(diagnosis);
             controller.addNote(mt.getTreatmentId(), "Diagnosis: " + diagnosis);
         }
         System.out.println("Created Treatment:");
         printHeader(mt);
 
-        // Add medicines using dropdown of available medicines
+        // Add medicines
         while (true) {
             System.out.println("Add medicine?");
             System.out.println("1. Yes");
@@ -446,7 +445,6 @@ public class UIMedicalTreatment {
     }
 
     private void printTreatmentDetails(MedicalTreatment mt) {
-        // Print header information
         System.out.println("┌──────────────────────────────────────┐");
         System.out.println("│  Treatment ID: " + String.format("%-20s", mt.getTreatmentId()) + "");
         System.out.println("│  Patient ID:   " + String.format("%-20s", mt.getPatientId()) + "");
@@ -456,7 +454,6 @@ public class UIMedicalTreatment {
         System.out.println("│  Date:         " + String.format("%-20s", mt.getCreatedDate().toString()) + "");
         System.out.println("└──────────────────────────────────────┘");
 
-        // Print symptoms and diagnosis from Patient module
         Patient matched = null;
         for (int i = 0; i < dummyPatients.size(); i++) {
             if (dummyPatients.get(i).getID().equals(mt.getPatientId())) {
@@ -523,7 +520,6 @@ public class UIMedicalTreatment {
     }
 
     private void seedDummyData() {
-        // Initialize patients from Patient module's dummy data
         if (dummyPatients.size() == 0) {
             try {
                 Boundaries.UIPatientManagement pui = new Boundaries.UIPatientManagement();
@@ -537,17 +533,14 @@ public class UIMedicalTreatment {
                     i++;
                 }
             } catch (Exception e) {
-                // fallback: no patients available
             }
         }
 
-        // Ensure Pharmacy module dummy data is initialized (medicines)
         try {
             new Boundaries.UIPharmacy();
         } catch (Exception e) {
-            // ignore
         }
-        // Seed 10 dummy treatments if none exist yet
+        
         if (controller.getAllTreatments().size() == 0 && dummyPatients.size() > 0) {
             ArrayList<Doctor> docs = getDoctorsFromModule();
             if (docs.size() == 0) {
@@ -576,7 +569,6 @@ public class UIMedicalTreatment {
                     Pharmacy.Medicine m2 = meds.get((i + 1) % meds.size());
                     controller.addMedicine(mt.getTreatmentId(), m2.getMedicineName(), 1 + (i % 2), 10);
                 }
-                // attach diagnosis from patient if any symptoms exist, else generic note
                 ADT.ArrayList<String> syms = p.getPatientSymtomps();
                 if (syms != null && syms.size() > 0) {
                     String inferred = syms.get(0);
@@ -588,7 +580,6 @@ public class UIMedicalTreatment {
             }
         }
 
-        // Ensure there are 20 total treatments by creating 10 more with random dates/details
         if (dummyPatients.size() > 0) {
             ArrayList<MedicalTreatment> existing = controller.getAllTreatments();
             if (existing.size() < 20) {
@@ -626,7 +617,6 @@ public class UIMedicalTreatment {
                     }
                     p.setPatientDisease(dx);
                     controller.addNote(mt.getTreatmentId(), "Diagnosis: " + dx);
-                    // occasional extra note
                     if (rng.nextBoolean()) {
                         String[] notes = {"Take after meals.", "Avoid driving.", "Stay hydrated.", "Rest well.", "Follow up in 1 week."};
                         controller.addNote(mt.getTreatmentId(), notes[rng.nextInt(notes.length)]);
@@ -641,13 +631,10 @@ public class UIMedicalTreatment {
         LinkedList<Doctor> ll = dc.getAllDoctors();
         ArrayList<Doctor> list = new ArrayList<>();
         if (ll.size() == 0) {
-            // Seed via Doctor UI if empty
             try {
                 new UIDoctorManagement();
-                // constructor seeds dummy data
                 ll = dc.getAllDoctors();
             } catch (Exception e) {
-                // ignore
             }
         }
         for (int i = 0; i < ll.size(); i++) {
@@ -661,13 +648,11 @@ public class UIMedicalTreatment {
         ArrayList<Pharmacy.Medicine> list = new ArrayList<>();
         try {
             Controller.PharmacyController pc = new Controller.PharmacyController();
-            // Reflectively access the private field 'medicines' to read dummy data
             java.lang.reflect.Field f = Controller.PharmacyController.class.getDeclaredField("medicines");
             f.setAccessible(true);
             ADT.HashMap<String, Pharmacy.Medicine> meds = (ADT.HashMap<String, Pharmacy.Medicine>) f.get(pc);
             meds.forEach((id, med) -> list.add(med));
         } catch (Exception e) {
-            // fallback to controller's local list if reflection fails
             ArrayList<Pharmacy.Medicine> fallback = controller.getAvailableMedicines();
             for (int i = 0; i < fallback.size(); i++) list.add(fallback.get(i));
         }

@@ -2,9 +2,6 @@ package Entity;
 
 import java.time.LocalDateTime;
 
-/**
- * Consultation entity to store consultation appointment and record data
- */
 public class Consultation {
     private String consultationId;
     private String patientId;
@@ -31,7 +28,7 @@ public class Consultation {
     private static final int MAX_PRESCRIPTION_LENGTH = 300;
     private static final int MAX_NOTES_LENGTH = 1000;
     
-    // Constructor for creating new consultation
+    // Constructor
     public Consultation(String consultationId, String patientId, String doctorId, 
                        LocalDateTime appointmentDateTime, String status) {
         this.consultationId = consultationId;
@@ -44,7 +41,6 @@ public class Consultation {
         this.followUpConsultationId = null;
     }
     
-    // Constructor for consultation with medical record
     public Consultation(String consultationId, String patientId, String doctorId, 
                        LocalDateTime appointmentDateTime, String status, String symptoms, 
                        String diagnosis, String prescription, String notes, double consultationHr) {
@@ -86,7 +82,7 @@ public class Consultation {
         if (dateTime == null) return false;
         
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime minDateTime = now.minusDays(1); // Allow appointments up to 1 day in the past for historical data
+        LocalDateTime minDateTime = now.minusDays(1); // Allow appointments up to 1 day in the past
         
         // Check if appointment is not too far in the past
         if (dateTime.isBefore(minDateTime)) {
@@ -149,11 +145,10 @@ public class Consultation {
     }
     
     public static boolean isValidFollowUpConsultationId(String followUpId) {
-        if (followUpId == null) return true; // null is valid (no follow-up)
+        if (followUpId == null) return true; 
         return isValidConsultationId(followUpId);
     }
     
-    // Business rule validation methods
     public static boolean isWorkingHours(LocalDateTime dateTime) {
         if (dateTime == null) return false;
         
@@ -190,7 +185,7 @@ public class Consultation {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public String getFollowUpConsultationId() { return followUpConsultationId; }
     
-    // Setters with validation
+    // Setters
     public void setConsultationId(String consultationId) { 
         if (isValidConsultationId(consultationId)) {
             this.consultationId = consultationId; 

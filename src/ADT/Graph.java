@@ -43,7 +43,7 @@ public class Graph<T> implements GraphInterface<T> {
             edges -= outSize;
         }
 
-        // Remove the vertex from the graph structures
+        // Remove the vertex from the graph
         adjacency.remove(vertex);
 
         int idx = vertices.indexOf(vertex);
@@ -51,7 +51,7 @@ public class Graph<T> implements GraphInterface<T> {
             vertices.remove(idx);
         }
 
-        // Remove incoming edges to vertex (avoid double-counting self-loop already deducted)
+        // Remove incoming edges to vertex
         for (int i = 0; i < vertices.size(); i++) {
             T v = vertices.get(i);
             if (v != null && v.equals(vertex)) {

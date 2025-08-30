@@ -34,9 +34,7 @@ public class UIConsultation {
     };
     private static final String RESET = "\u001B[0m";
 
-    /**
-     * Get valid patient ID input with boundary validation
-     */
+   
     private String getValidPatientId() {
         String patientId;
         do {
@@ -58,15 +56,12 @@ public class UIConsultation {
                 continue;
             }
             
-            break; // Valid input received
+            break; 
         } while (true);
         
         return patientId;
     }
 
-    /**
-     * Get valid date-time input with boundary validation
-     */
     private LocalDateTime getValidDateTime() {
         LocalDateTime dateTime;
         do {
@@ -80,7 +75,7 @@ public class UIConsultation {
             
             try {
                 dateTime = LocalDateTime.parse(dateTimeStr, dtf);
-                break; // Valid input received
+                break; 
             } catch (Exception e) {
                 System.out.println("Error: Invalid date/time format. Please use yyyy-MM-dd HH:mm format.");
             }
@@ -89,9 +84,6 @@ public class UIConsultation {
         return dateTime;
     }
 
-    /**
-     * Get valid consultation ID input with boundary validation
-     */
     private String getValidConsultationId() {
         String consultationId;
         do {
@@ -114,15 +106,12 @@ public class UIConsultation {
                 continue;
             }
             
-            break; // Valid input received
+            break; 
         } while (true);
         
         return consultationId;
     }
 
-    /**
-     * Get valid doctor choice input with boundary validation
-     */
     private int getValidDoctorChoice(int maxDoctors) {
         int doctorChoice;
         do {
@@ -140,7 +129,7 @@ public class UIConsultation {
                     System.out.println("Error: Invalid selection. Please enter a number between 1 and " + maxDoctors);
                     continue;
                 }
-                break; // Valid input received
+                break;
             } catch (NumberFormatException e) {
                 System.out.println("Error: Please enter a valid number.");
             }
@@ -149,9 +138,6 @@ public class UIConsultation {
         return doctorChoice;
     }
 
-    /**
-     * Get valid confirmation input with boundary validation
-     */
     private boolean getValidConfirmation(String message) {
         String confirm;
         do {
@@ -173,9 +159,6 @@ public class UIConsultation {
         } while (true);
     }
 
-    /**
-     * Get valid consultation record input with boundary validation
-     */
     private String getValidConsultationRecordInput(String fieldName, int minLength, int maxLength, boolean required) {
         String input;
         do {
@@ -183,7 +166,7 @@ public class UIConsultation {
             input = scanner.nextLine().trim();
             
             if (!required && input.isEmpty()) {
-                return input; // Optional field can be empty
+                return input;           
             }
             
             if (input.isEmpty()) {
@@ -196,15 +179,12 @@ public class UIConsultation {
                 continue;
             }
             
-            break; // Valid input received
+            break; 
         } while (true);
         
         return input;
     }
 
-    /**
-     * Get valid consultation hours input with boundary validation
-     */
     private double getValidConsultationHours() {
         double consultationHr;
         do {
@@ -222,7 +202,7 @@ public class UIConsultation {
                     System.out.println("Error: Consultation hours must be between 0 and 8 hours.");
                     continue;
                 }
-                break; // Valid input received
+                break; 
             } catch (NumberFormatException e) {
                 System.out.println("Error: Please enter a valid number.");
             }
@@ -231,9 +211,6 @@ public class UIConsultation {
         return consultationHr;
     }
 
-    /**
-     * Initialize doctors if they don't exist
-     */
     private void initializeDoctorsIfNeeded() {
         Controller.DoctorController doctorController = new Controller.DoctorController();
         ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
@@ -247,9 +224,6 @@ public class UIConsultation {
         }
     }
 
-    /**
-     * Setup time slots for a specific date if none exist
-     */
     private void setupTimeSlotsForDate(LocalDate date) {
         Controller.DoctorController doctorController = new Controller.DoctorController();
         ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
@@ -409,10 +383,8 @@ public class UIConsultation {
         ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         
         try {
-            // Get valid patient ID with boundary validation
             String patientId = getValidPatientId();
             
-            // Get valid date-time with boundary validation
             LocalDateTime dateTime = getValidDateTime();
             
             // Validate the appointment creation
@@ -444,13 +416,11 @@ public class UIConsultation {
                 System.out.println((i + 1) + ". " + availableDoctors.get(i));
             }
             
-            // Get valid doctor choice with boundary validation
             int doctorChoice = getValidDoctorChoice(availableDoctors.size());
             
             String selectedDoctor = availableDoctors.get(doctorChoice - 1);
             String doctorId = selectedDoctor.split(" - ")[0];
             
-            // Validation with selected doctor
             validation = controller.validateCreateConsultation(patientId, doctorId, dateTime);
             if (!validation.isValid()) {
                 System.out.println("Validation Errors:");
@@ -488,7 +458,6 @@ public class UIConsultation {
         System.out.println();
         
         try {
-            // Get valid consultation ID with boundary validation
             String consultationId = getValidConsultationId();
             Consultation consultation = controller.getConsultationById(consultationId);
             
@@ -500,7 +469,6 @@ public class UIConsultation {
             System.out.println("Status: " + consultation.getStatus());
             System.out.println();
             
-            // Get valid new date-time with boundary validation
             LocalDateTime newDateTime = getValidDateTime();
             
             // Validate rescheduling
@@ -534,7 +502,6 @@ public class UIConsultation {
                 System.out.println("• " + doctor);
             }
             
-            // Get valid confirmation with boundary validation
             boolean confirmReschedule = getValidConfirmation("Confirm reschedule");
             
             if (confirmReschedule) {
@@ -569,7 +536,6 @@ public class UIConsultation {
         System.out.println();
         
         try {
-            // Get valid consultation ID with boundary validation
             String consultationId = getValidConsultationId();
             Consultation consultation = controller.getConsultationById(consultationId);
             
@@ -598,7 +564,6 @@ public class UIConsultation {
             System.out.print("Enter cancellation reason (optional): ");
             String reason = scanner.nextLine();
             
-            // Get valid confirmation with boundary validation
             boolean confirmCancellation = getValidConfirmation("Confirm cancellation");
             
             if (confirmCancellation) {
@@ -630,7 +595,6 @@ public class UIConsultation {
         System.out.println();
         
         try {
-            // Get valid consultation ID with boundary validation
             String consultationId = getValidConsultationId();
             Consultation consultation = controller.getConsultationById(consultationId);
             
@@ -642,7 +606,6 @@ public class UIConsultation {
             System.out.println("Status: " + consultation.getStatus());
             System.out.println();
             
-            // Get valid consultation record inputs with boundary validation
             String symptoms = getValidConsultationRecordInput("Symptoms", 3, 500, true);
             String diagnosis = getValidConsultationRecordInput("Diagnosis", 3, 200, true);
             String prescription = getValidConsultationRecordInput("Prescription", 0, 300, true);
@@ -684,7 +647,6 @@ public class UIConsultation {
         System.out.println();
         
         try {
-            // Get valid patient ID with boundary validation
             String patientId = getValidPatientId();
             
             System.out.println("\nRetrieving consultation history...");

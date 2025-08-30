@@ -82,6 +82,4 @@ public class LinkedList<T> {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
         }
     }
-
-    // No Java Iterator/Iterable used to comply with the no-framework requirement
 }

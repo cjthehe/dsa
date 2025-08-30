@@ -37,13 +37,12 @@ public class PharmacyController {
 		medicines.put("M0006", new Pharmacy.Medicine("M0006", "Antihistamine", 5, 6.60, "S0002"));
 		medicineCounter = 6; // next id will be M0006
 
-		// Initial dispensed counts (aggregate)
+		// Initial dispensed counts 
 		dispenseCounts.put("M0001", 120);
 		dispenseCounts.put("M0002", 90);
 		dispenseCounts.put("M0003", 150);
 		dispenseCounts.put("M0004", 60);
 
-		// Seed monthly breakdown for current month
 		String monthKey = java.time.LocalDate.now().toString().substring(0, 7);
 		HashMap<String, Integer> initMonth = new HashMap<>(32);
 		initMonth.put("M0001", 120);
@@ -52,7 +51,6 @@ public class PharmacyController {
 		initMonth.put("M0004", 60);
 		monthlyDispense.put(monthKey, initMonth);
 
-		// Seed previous month breakdown
 		String prevMonthKey = java.time.LocalDate.now().minusMonths(1).toString().substring(0, 7);
 		HashMap<String, Integer> prevMonth = new HashMap<>(32);
 		prevMonth.put("M0001", 80);
@@ -63,7 +61,6 @@ public class PharmacyController {
 		monthlyDispense.put(prevMonthKey, prevMonth);
 	}
 
-	// ------------------ 1. Medicine Inventory Management ------------------
 	public void addMedicine() {
 		String choice;
 		do {
@@ -212,7 +209,6 @@ public class PharmacyController {
 		scanner.nextLine();
 	}
 
-	// ------------------ 2. Medicine Dispensing ------------------
 	public void dispenseMedicine(AVLTree<String, Patient> patientTree) {
 		String choice;
 		do {
@@ -242,7 +238,7 @@ public class PharmacyController {
 			}
 
 			med.setQuantityInStock(med.getQuantityInStock() - qty);
-			medicines.put(id, med); // update
+			medicines.put(id, med); 
 
 			Integer current = dispenseCounts.get(id);
 			int newTotal = (current == null ? 0 : current) + qty;
@@ -304,7 +300,6 @@ public class PharmacyController {
 		scanner.nextLine();
 	}
 
-	// ------------------ 3. Stock Reordering ------------------
 	public void viewLowStock() {
 		System.out.println("\n--- Low Stock Items ---");
 		final boolean[] found = {false};
@@ -355,7 +350,6 @@ public class PharmacyController {
 		scanner.nextLine();
 	}
 
-	// ------------------ 4. Supplier Management ------------------
 	public void addSupplier() {
 		String choice;
 		do {

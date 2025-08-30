@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 public class Pharmacy {
 
-    // ====== Medicine Inventory ======
     public static class Medicine {
         private String medicineID;
         private String medicineName;
@@ -37,7 +36,6 @@ public class Pharmacy {
         }
     }
 
-    // ====== Stock Reordering ======
     public static class Reorder {
         private String reorderID;
         private String medicineID;
@@ -61,7 +59,6 @@ public class Pharmacy {
         public String getReorderStatus() { return reorderStatus; }
     }
 
-    // ====== Medicine Dispensing ======
     public static class Dispense {
         private String dispenseID;
         private String patientID;
@@ -85,7 +82,6 @@ public class Pharmacy {
         public LocalDate getDispenseDate() { return dispenseDate; }
     }
 
-    // ====== Supplier Management ======
     public static class Supplier {
         private String supplierID;
         private String supplierName;

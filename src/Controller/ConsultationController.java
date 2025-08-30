@@ -34,7 +34,7 @@ public class ConsultationController {
             result.addError("Patient ID not found in system");
         }
         
-        // Validate doctor ID (only if provided)
+        // Validate doctor ID
         if (doctorId != null && !doctorId.trim().isEmpty()) {
             if (!Consultation.isValidDoctorId(doctorId)) {
                 result.addError("Invalid doctor ID format. Expected: D + 3 digits");
@@ -88,7 +88,7 @@ public class ConsultationController {
             result.addError("Doctor is busy at the new time");
         }
         
-        // Check for duplicate appointments (excluding current consultation)
+        // Check for duplicate appointments
         if (hasPatientAppointmentAtTime(consultation.getPatientId(), newDateTime, consultationId)) {
             result.addError("Patient already has another appointment at this time");
         }
@@ -106,7 +106,7 @@ public class ConsultationController {
             return result;
         }
         
-        // Validate current status allows cancellation
+        // Validate current status, allows cancellation
         if (!Consultation.canBeCancelled(consultation.getStatus())) {
             result.addError("Consultation cannot be cancelled. Current status: " + consultation.getStatus());
         }
@@ -133,7 +133,7 @@ public class ConsultationController {
             return result;
         }
         
-        // Validate current status allows completion
+        // Validate current status, allows completion
         if (!Consultation.canBeCompleted(consultation.getStatus())) {
             result.addError("Consultation cannot be completed. Current status: " + consultation.getStatus());
         }
@@ -166,9 +166,7 @@ public class ConsultationController {
         return result;
     }
     
-    // Helper validation methods
     private boolean isDoctorBusyAtTime(String doctorId, LocalDateTime dateTime) {
-        // Return false if doctorId is null or empty (no doctor selected yet)
         if (doctorId == null || doctorId.trim().isEmpty()) {
             return false;
         }
@@ -201,7 +199,6 @@ public class ConsultationController {
         return false;
     }
     
-    // Create a new consultation appointment with validation
     public Consultation createConsultation(String patientId, String doctorId, LocalDateTime dateTime) {
         ValidationResult validation = validateCreateConsultation(patientId, doctorId, dateTime);
         if (!validation.isValid()) {
@@ -213,7 +210,6 @@ public class ConsultationController {
         
         consultations.add(c);
         
-        // Add to HashMaps 
         consultationsById.put(consultationId, c);
         addToPatientHashMap(c);
         addToDoctorHashMap(c);
@@ -226,7 +222,6 @@ public class ConsultationController {
         return c;
     }
     
-    // Add consultation to patient HashMap
     private void addToPatientHashMap(Consultation consultation) {
         String patientId = consultation.getPatientId();
         ArrayList<Consultation> patientConsultations = consultationsByPatient.get(patientId);
@@ -239,7 +234,6 @@ public class ConsultationController {
         patientConsultations.add(consultation);
     }
     
-    // Add consultation to doctor HashMap
     private void addToDoctorHashMap(Consultation consultation) {
         String doctorId = consultation.getDoctorId();
         ArrayList<Consultation> doctorConsultations = consultationsByDoctor.get(doctorId);
@@ -306,12 +300,10 @@ public class ConsultationController {
         LocalTime time = consultation.getAppointmentDateTime().toLocalTime();
         doctorController.addTimeSlot(consultation.getDoctorId(), date, time);
         
-        // Note: We keep the consultation in HashMaps for history tracking
-        
         return true;
     }
 
-    // Create or update consultation record (for doctor) with validation
+    // Create or update consultation record with validation
     public boolean updateConsultationRecord(String consultationId, String symptoms, String diagnosis, String prescription, String notes, double consultationHr) {
         ValidationResult validation = validateUpdateConsultationRecord(consultationId, symptoms, diagnosis, prescription, notes, consultationHr);
         if (!validation.isValid()) {
@@ -331,7 +323,6 @@ public class ConsultationController {
         return true;
     }
 
-    // Add a fully detailed consultation (used for seeding/dummy data)
     public Consultation addConsultation(
         String patientId,
         String doctorId,
@@ -362,7 +353,6 @@ public class ConsultationController {
         addToPatientHashMap(c);
         addToDoctorHashMap(c);
 
-        // Book doctor's time slot for this consultation
         Controller.DoctorController doctorController = new Controller.DoctorController();
         LocalDate date = dateTime.toLocalDate();
         LocalTime time = dateTime.toLocalTime();
@@ -371,36 +361,31 @@ public class ConsultationController {
         return c;
     }
 
-    // Fetch consultation by ID - O(1) using HashMap
     public Consultation getConsultationById(String consultationId) {
         return consultationsById.get(consultationId);
     }
 
-    // Fetch all consultations for a patient - O(1) using HashMap
     public ArrayList<Consultation> getConsultationsByPatient(String patientId) {
         ArrayList<Consultation> patientConsultations = consultationsByPatient.get(patientId);
         if (patientConsultations == null) {
-            return new ArrayList<>(); // Return empty list if patient not found
+            return new ArrayList<>(); 
         }
         return patientConsultations;
     }
 
-    // Fetch all consultations for a doctor - O(1) using HashMap
     public ArrayList<Consultation> getConsultationsByDoctor(String doctorId) {
         ArrayList<Consultation> doctorConsultations = consultationsByDoctor.get(doctorId);
         if (doctorConsultations == null) {
-            return new ArrayList<>(); // Return empty list if doctor not found
+            return new ArrayList<>(); 
         }
         return doctorConsultations;
     }
 
-    // Get consultations by date (simplified implementation)
     public ArrayList<Consultation> getConsultationsByDate(LocalDateTime date) {
         ArrayList<Consultation> result = new ArrayList<>();
         LocalDateTime startOfDay = date.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
         
-        // Simple linear search through all consultations
         for (int i = 0; i < consultations.size(); i++) {
             Consultation c = consultations.get(i);
             LocalDateTime consultationDate = c.getAppointmentDateTime();
@@ -412,11 +397,9 @@ public class ConsultationController {
         return result;
     }
 
-    // Get consultations within a time range (simplified implementation)
     public ArrayList<Consultation> getConsultationsInTimeRange(LocalDateTime start, LocalDateTime end) {
         ArrayList<Consultation> result = new ArrayList<>();
         
-        // Simple linear search through all consultations
         for (int i = 0; i < consultations.size(); i++) {
             Consultation c = consultations.get(i);
             LocalDateTime consultationDate = c.getAppointmentDateTime();
@@ -428,12 +411,10 @@ public class ConsultationController {
         return result;
     }
 
-    // Get upcoming consultations (future appointments)
     public ArrayList<Consultation> getUpcomingConsultations() {
         ArrayList<Consultation> result = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         
-        // Simple linear search through all consultations
         for (int i = 0; i < consultations.size(); i++) {
             Consultation c = consultations.get(i);
             LocalDateTime consultationDate = c.getAppointmentDateTime();
@@ -446,12 +427,10 @@ public class ConsultationController {
         return result;
     }
 
-    // Get past consultations (completed/cancelled appointments)
     public ArrayList<Consultation> getPastConsultations() {
         ArrayList<Consultation> result = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         
-        // Simple linear search through all consultations
         for (int i = 0; i < consultations.size(); i++) {
             Consultation c = consultations.get(i);
             LocalDateTime consultationDate = c.getAppointmentDateTime();
@@ -464,9 +443,7 @@ public class ConsultationController {
         return result;
     }
 
-    // NEW: Check if a time slot is available
     public boolean isSlotAvailable(LocalDateTime dateTime) {
-        // Simplified check - in reality, you'd want to check against booked consultations
         for (int i = 0; i < consultations.size(); i++) {
             Consultation c = consultations.get(i);
             if (c.getAppointmentDateTime().equals(dateTime) && 
@@ -477,7 +454,6 @@ public class ConsultationController {
         return true;
     }
 
-    // Print doctor availability for a date by integrating with DoctorController
     public void printDoctorAvailabilityForDate(java.time.LocalDate date) {
         Controller.DoctorController doctorController = new Controller.DoctorController();
         ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
@@ -527,7 +503,7 @@ public class ConsultationController {
             if (c.getDoctorId().equals(doctorId) && 
                 c.getAppointmentDateTime().equals(dateTime) &&
                 !c.getStatus().equals("CANCELLED")) {
-                return false; // Doctor is busy at this time
+                return false;
             }
         }
         
@@ -536,9 +512,8 @@ public class ConsultationController {
         LocalDate date = dateTime.toLocalDate();
         LocalTime time = dateTime.toLocalTime();
         
-        // Check if the doctor has this time slot in their schedule
         if (!doctorController.isSlotAvailable(doctorId, date, time)) {
-            return false; // Doctor doesn't have this slot in their schedule
+            return false;
         }
         
         return true;
@@ -584,30 +559,24 @@ public class ConsultationController {
         return availableSlots;
     }
     
-    // Validate patient ID exists (simplified - always returns true for now)
+    // Validate patient ID exists
     public boolean validatePatientId(String patientId) {
-        // For now, assume patient exists to avoid compilation issues
-        // In a real system, this would validate against the patient database
         return patientId != null && !patientId.trim().isEmpty();
     }
     
-    // NEW: Validate doctor ID exists
     public boolean validateDoctorId(String doctorId) {
         Controller.DoctorController doctorController = new Controller.DoctorController();
         return doctorController.getDoctorById(doctorId) != null;
     }
 
-    // NEW: Get all consultations (for report generation)
     public ArrayList<Consultation> getAllConsultations() {
         return consultations;
     }
 
-    // NEW: Get consultation count
     public int getConsultationCount() {
         return consultations.size();
     }
 
-    // NEW: Get consultations by status
     public ArrayList<Consultation> getConsultationsByStatus(String status) {
         ArrayList<Consultation> result = new ArrayList<>();
         
@@ -621,7 +590,6 @@ public class ConsultationController {
         return result;
     }
 
-    // NEW: Get consultations with follow-ups
     public ArrayList<Consultation> getConsultationsWithFollowUps() {
         ArrayList<Consultation> result = new ArrayList<>();
         
@@ -635,7 +603,6 @@ public class ConsultationController {
         return result;
     }
 
-    // Validation Result class for handling validation errors and warnings
     public static class ValidationResult {
         private ArrayList<String> errors;
         private ArrayList<String> warnings;

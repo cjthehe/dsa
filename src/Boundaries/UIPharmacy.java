@@ -51,7 +51,6 @@ public class UIPharmacy {
         } while (choice != 5);
     }
 
-    // ================== SUB MENUS ==================
 
     private void medicineInventoryMenu() {
         int choice;

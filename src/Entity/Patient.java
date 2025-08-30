@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Entity;
 
 import java.time.LocalDate;
 import ADT.ArrayList;
-/**
- *
- * @author user
- */
+
+
 public class Patient {
     private ArrayList<String> patientSymptoms;
     //attribute
@@ -24,9 +18,7 @@ public class Patient {
     private String state;
     private String DoctorAssigned;
     private String patientDisease;
-    //private String medicalTaken;
     private LocalDate registrationDate;
-    // private Time consultationHours;
     
     //Constructor
     public Patient(String PID,String Pname, String ic, int age, char gender, String phoneNumber, String email,String faculty, String state, String DoctorAssigned,String patientDisease, ArrayList<String> patientSymptoms, LocalDate registrationDate){
@@ -162,11 +154,4 @@ public class Patient {
         }
     }
     
-    
-//    @Override
-//    public String toString(){
-//        return Pname + " | " + ic + " | " + age + " | " + gender 
-//                + " | " + phoneNumber + " | " + email + " | " + DoctorAssigned
-//                + " | " + registrationDate + " | ";
-//    } 
 }

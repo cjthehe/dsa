@@ -14,7 +14,6 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         this.buckets = new LinkedList[capacity];
         this.size = 0;
         
-        // Initialize all buckets
         for (int i = 0; i < capacity; i++) {
             buckets[i] = new LinkedList<Entry<K, V>>();
         }
@@ -26,7 +25,6 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         this.buckets = new LinkedList[capacity];
         this.size = 0;
         
-        // Initialize all buckets
         for (int i = 0; i < capacity; i++) {
             buckets[i] = new LinkedList<Entry<K, V>>();
         }
@@ -76,7 +74,7 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
             }
         }
         
-        return null; // Key not found
+        return null; 
     }
     
     @Override
@@ -97,7 +95,7 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
             }
         }
         
-        return null; // Key not found
+        return null; 
     }
     
     @Override
@@ -179,7 +177,6 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         System.out.println("Total entries: " + size);
     }
     
-    // Iterate over all key-value pairs using a simple callback (no Java collections exposure)
     public void forEach(KVConsumer<K, V> consumer) {
         for (int i = 0; i < capacity; i++) {
             LinkedList<Entry<K, V>> bucket = buckets[i];
@@ -190,13 +187,11 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         }
     }
     
-    // Helper method to get bucket index
     private int getBucketIndex(K key) {
         int hashCode = key.hashCode();
         return Math.abs(hashCode) % capacity;
     }
     
-    // Helper method to resize the HashMap
     @SuppressWarnings("unchecked")
     private void resize() {
         int oldCapacity = capacity;
@@ -205,12 +200,10 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         LinkedList<Entry<K, V>>[] oldBuckets = buckets;
         buckets = new LinkedList[capacity];
         
-        // Initialize new buckets
         for (int i = 0; i < capacity; i++) {
             buckets[i] = new LinkedList<Entry<K, V>>();
         }
-        
-        // Reset size and rehash all entries
+
         size = 0;
         for (int bi = 0; bi < oldBuckets.length; bi++) {
             LinkedList<Entry<K, V>> bucket = oldBuckets[bi];
@@ -223,7 +216,6 @@ public class HashMap<K, V> implements HashMapInterface<K, V> {
         System.out.println("HashMap resized from " + oldCapacity + " to " + capacity);
     }
     
-    // Inner class to represent key-value pairs
     private static class Entry<K, V> {
         K key;
         V value;

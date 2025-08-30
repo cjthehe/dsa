@@ -29,7 +29,6 @@ public class PatientController {
 
         String state = calFarState(icNumber);
         
-//        patientSymptom = ;
         
         patient = new Patient(patientID, name, icNumber, age, gender,
                               phoneNumber, email,patientFaculty ,state, null, null,
@@ -115,9 +114,6 @@ public class PatientController {
         if(formattedPhoneNumber.matches("\\d{10,11}")){
             return true;
         }
-//        if(formattedPhoneNumber.matches("\\d+")){
-//            return true;
-//        }
         return false;
     }
     
