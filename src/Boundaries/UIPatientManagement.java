@@ -82,7 +82,7 @@ public class UIPatientManagement {
         System.out.printf("%20s Enter name: ","");
         studName = scanner.nextLine();
             if(!controller.NameValidation(studName)){
-                System.out.printf("%20s Invalid name. Please try again.","");
+                System.out.printf("%20s Invalid name. Please try again.#n","");
             }
         }while(!controller.NameValidation(studName));
         
