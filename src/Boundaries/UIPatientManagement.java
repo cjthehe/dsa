@@ -21,7 +21,7 @@ public class UIPatientManagement {
     
         asgm.clearScreen();
         
-        System.out.println(" +-------------------------------- Clinic name --------------------------------+ ");
+        System.out.println(" +----------------------------- Patient Management ----------------------------+ ");
         System.out.printf(" |%23s%-30s%23s |\n", "", "1. Make a registration", "");
         System.out.printf(" |%23s%-30s%23s |\n", "", "2. View Patient Profile", "");
         System.out.printf(" |%23s%-30s%23s |\n", "", "3. Update Profile", "");
