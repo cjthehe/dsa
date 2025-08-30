@@ -2,6 +2,7 @@ package Boundaries;
 
 import Controller.MedicalTreatmentController;
 import Controller.DoctorController;
+import Main.Asgm;
 import ADT.LinkedList;
 import ADT.HashMap;
 import ADT.KVConsumer;
@@ -15,24 +16,25 @@ import java.time.LocalDate;
 import java.util.Random;
 
 public class UIMedicalTreatment {
+    private Asgm asgm = new Asgm();
     private final Scanner scanner = new Scanner(System.in);
     private final MedicalTreatmentController controller = new MedicalTreatmentController();
     private final ArrayList<Patient> dummyPatients = new ArrayList<>();
 
     public void showMenu() {
+        asgm.clearScreen();
         seedDummyData();
         while (true) {
-            System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("           Medical Treatment         ");
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("1. Medical Treatment Management");
-            System.out.println("2. Manage note for Treatment");
-            System.out.println("3. View treatment details");
-            System.out.println("4. Mark Status as Inactive");
-            System.out.println("5. Patient view own treatment details");
-            System.out.println("6. Medicine usage report");
-            System.out.println("7. Monthly treatment summary");
-            System.out.println("8. Back");
+            System.out.println(" +------------------------------- Medical Treatment -------------------------------+ ");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "1. Medical Treatment Management", "");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "2. Manage Note for Treatment", "");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "3. View Treatment Details", "");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "4. Mark Status as Inactive", "");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "5. Patient View Own Treatment Details", "");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "6. Report", "");
+            System.out.printf(" |%20s%-40s%20s |\n", "", "7. Exit", "");
+            System.out.println(" +---------------------------------------------------------------------------------+ ");
+
             System.out.print("Select your option: ");
             int choice = readInt();
             System.out.println();
@@ -54,28 +56,53 @@ public class UIMedicalTreatment {
                     viewByPatient();
                     break;
                 case 6:
-                    showMedicineUsageReport();
+                    showReport();
                     break;
                 case 7:
-                    showMonthlyTreatmentReport();
+                    System.out.println("Returning to main menu...");
+                    asgm.startMenu();
                     break;
-                case 8:
-                    return;
                 default:
                     System.out.println("Invalid option. Please enter 1-8.");
             }
         }
     }
 
+    private void showReport(){
+        System.out.println("\n +---------------------- Medical Treatment Reports Menu ----------------------+ ");
+        System.out.printf(" |%20s%-34s%23s|\n", "", "1. Medicine usage report", "");
+        System.out.printf(" |%20s%-34s%23s|\n", "", "2. Monthly treatment summary", "");
+        System.out.printf(" |%20s%-34s%23s|\n", "", "3. Exit", "");
+        System.out.println(" +-----------------------------------------------------------------------------+ ");
+        System.out.print("Select your option: ");
+        int choice = readInt();
+        System.out.println();
+
+        switch(choice){
+            case 1:
+                showMedicineUsageReport();
+                break;
+            case 2:
+                showMonthlyTreatmentReport();
+                break;
+            case 3:
+                System.out.println("\nPress Enter to return to main menu...");
+                scanner.nextLine();
+                return;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+
+    }
+
     private void managementMenu() {
         while (true) {
-            System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("       Medical Treatment Management        ");
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("1. Add Medical Treatment");
-            System.out.println("2. Update Medical Treatment Details");
-            System.out.println("3. Delete Medical Treatment");
-            System.out.println("4. Back");
+            System.out.println(" +------------------------- Medical Treatment Management -------------------------+");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "1. Add Medical Treatment", "");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "2. Update Medical Treatment Details", "");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "3. Delete Medical Treatment", "");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "4. Back", "");
+            System.out.println(" +--------------------------------------------------------------------------------+");            
             System.out.print("Choose: ");
             int choice = readInt();
 
@@ -99,12 +126,12 @@ public class UIMedicalTreatment {
 
     private void notesMenu() {
         while (true) {
-            System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("      Medical Treatment Note Management         ");
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println("1. Add note");
-            System.out.println("2. Delete note");
-            System.out.println("3. Back");
+            System.out.println(" +---------------------- Medical Treatment Note Management -----------------------+");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "1. Add Note", "");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "2. Delete Note", "");
+            System.out.printf(" |%20s%-40s%20s|\n", "", "3. Back", "");
+            System.out.println(" +--------------------------------------------------------------------------------+");
+            
             System.out.print("Choose: ");
             int choice = readInt();
             if (choice == 1) {

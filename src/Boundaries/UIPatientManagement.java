@@ -64,12 +64,12 @@ public class UIPatientManagement {
                 viewReport();
                 break;
             case 7:
+                System.out.println("Returning to main menu...");
                 asgm.startMenu();
                 break;
             default:
                 System.out.printf("%21s Invalid option. Pls try again.\n\n","");
                 System.out.printf("%24s Select your option: ", "");
-                break;
             }
         }while(true);
     }
@@ -385,11 +385,12 @@ private void updateProfile() {
     
     public void viewReport(){
 
-        System.out.printf("\n\n%15s ---------------- Patient Report ---------------- \n\n","");
-        System.out.printf("%20s 1. View Faculty Report\n", "");
-        System.out.printf("%20s 2. View Registration Report\n", "");
-        System.out.printf("%20s 3. Back to patient menu\n", "");
-        System.out.printf("\n%15s ------------------------------------------------ \n","");
+        System.out.println(" \n\n+---------------------------- Patient Report ----------------------------+");
+        System.out.printf(" |%20s%-30s%20s |\n", "", "1. View Faculty Report", "");
+        System.out.printf(" |%20s%-30s%20s |\n", "", "2. View Registration Report", "");
+        System.out.printf(" |%20s%-30s%20s |\n", "", "3. Back to Patient Menu", "");
+        System.out.println(" +-----------------------------------------------------------------------+");
+        
         System.out.printf("%20s Enter your choice: ","");
         int reportChoice = scanner.nextInt();
         scanner.nextLine();

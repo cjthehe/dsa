@@ -2,25 +2,27 @@ package Boundaries;
 import java.util.Scanner;
 import Controller.PharmacyController;
 import Entity.Patient;
+import Main.Asgm;
 import ADT.AVLTree;
 
 public class UIPharmacy {
-
+    private Asgm asgm = new Asgm();
     private final Scanner scanner = new Scanner(System.in);
     private final PharmacyController controller = new PharmacyController();
     private final AVLTree<String, Patient> patientTree = new AVLTree<>();   
     public void showMenu() {  
+        asgm.clearScreen();
         int choice;
         do {
             System.out.println("\n");
-            System.out.println("========================================================");
-            System.out.println("               Pharmacy Management System               ");
-            System.out.println("========================================================");
-            System.out.println("1. Medicine Inventory Management");
-            System.out.println("2. Medicine Dispensing");
-            System.out.println("3. Stock Reordering");
-            System.out.println("4. Supplier Management");
-            System.out.println("5. Exit");
+            System.out.println(" +-------------------------- Pharmacy Management System --------------------------+");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "1. Medicine Inventory Management", "");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "2. Medicine Dispensing", "");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "3. Stock Reordering", "");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "4. Supplier Management", "");
+            System.out.printf(" |%22s%-35s%22s |\n", "", "5. Exit", "");
+            System.out.println(" +--------------------------------------------------------------------------------+");
+
             System.out.print("Enter choice: ");
 
             choice = Integer.parseInt(scanner.nextLine());
@@ -39,7 +41,8 @@ public class UIPharmacy {
                     supplierManagementMenu();
                     break;
                 case 5:
-                    System.out.println("Exiting Pharmacy System...");
+                    System.out.println("Returning to main menu...");
+                    asgm.startMenu();
                     break;
                 default:
                     System.out.println("Invalid option. Try again.");
@@ -54,15 +57,15 @@ public class UIPharmacy {
         int choice;
         do {
             System.out.println("\n");
-            System.out.println("========================================================");
-            System.out.println("              Medicine Inventory Management             ");
-            System.out.println("========================================================");
-            System.out.println("1. View All Medicines");
-            System.out.println("2. Add Medicine");
-            System.out.println("3. Edit Medicine");
-            System.out.println("4. Delete Medicine");
-            System.out.println("5. View Stock Level Report");
-            System.out.println("6. Back to Main Menu");
+            System.out.println(" +----------------------- Medicine Inventory Management -----------------------+");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "1. View All Medicines", "");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "2. Add Medicine", "");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "3. Edit Medicine", "");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "4. Delete Medicine", "");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "5. View Stock Level Report", "");
+            System.out.printf(" |%23s%-30s%23s |\n", "", "6. Back to Main Menu", "");
+            System.out.println(" +-----------------------------------------------------------------------------+");
+            
             System.out.print("Enter choice: ");
 
             choice = Integer.parseInt(scanner.nextLine());
@@ -97,12 +100,12 @@ public class UIPharmacy {
         int choice;
         do {
             System.out.println("\n");
-            System.out.println("========================================================");
-            System.out.println("                   Medicine Dispensing                  ");
-            System.out.println("========================================================");
-            System.out.println("1. Dispense Medicine to Patient");
-            System.out.println("2. View Dispensed Medicines Report");
-            System.out.println("3. Back to Main Menu");
+            System.out.println(" +--------------------------- Medicine Dispensing ---------------------------+");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "1. Dispense Medicine to Patient", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "2. View Dispensed Medicines Report", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "3. Back to Main Menu", "");
+            System.out.println(" +---------------------------------------------------------------------------+");
+            
             System.out.print("Enter choice: ");
 
             choice = Integer.parseInt(scanner.nextLine());
@@ -128,13 +131,13 @@ public class UIPharmacy {
         int choice;
         do {
             System.out.println("\n");
-            System.out.println("========================================================");
-            System.out.println("                   Stock Reordering                  ");
-            System.out.println("========================================================");
-            System.out.println("1. View Low Stock Items");
-            System.out.println("2. Generate Reorder Request");
-            System.out.println("3. Track Reorder Status");
-            System.out.println("4. Back to Main Menu");
+            System.out.println(" +---------------------------- Stock Reordering ----------------------------+");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "1. View Low Stock Items", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "2. Generate Reorder Request", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "3. Track Reorder Status", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "4. Back to Main Menu", "");
+            System.out.println(" +--------------------------------------------------------------------------+");
+            
             System.out.print("Enter choice: ");
 
             choice = Integer.parseInt(scanner.nextLine());
@@ -162,16 +165,16 @@ public class UIPharmacy {
         int choice;
         do {
             System.out.println("\n");
-            System.out.println("========================================================");
-            System.out.println("                   Supplier Management                  ");
-            System.out.println("========================================================");
-            System.out.println("1. View Suppliers");
-            System.out.println("2. Add Supplier");
-            System.out.println("3. Edit Supplier");
-            System.out.println("4. Delete Supplier");
-            System.out.println("5. Search Supplier");
-            System.out.println("6. View Products by Supplier");
-            System.out.println("7. Back to Main Menu");
+            System.out.println(" +--------------------------- Supplier Management ---------------------------+");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "1. View Suppliers", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "2. Add Supplier", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "3. Edit Supplier", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "4. Delete Supplier", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "5. Search Supplier", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "6. View Products by Supplier", "");
+            System.out.printf(" |%20s%-35s%20s|\n", "", "7. Back to Main Menu", "");
+            System.out.println(" +--------------------------------------------------------------------------+");
+            
             System.out.print("Enter choice: ");
 
             choice = Integer.parseInt(scanner.nextLine());

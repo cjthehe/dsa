@@ -1,8 +1,6 @@
 package Controller;
 
 import Entity.Consultation;
-import Controller.PatientController;
-
 import ADT.ArrayList;
 import ADT.HashMap;
 import java.time.LocalDateTime;
@@ -25,21 +23,201 @@ public class ConsultationController {
         this.consultationsByDoctor = new HashMap<>();
     }
     
-
-    // Create a new consultation appointment
+    // Validation methods
+    public ValidationResult validateCreateConsultation(String patientId, String doctorId, LocalDateTime dateTime) {
+        ValidationResult result = new ValidationResult();
+        
+        // Validate patient ID
+        if (!Consultation.isValidPatientId(patientId)) {
+            result.addError("Invalid patient ID format. Expected: P + 3 digits");
+        } else if (!validatePatientId(patientId)) {
+            result.addError("Patient ID not found in system");
+        }
+        
+        // Validate doctor ID (only if provided)
+        if (doctorId != null && !doctorId.trim().isEmpty()) {
+            if (!Consultation.isValidDoctorId(doctorId)) {
+                result.addError("Invalid doctor ID format. Expected: D + 3 digits");
+            } else if (!validateDoctorId(doctorId)) {
+                result.addError("Doctor ID not found in system");
+            }
+        }
+        
+        // Validate appointment date/time
+        if (!Consultation.isValidAppointmentDateTime(dateTime)) {
+            result.addError("Invalid appointment date/time. Must be within valid range");
+        } else if (!Consultation.isWorkingHours(dateTime)) {
+            result.addError("Appointment must be during working hours (Monday-Friday, 9 AM - 5 PM)");
+        } else if (!isSlotAvailable(dateTime)) {
+            result.addError("Time slot is not available");
+        } else if (doctorId != null && !doctorId.trim().isEmpty() && isDoctorBusyAtTime(doctorId, dateTime)) {
+            result.addError("Doctor is busy at this time");
+        }
+        
+        // Check for duplicate appointments
+        if (hasPatientAppointmentAtTime(patientId, dateTime)) {
+            result.addError("Patient already has an appointment at this time");
+        }
+        
+        return result;
+    }
+    
+    public ValidationResult validateRescheduleConsultation(String consultationId, LocalDateTime newDateTime) {
+        ValidationResult result = new ValidationResult();
+        
+        // Validate consultation exists
+        Consultation consultation = getConsultationById(consultationId);
+        if (consultation == null) {
+            result.addError("Consultation not found");
+            return result;
+        }
+        
+        // Validate current status, allows rescheduling
+        if (!Consultation.canBeRescheduled(consultation.getStatus())) {
+            result.addError("Consultation cannot be rescheduled. Current status: " + consultation.getStatus());
+        }
+        
+        // Validate new date/time
+        if (!Consultation.isValidAppointmentDateTime(newDateTime)) {
+            result.addError("Invalid new appointment date/time. Must be within valid range");
+        } else if (!Consultation.isWorkingHours(newDateTime)) {
+            result.addError("New appointment must be during working hours (Monday-Friday, 9 AM - 5 PM)");
+        } else if (!isSlotAvailable(newDateTime)) {
+            result.addError("New time slot is not available");
+        } else if (isDoctorBusyAtTime(consultation.getDoctorId(), newDateTime)) {
+            result.addError("Doctor is busy at the new time");
+        }
+        
+        // Check for duplicate appointments (excluding current consultation)
+        if (hasPatientAppointmentAtTime(consultation.getPatientId(), newDateTime, consultationId)) {
+            result.addError("Patient already has another appointment at this time");
+        }
+        
+        return result;
+    }
+    
+    public ValidationResult validateCancelConsultation(String consultationId) {
+        ValidationResult result = new ValidationResult();
+        
+        // Validate consultation exists
+        Consultation consultation = getConsultationById(consultationId);
+        if (consultation == null) {
+            result.addError("Consultation not found");
+            return result;
+        }
+        
+        // Validate current status allows cancellation
+        if (!Consultation.canBeCancelled(consultation.getStatus())) {
+            result.addError("Consultation cannot be cancelled. Current status: " + consultation.getStatus());
+        }
+        
+        // Check if appointment is too close to cancel (within 24 hours)
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime appointmentTime = consultation.getAppointmentDateTime();
+        if (appointmentTime.isAfter(now) && appointmentTime.isBefore(now.plusHours(24))) {
+            result.addWarning("Appointment is within 24 hours. Late cancellation may incur charges.");
+        }
+        
+        return result;
+    }
+    
+    public ValidationResult validateUpdateConsultationRecord(String consultationId, String symptoms, 
+                                                           String diagnosis, String prescription, 
+                                                           String notes, double consultationHr) {
+        ValidationResult result = new ValidationResult();
+        
+        // Validate consultation exists
+        Consultation consultation = getConsultationById(consultationId);
+        if (consultation == null) {
+            result.addError("Consultation not found");
+            return result;
+        }
+        
+        // Validate current status allows completion
+        if (!Consultation.canBeCompleted(consultation.getStatus())) {
+            result.addError("Consultation cannot be completed. Current status: " + consultation.getStatus());
+        }
+        
+        // Validate symptoms
+        if (!Consultation.isValidSymptoms(symptoms)) {
+            result.addError("Invalid symptoms. Must be 3-500 characters long.");
+        }
+        
+        // Validate diagnosis
+        if (!Consultation.isValidDiagnosis(diagnosis)) {
+            result.addError("Invalid diagnosis. Must be 3-200 characters long.");
+        }
+        
+        // Validate prescription
+        if (!Consultation.isValidPrescription(prescription)) {
+            result.addError("Invalid prescription. Must be 0-300 characters long.");
+        }
+        
+        // Validate notes
+        if (!Consultation.isValidNotes(notes)) {
+            result.addError("Invalid notes. Must be 0-1000 characters long.");
+        }
+        
+        // Validate consultation hours
+        if (!Consultation.isValidConsultationHours(consultationHr)) {
+            result.addError("Invalid consultation hours. Must be between 0 and 8 hours.");
+        }
+        
+        return result;
+    }
+    
+    // Helper validation methods
+    private boolean isDoctorBusyAtTime(String doctorId, LocalDateTime dateTime) {
+        // Return false if doctorId is null or empty (no doctor selected yet)
+        if (doctorId == null || doctorId.trim().isEmpty()) {
+            return false;
+        }
+        
+        for (int i = 0; i < consultations.size(); i++) {
+            Consultation c = consultations.get(i);
+            if (c.getDoctorId().equals(doctorId) && 
+                c.getAppointmentDateTime().equals(dateTime) &&
+                !c.getStatus().equals("CANCELLED")) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean hasPatientAppointmentAtTime(String patientId, LocalDateTime dateTime) {
+        return hasPatientAppointmentAtTime(patientId, dateTime, null);
+    }
+    
+    private boolean hasPatientAppointmentAtTime(String patientId, LocalDateTime dateTime, String excludeConsultationId) {
+        for (int i = 0; i < consultations.size(); i++) {
+            Consultation c = consultations.get(i);
+            if (c.getPatientId().equals(patientId) && 
+                c.getAppointmentDateTime().equals(dateTime) &&
+                !c.getStatus().equals("CANCELLED") &&
+                (excludeConsultationId == null || !c.getConsultationId().equals(excludeConsultationId))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Create a new consultation appointment with validation
     public Consultation createConsultation(String patientId, String doctorId, LocalDateTime dateTime) {
+        ValidationResult validation = validateCreateConsultation(patientId, doctorId, dateTime);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException("Validation failed: " + validation.getErrorsAsString());
+        }
+        
         String consultationId = generateConsultationId();
         Consultation c = new Consultation(consultationId, patientId, doctorId, dateTime, "SCHEDULED");
         
-        // Add to general consultations list
         consultations.add(c);
         
-        // Add to HashMaps for O(1) lookup
+        // Add to HashMaps 
         consultationsById.put(consultationId, c);
         addToPatientHashMap(c);
         addToDoctorHashMap(c);
         
-        // Book the doctor's time slot
         Controller.DoctorController doctorController = new Controller.DoctorController();
         LocalDate date = dateTime.toLocalDate();
         LocalTime time = dateTime.toLocalTime();
@@ -48,7 +226,7 @@ public class ConsultationController {
         return c;
     }
     
-    // Add consultation to patient HashMap for O(1) lookup
+    // Add consultation to patient HashMap
     private void addToPatientHashMap(Consultation consultation) {
         String patientId = consultation.getPatientId();
         ArrayList<Consultation> patientConsultations = consultationsByPatient.get(patientId);
@@ -61,7 +239,7 @@ public class ConsultationController {
         patientConsultations.add(consultation);
     }
     
-    // Add consultation to doctor HashMap for O(1) lookup
+    // Add consultation to doctor HashMap
     private void addToDoctorHashMap(Consultation consultation) {
         String doctorId = consultation.getDoctorId();
         ArrayList<Consultation> doctorConsultations = consultationsByDoctor.get(doctorId);
@@ -73,34 +251,6 @@ public class ConsultationController {
         
         doctorConsultations.add(consultation);
     }
-    
-    // Remove consultation from patient HashMap
-    private void removeFromPatientHashMap(Consultation consultation) {
-        String patientId = consultation.getPatientId();
-        ArrayList<Consultation> patientConsultations = consultationsByPatient.get(patientId);
-        
-        if (patientConsultations != null) {
-            patientConsultations.remove(consultation);
-            if (patientConsultations.isEmpty()) {
-                consultationsByPatient.remove(patientId);
-            }
-        }
-    }
-    
-    // Remove consultation from doctor HashMap
-    private void removeFromDoctorHashMap(Consultation consultation) {
-        String doctorId = consultation.getDoctorId();
-        ArrayList<Consultation> doctorConsultations = consultationsByDoctor.get(doctorId);
-        
-        if (doctorConsultations != null) {
-            doctorConsultations.remove(consultation);
-            if (doctorConsultations.isEmpty()) {
-                consultationsByDoctor.remove(doctorId);
-            }
-        }
-    }
-
-
 
     // Generate consultation ID: C + date + sequence number
     private String generateConsultationId() {
@@ -109,16 +259,19 @@ public class ConsultationController {
         return "C" + dateStr + sequence;
     }
 
-    // Reschedule an existing consultation
+    // Reschedule an existing consultation with validation
     public boolean rescheduleConsultation(String consultationId, LocalDateTime newDateTime) {
+        ValidationResult validation = validateRescheduleConsultation(consultationId, newDateTime);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException("Validation failed: " + validation.getErrorsAsString());
+        }
+        
         Consultation consultation = getConsultationById(consultationId);
         if (consultation == null) return false;
         
-        // Get the old date and time for releasing the slot
         LocalDateTime oldDateTime = consultation.getAppointmentDateTime();
         String doctorId = consultation.getDoctorId();
         
-        // Release the old doctor slot
         Controller.DoctorController doctorController = new Controller.DoctorController();
         LocalDate oldDate = oldDateTime.toLocalDate();
         LocalTime oldTime = oldDateTime.toLocalTime();
@@ -136,14 +289,18 @@ public class ConsultationController {
         return true;
     }
 
-    // Cancel a consultation
+    // Cancel a consultation with validation
     public boolean cancelConsultation(String consultationId) {
+        ValidationResult validation = validateCancelConsultation(consultationId);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException("Validation failed: " + validation.getErrorsAsString());
+        }
+        
         Consultation consultation = getConsultationById(consultationId);
         if (consultation == null) return false;
         
         consultation.setStatus("CANCELLED");
         
-        // Release the doctor's time slot
         Controller.DoctorController doctorController = new Controller.DoctorController();
         LocalDate date = consultation.getAppointmentDateTime().toLocalDate();
         LocalTime time = consultation.getAppointmentDateTime().toLocalTime();
@@ -154,8 +311,13 @@ public class ConsultationController {
         return true;
     }
 
-    // Create or update consultation record (for doctor)
-    public boolean updateConsultationRecord(String consultationId, String symptoms, String diagnosis, String prescription, String notes) {
+    // Create or update consultation record (for doctor) with validation
+    public boolean updateConsultationRecord(String consultationId, String symptoms, String diagnosis, String prescription, String notes, double consultationHr) {
+        ValidationResult validation = validateUpdateConsultationRecord(consultationId, symptoms, diagnosis, prescription, notes, consultationHr);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException("Validation failed: " + validation.getErrorsAsString());
+        }
+        
         Consultation consultation = getConsultationById(consultationId);
         if (consultation == null) return false;
         
@@ -163,9 +325,50 @@ public class ConsultationController {
         consultation.setDiagnosis(diagnosis);
         consultation.setPrescription(prescription);
         consultation.setNotes(notes);
+        consultation.setConsultationHr(consultationHr);
         consultation.setStatus("COMPLETED");
         
         return true;
+    }
+
+    // Add a fully detailed consultation (used for seeding/dummy data)
+    public Consultation addConsultation(
+        String patientId,
+        String doctorId,
+        LocalDateTime dateTime,
+        String status,
+        String symptoms,
+        String diagnosis,
+        String prescription,
+        String notes,
+        double consultationHr
+    ) {
+        String consultationId = generateConsultationId();
+        Consultation c = new Consultation(
+            consultationId,
+            patientId,
+            doctorId,
+            dateTime,
+            status,
+            symptoms,
+            diagnosis,
+            prescription,
+            notes,
+            consultationHr
+        );
+
+        consultations.add(c);
+        consultationsById.put(consultationId, c);
+        addToPatientHashMap(c);
+        addToDoctorHashMap(c);
+
+        // Book doctor's time slot for this consultation
+        Controller.DoctorController doctorController = new Controller.DoctorController();
+        LocalDate date = dateTime.toLocalDate();
+        LocalTime time = dateTime.toLocalTime();
+        doctorController.bookSlot(doctorId, date, time);
+
+        return c;
     }
 
     // Fetch consultation by ID - O(1) using HashMap
@@ -261,8 +464,6 @@ public class ConsultationController {
         return result;
     }
 
-
-
     // NEW: Check if a time slot is available
     public boolean isSlotAvailable(LocalDateTime dateTime) {
         // Simplified check - in reality, you'd want to check against booked consultations
@@ -275,10 +476,6 @@ public class ConsultationController {
         }
         return true;
     }
-
-
-
-
 
     // Print doctor availability for a date by integrating with DoctorController
     public void printDoctorAvailabilityForDate(java.time.LocalDate date) {
@@ -438,4 +635,78 @@ public class ConsultationController {
         return result;
     }
 
+    // Validation Result class for handling validation errors and warnings
+    public static class ValidationResult {
+        private ArrayList<String> errors;
+        private ArrayList<String> warnings;
+        
+        public ValidationResult() {
+            this.errors = new ArrayList<>();
+            this.warnings = new ArrayList<>();
+        }
+        
+        public void addError(String error) {
+            errors.add(error);
+        }
+        
+        public void addWarning(String warning) {
+            warnings.add(warning);
+        }
+        
+        public boolean isValid() {
+            return errors.isEmpty();
+        }
+        
+        public boolean hasWarnings() {
+            return !warnings.isEmpty();
+        }
+        
+        public ArrayList<String> getErrors() {
+            return errors;
+        }
+        
+        public ArrayList<String> getWarnings() {
+            return warnings;
+        }
+        
+        public String getErrorsAsString() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < errors.size(); i++) {
+                sb.append(errors.get(i));
+                if (i < errors.size() - 1) {
+                    sb.append("; ");
+                }
+            }
+            return sb.toString();
+        }
+        
+        public String getWarningsAsString() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < warnings.size(); i++) {
+                sb.append(warnings.get(i));
+                if (i < warnings.size() - 1) {
+                    sb.append("; ");
+                }
+            }
+            return sb.toString();
+        }
+        
+        public void printErrors() {
+            if (!errors.isEmpty()) {
+                System.out.println("Validation Errors:");
+                for (int i = 0; i < errors.size(); i++) {
+                    System.out.println("  • " + errors.get(i));
+                }
+            }
+        }
+        
+        public void printWarnings() {
+            if (!warnings.isEmpty()) {
+                System.out.println("Validation Warnings:");
+                for (int i = 0; i < warnings.size(); i++) {
+                    System.out.println("  • " + warnings.get(i));
+                }
+            }
+        }
+    }
 } 

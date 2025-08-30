@@ -27,7 +27,7 @@ public class UIDoctorManagement {
         
         controller.addDoctor("Dr. CJT", "Basic Cardiology", 15, 'F', "012-3456789", "cjt@clinic.com", LocalDate.of(2010, 3, 15));
         controller.addDoctor("Dr. QN", "General Practice", 9, 'F', "012-3456790", "qn@clinic.com", LocalDate.of(2016, 7, 22));
-        controller.addDoctor("Dr. WN", "Pediatrics", 12, 'F', "012-3456791", "wn@clinic.com", LocalDate.of(2013, 1, 10));
+        controller.addDoctor("Dr. WN", "Orthopedics", 12, 'F', "012-3456791", "wn@clinic.com", LocalDate.of(2013, 1, 10));
         controller.addDoctor("Dr. JW", "Orthopedics", 30, 'M', "012-3456792", "jw@clinic.com", LocalDate.of(1995, 7, 18));
         controller.addDoctor("Dr. CGZ", "Dermatology", 11, 'M', "012-3456793", "cgz@clinic.com", LocalDate.of(2014, 5, 30));
         controller.addDoctor("Dr. DFG", "Dermatology", 11, 'F', "012-3456793", "cgz@clinic.com", LocalDate.of(2014, 5, 30));
@@ -78,17 +78,16 @@ public class UIDoctorManagement {
 
     public void showMenu() {
         while (true) {
-            System.out.println("\n=========================================");
-            System.out.println("|           DOCTOR MANAGEMENT           |");
-            System.out.println("=========================================");
-            System.out.println("1. Doctor Profile Management");
-            System.out.println("2. Doctor Schedule Management");
-            System.out.println("3. Follow-up Task");
-            System.out.println("4. View Report");
-            System.out.println("5. Back to Menu");
-            System.out.println("6. Exit");
-            System.out.println("=========================================\n");
+            asgm.clearScreen();
+            System.out.println(" +------------------------------ Doctor Management ------------------------------+");
+            System.out.printf(" |%23s%-33s%23s|\n", "", "1. Doctor Profile Management", "");
+            System.out.printf(" |%23s%-33s%23s|\n", "", "2. Doctor Schedule Management", "");
+            System.out.printf(" |%23s%-33s%23s|\n", "", "3. Follow-up Task", "");
+            System.out.printf(" |%23s%-33s%23s|\n", "", "4. View Report", "");
+            System.out.printf(" |%23s%-33s%23s|\n", "", "5. Back to Menu", "");
+            System.out.println(" +-------------------------------------------------------------------------------+");
             System.out.print("Select your option: ");
+
             int choice = readInt();
 
             switch (choice) {
@@ -105,11 +104,8 @@ public class UIDoctorManagement {
                     viewReport();
                     break;
                 case 5:
+                    System.out.println("Returning to main menu...");
                     asgm.startMenu();
-                    break;
-                case 6:
-                    System.out.printf("\nThank you for using the system. Goodbye!\n\n","");
-                    System.exit(0);
                     break;
                 default: System.out.println("Invalid option. Pls try again.");
             }
@@ -119,13 +115,13 @@ public class UIDoctorManagement {
     // ===== Module 1: Profile Management =====
     private void showProfileMenu() {
         while (true) {
-            System.out.println("\n----- DOCTOR PROFILE MANAGEMENT -----");
-            System.out.println("\n1. Add Doctor");
-            System.out.println("2. View Doctor Profile");
-            System.out.println("3. Update Doctor Details");
-            System.out.println("4. Delete Doctor");
-            System.out.println("5. Back");
-            System.out.println("\n-------------------------------------\n");
+            System.out.println(" +------------------------ Doctor Profile Management ------------------------+");
+            System.out.printf(" |%23s%-30s%23s|\n", "", "1. Add Doctor", "");
+            System.out.printf(" |%23s%-30s%23s|\n", "", "2. View Doctor Profile", "");
+            System.out.printf(" |%23s%-30s%23s|\n", "", "3. Update Doctor Details", "");
+            System.out.printf(" |%23s%-30s%23s|\n", "", "4. Delete Doctor", "");
+            System.out.printf(" |%23s%-30s%23s|\n", "", "5. Back", "");
+            System.out.println(" +---------------------------------------------------------------------------+");
             System.out.print("Select(1-5): ");
             int c = readInt();
             switch (c) {
@@ -152,14 +148,14 @@ public class UIDoctorManagement {
     // ===== Module 2: Schedule Management =====
     private void showScheduleMenu() {
         while (true) {
-            System.out.println("\n----- DOCTOR SCHEDULE MANAGEMENT -----");
-            System.out.println("\n1. Define Available Slots");
-            System.out.println("2. Add Time Slot");
-            System.out.println("3. Remove Time Slot(s)");
-            System.out.println("4. View Schedule");
-            System.out.println("5. Update Working Hours");
-            System.out.println("6. Back");
-            System.out.println("\n--------------------------------------\n");
+            System.out.println(" +------------------------- Doctor Schedule Management -------------------------+");
+            System.out.printf(" |%23s%-32s%23s|\n", "", "1. Define Available Slots", "");
+            System.out.printf(" |%23s%-32s%23s|\n", "", "2. Add Time Slot", "");
+            System.out.printf(" |%23s%-32s%23s|\n", "", "3. Remove Time Slot(s)", "");
+            System.out.printf(" |%23s%-32s%23s|\n", "", "4. View Schedule", "");
+            System.out.printf(" |%23s%-32s%23s|\n", "", "5. Update Working Hours", "");
+            System.out.printf(" |%23s%-32s%23s|\n", "", "6. Back", "");
+            System.out.println(" +------------------------------------------------------------------------------+");
             System.out.print("Select(1-6): ");
             int c = readInt();
             switch (c) {
@@ -191,14 +187,14 @@ public class UIDoctorManagement {
 
     private void showFollowUpMenu() {
         while (true) {
-            System.out.println("\n-------------- FOLLOW-UP TASK ---------------");
-            System.out.println("\n1. Add follow-up task");
-            System.out.println("2. View tasks (All/Pending/Completed)");
-            System.out.println("3. Update task (description/due date)");
-            System.out.println("4. Mark as Completed");
-            System.out.println("5. Delete task");
-            System.out.println("6. Back");
-            System.out.println("\n---------------------------------------------\n");
+            System.out.println(" +--------------------------------- Follow-up Task ---------------------------------+");
+            System.out.printf(" |%23s%-37s%23s|\n", "", "1. Add Follow-up Task", "");
+            System.out.printf(" |%23s%-37s%23s|\n", "", "2. View Tasks (All/Pending/Completed)", "");
+            System.out.printf(" |%23s%-37s%23s|\n", "", "3. Update Task (Description/Due Date)", "");
+            System.out.printf(" |%23s%-37s%23s|\n", "", "4. Mark as Completed", "");
+            System.out.printf(" |%23s%-37s%23s|\n", "", "5. Delete Task", "");
+            System.out.printf(" |%23s%-37s%23s|\n", "", "6. Back", "");
+            System.out.println(" +---------------------------------------------------------------------------------+");
             System.out.print("Select(1-6): ");
             int c = readInt();
             switch (c) {
@@ -226,11 +222,11 @@ public class UIDoctorManagement {
     }
 
     private void viewReport() {
-        System.out.println("\n\n------------- DOCTOR REPORT --------------");
-        System.out.println("\n1. View Doctor Experience Report");
-        System.out.println("2. View Doctor Specialization Report");
-        System.out.println("3. Back to Doctor Management");
-        System.out.println("\n------------------------------------------");
+        System.out.println(" +------------------------------- Doctor Report -------------------------------+");
+        System.out.printf(" |%19s%-39s%19s|\n", "", "1. View Doctor Experience Report", "");
+        System.out.printf(" |%19s%-39s%19s|\n", "", "2. View Doctor Specialization Report", "");
+        System.out.printf(" |%19s%-39s%19s|\n", "", "3. Back to Doctor Management", "");
+        System.out.println(" +-----------------------------------------------------------------------------+");
         System.out.print("\nSelect your option: ");
         int choice = readInt();
         
@@ -251,7 +247,7 @@ public class UIDoctorManagement {
     private void addProfile() {
         System.out.print("Name: ");
         String name = scanner.nextLine();
-        System.out.print("Specialization (Basic Cardiology/General Practice/Pediatrics/Orthopedics/Dermatology): ");
+        System.out.print("Specialization (Basic Cardiology/General Practice/Orthopedics/Dermatology): ");
         String spec = scanner.nextLine();
         int exp;
         while (true) {
@@ -826,9 +822,9 @@ public class UIDoctorManagement {
     
         // Count doctors by specialization
         String[] specializations = {
-            "Basic Cardiology", "General Practice", "Pediatrics", "Orthopedics", "Dermatology"
+            "Basic Cardiology", "General Practice", "Orthopedics", "Dermatology"
         };
-        String[] labels = {"B", "G", "P", "O", "D"};
+        String[] labels = {"B", "G", "O", "D"};
 
         String[] colors = {
             "\u001B[31m", // Red
