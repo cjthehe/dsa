@@ -1,3 +1,8 @@
+/**
+ * PharmacyController class
+ * Author: Quenie Chiong Yee
+ */
+
 package Controller;
 
 import java.util.Scanner;
