@@ -6,6 +6,7 @@ import ADT.HashMap;
 import ADT.AVLTree;
 import Entity.Patient;
 import Entity.Pharmacy;
+import Controller.PatientController;    
 
 public class PharmacyController {
 	private final HashMap<String, Pharmacy.Medicine> medicines = new HashMap<>(1000);
@@ -214,10 +215,14 @@ public class PharmacyController {
 		do {
 			System.out.print("Enter Patient ID: ");
 			String patientId = scanner.nextLine();
+			if (patientId != null) patientId = patientId.trim();
 
-			Patient patient = patientTree.search(patientId);
+			Patient patient = PatientController.getInstance().findPatientByID(patientId);
+			if (patient == null && patientTree != null) {
+				patient = patientTree.search(patientId);
+			}
 			if (patient == null) {
-				System.out.println("Patient not found.");
+				System.out.println("Patient not found. Make sure the patient is registered (ID like P0001).");
 				return;
 			}
 

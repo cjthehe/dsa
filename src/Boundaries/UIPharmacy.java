@@ -10,8 +10,13 @@ public class UIPharmacy {
     private final Scanner scanner = new Scanner(System.in);
     private final PharmacyController controller = new PharmacyController();
     private final AVLTree<String, Patient> patientTree = new AVLTree<>();   
+    private boolean seededPatients = false;
     public void showMenu() {  
         asgm.clearScreen();
+        if (!seededPatients) {
+            new UIPatientManagement().DummyData();
+            seededPatients = true;
+        }
         int choice;
         do {
             System.out.println("\n");
@@ -92,7 +97,7 @@ public class UIPharmacy {
                     System.out.println("Invalid option. Try again.");
                     break;
             }
-        } while (choice != 6);
+        } while (choice != 5);
     }
 
     private void medicineDispensingMenu() {
@@ -119,7 +124,7 @@ public class UIPharmacy {
                     System.out.println("Invalid option. Try again.");
                     break;
             }
-        } while (choice != 3);
+        } while (choice != 2);
     }
 
     private void stockReorderingMenu() {
@@ -203,15 +208,17 @@ public class UIPharmacy {
     }
 
     private void viewReports(){
-        System.out.println("\n +-------------------------- View Reports -------------------------+ ");
-        System.out.println();
+        int choice;
+        do {
+            System.out.println("\n +-------------------------- View Reports -------------------------+ ");
+            System.out.println();
             System.out.println("\n +--------------------------- Pharmacy Reports Menu ---------------------------+ ");
             System.out.printf(" |%20s%-34s%23s|\n", "", "1. Stock Level Report", "");
             System.out.printf(" |%20s%-34s%23s|\n", "", "2. Dispensed Medicine Report", "");
             System.out.printf(" |%20s%-34s%23s|\n", "", "3. Exit", "");
             System.out.println(" +-----------------------------------------------------------------------------+ ");
             System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
                 case 1: {
@@ -225,13 +232,12 @@ public class UIPharmacy {
                     break;
                 }
                 case 3:
-                    System.out.println("\nPress Enter to return to main menu...");
-                    scanner.nextLine();
-                    return;
+                    System.out.println("Returning to Main Menu...");
+                    break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
-            
+        } while (choice != 3);    
 
     }
 }
