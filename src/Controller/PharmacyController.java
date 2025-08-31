@@ -1,6 +1,6 @@
 /**
  * PharmacyController class
- * Author: Quenie Chiong Yee
+ * Author: QUENIE CHIONG YEE
  */
 
 package Controller;
@@ -10,8 +10,7 @@ import java.time.LocalDate;
 import ADT.HashMap;
 import ADT.AVLTree;
 import Entity.Patient;
-import Entity.Pharmacy;
-import Controller.PatientController;    
+import Entity.Pharmacy;    
 
 public class PharmacyController {
 	private final HashMap<String, Pharmacy.Medicine> medicines = new HashMap<>(1000);
