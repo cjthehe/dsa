@@ -805,7 +805,7 @@ public class UIDoctorManagement {
     }
 
     private void viewDoctorSpecializationReport() {
-        System.out.println("\n__");
+        System.out.println("\n___________________________________________________________");
         System.out.println("\nDOCTOR SPECIALIZATION ANALYSIS REPORT:\n");
     
         LinkedList<Doctor> doctors = controller.getAllDoctors();
@@ -883,7 +883,7 @@ public class UIDoctorManagement {
         }
         System.out.println("  <---- Specialization");
     
-        System.out.println("\n__");
+        System.out.println("\n___________________________________________________________");
         System.out.print("\nPress Enter to return to Doctor Management Menu...\n"); 
         scanner.nextLine();
     }
