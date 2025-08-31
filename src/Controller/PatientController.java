@@ -232,7 +232,7 @@ public class PatientController {
     }
     
     /**
-     * Dequeue the first patient from the queue after consultation completion
+     * Dequeue the first patient from the queue after consultation creation
      * @return the dequeued patient, or null if queue is empty
      */
     public Patient dequeueFirstPatient() {
@@ -241,7 +241,7 @@ public class PatientController {
         }
         
         Patient dequeuedPatient = arrayQueue.dequeue();
-        System.out.println("Patient " + dequeuedPatient.getID() + " (" + dequeuedPatient.getName() + ") has been removed from the queue after consultation completion.");
+        System.out.println("Patient " + dequeuedPatient.getID() + " (" + dequeuedPatient.getName() + ") has been removed from the queue after consultation creation.");
         return dequeuedPatient;
     }
     

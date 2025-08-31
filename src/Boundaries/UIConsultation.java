@@ -446,7 +446,9 @@ public class UIConsultation {
         
         if (patientsInQueue.isEmpty()) {
             System.out.println("No patients currently in queue.");
-            System.out.println("Patients must be registered and added to queue before they can create consultations.");
+            System.out.println("Patients must be registered and added to queue before they can create consultations.");System.out.println("\nPress Enter to continue...");
+            scanner.nextLine();
+            showMenu();
         } else {
             System.out.println("Patients currently in queue:");
             System.out.println("+--------+----------------------+------------------+------------------+--------+");
@@ -543,6 +545,39 @@ public class UIConsultation {
                 System.out.println("Doctor ID: " + consultation.getDoctorId());
                 System.out.println("Date & Time: " + consultation.getAppointmentDateTime().format(dtf));
                 System.out.println("Status: " + consultation.getStatus());
+                
+                // Dequeue the patient from the queue after consultation creation
+                PatientController patientController = PatientController.getInstance();
+                Patient dequeuedPatient = patientController.dequeueFirstPatient();
+                
+                if (dequeuedPatient != null) {
+                    System.out.println("\n" + dequeuedPatient.getName() + " (ID: " + dequeuedPatient.getID() + ") has been removed from the queue.");
+                    System.out.println("The next patient in queue can now create a consultation appointment.");
+                    
+                    // Show updated queue status
+                    ArrayList<Entity.Patient> remainingPatients = patientController.getAllPatientsInQueue();
+                    if (!remainingPatients.isEmpty()) {
+                        System.out.println("\nUpdated Queue Status:");
+                        System.out.println("+--------+----------------------+------------------+--------+");
+                        System.out.println("| ID     | Name                 | Faculty          | Position|");
+                        System.out.println("+--------+----------------------+------------------+--------+");
+                        
+                        for (int i = 0; i < remainingPatients.size(); i++) {
+                            Entity.Patient nextPatient = remainingPatients.get(i);
+                            String position = (i == 0) ? "1st (NEXT)" : String.valueOf(i + 1);
+                            System.out.printf("| %-6s | %-20s | %-16s | %-6s |\n",
+                                nextPatient.getID(),
+                                nextPatient.getName(),
+                                nextPatient.getFaculty(),
+                                position);
+                        }
+                        System.out.println("+--------+----------------------+------------------+--------+");
+                        System.out.println("Note: " + remainingPatients.get(0).getName() + " (ID: " + remainingPatients.get(0).getID() + ") is now NEXT in line.");
+                    } else {
+                        System.out.println("\nQueue is now empty. No patients waiting for consultation.");
+                    }
+                }
+                
                 System.out.println("\nPress Enter to return to main menu...");
                 scanner.nextLine();
                 
@@ -733,38 +768,6 @@ public class UIConsultation {
                 if (success) {
                     System.out.println("\nConsultation record updated successfully!");
                     System.out.println("Status changed to: COMPLETED");
-                    
-                                         // Dequeue the patient from the queue after consultation completion
-                     PatientController patientController = PatientController.getInstance();
-                     Patient dequeuedPatient = patientController.dequeueFirstPatient();
-                     
-                     if (dequeuedPatient != null) {
-                         System.out.println("\n" + dequeuedPatient.getName() + " (ID: " + dequeuedPatient.getID() + ") has been removed from the queue.");
-                         System.out.println("The next patient in queue can now create a consultation appointment.");
-                         
-                         // Show updated queue status
-                         ArrayList<Entity.Patient> remainingPatients = patientController.getAllPatientsInQueue();
-                         if (!remainingPatients.isEmpty()) {
-                             System.out.println("\nUpdated Queue Status:");
-                             System.out.println("+--------+----------------------+------------------+--------+");
-                             System.out.println("| ID     | Name                 | Faculty          | Position|");
-                             System.out.println("+--------+----------------------+------------------+--------+");
-                             
-                             for (int i = 0; i < remainingPatients.size(); i++) {
-                                 Entity.Patient nextPatient = remainingPatients.get(i);
-                                 String position = (i == 0) ? "1st (NEXT)" : String.valueOf(i + 1);
-                                 System.out.printf("| %-6s | %-20s | %-16s | %-6s |\n",
-                                     nextPatient.getID(),
-                                     nextPatient.getName(),
-                                     nextPatient.getFaculty(),
-                                     position);
-                             }
-                             System.out.println("+--------+----------------------+------------------+--------+");
-                             System.out.println("Note: " + remainingPatients.get(0).getName() + " (ID: " + remainingPatients.get(0).getID() + ") is now NEXT in line.");
-                         } else {
-                             System.out.println("\nQueue is now empty. No patients waiting for consultation.");
-                         }
-                     }
                 } else {
                     System.out.println("Error: Failed to update consultation record.");
                 }
