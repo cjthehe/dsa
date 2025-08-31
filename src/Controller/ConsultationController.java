@@ -8,6 +8,7 @@ package Controller;
 import Entity.Consultation;
 import ADT.ArrayList;
 import ADT.HashMap;
+import ADT.LinkedList;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
@@ -461,7 +462,7 @@ public class ConsultationController {
 
     public void printDoctorAvailabilityForDate(java.time.LocalDate date) {
         Controller.DoctorController doctorController = new Controller.DoctorController();
-        ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+        LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         System.out.println("Doctor Availability on " + date + ":");
         if (doctors.isEmpty()) {
             System.out.println("No doctors found.");
@@ -469,7 +470,7 @@ public class ConsultationController {
         }
         for (int i = 0; i < doctors.size(); i++) {
             Entity.Doctor d = doctors.get(i);
-            ADT.LinkedList<java.time.LocalTime> slots = doctorController.getSlotsForDate(d.getDoctorId(), date);
+            LinkedList<java.time.LocalTime> slots = doctorController.getSlotsForDate(d.getDoctorId(), date);
             System.out.print(d.getDoctorId() + " - " + d.getName() + " (" + d.getSpecialization() + ") | ");
             if (slots.isEmpty()) {
                 System.out.println("No available slots");
@@ -488,7 +489,7 @@ public class ConsultationController {
     public ArrayList<String> getAvailableDoctorsForDateTime(LocalDateTime dateTime) {
         ArrayList<String> availableDoctors = new ArrayList<>();
         Controller.DoctorController doctorController = new Controller.DoctorController();
-        ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+        LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         
         for (int i = 0; i < doctors.size(); i++) {
             Entity.Doctor doctor = doctors.get(i);
@@ -519,7 +520,7 @@ public class ConsultationController {
         LocalTime time = dateTime.toLocalTime();
         
         // Get all available time slots for this doctor on this date
-        ADT.LinkedList<java.time.LocalTime> availableSlots = doctorController.getSlotsForDate(doctorId, date);
+        LinkedList<java.time.LocalTime> availableSlots = doctorController.getSlotsForDate(doctorId, date);
         
         // Check if the requested time falls within any available slot
         for (int i = 0; i < availableSlots.size(); i++) {
@@ -541,14 +542,14 @@ public class ConsultationController {
         
         // Get all doctors and their available slots for this date
         Controller.DoctorController doctorController = new Controller.DoctorController();
-        ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+        LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         java.time.LocalDate localDate = date.toLocalDate();
         
         // Collect all available time slots from all doctors
         for (int i = 0; i < doctors.size(); i++) {
             Entity.Doctor doctor = doctors.get(i);
             if (doctor.isActive()) {
-                ADT.LinkedList<java.time.LocalTime> doctorSlots = doctorController.getSlotsForDate(doctor.getDoctorId(), localDate);
+                LinkedList<java.time.LocalTime> doctorSlots = doctorController.getSlotsForDate(doctor.getDoctorId(), localDate);
                 for (int j = 0; j < doctorSlots.size(); j++) {
                     java.time.LocalTime timeSlot = doctorSlots.get(j);
                     LocalDateTime dateTimeSlot = localDate.atTime(timeSlot);

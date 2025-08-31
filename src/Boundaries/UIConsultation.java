@@ -8,6 +8,7 @@ import Main.Asgm;
 
 import ADT.HashMap;
 import ADT.ArrayList;
+import ADT.LinkedList;
 import ADT.Graph;
 import ADT.ListInterface;
 import java.time.LocalDate;
@@ -281,7 +282,7 @@ public class UIConsultation {
 
     private void initializeDoctorsIfNeeded() {
         Controller.DoctorController doctorController = new Controller.DoctorController();
-        ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+        LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         if (doctors.isEmpty()) {
             System.out.println("Setting up doctors and time slots...");
             doctorController.addDoctor("Dr. Cjt", "Basic Cardiology", 15, 'F', "012-3456789", "cjt@clinic.com", java.time.LocalDate.now());
@@ -294,7 +295,7 @@ public class UIConsultation {
 
     private void setupTimeSlotsForDate(LocalDate date) {
         Controller.DoctorController doctorController = new Controller.DoctorController();
-        ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+        LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         
         boolean anySlots = false;
         for (int i = 0; i < doctors.size(); i++) {
@@ -396,7 +397,7 @@ public class UIConsultation {
             
             // Get doctors for display
             Controller.DoctorController doctorController = new Controller.DoctorController();
-            ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+            LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
 
             System.out.println();
             System.out.println("\nRetrieving doctor list and available time slots...");
@@ -485,7 +486,7 @@ public class UIConsultation {
         
         // Get doctors for later use
         Controller.DoctorController doctorController = new Controller.DoctorController();
-        ADT.LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
+        LinkedList<Entity.Doctor> doctors = doctorController.getAllDoctors();
         
         try {
             String patientId = getValidPatientId();
