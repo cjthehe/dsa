@@ -40,13 +40,15 @@ public class PharmacyController {
 		medicines.put("M0004", new Pharmacy.Medicine("M0004", "Vitamin C", 100, 4.60, "S0003"));
 		medicines.put("M0005", new Pharmacy.Medicine("M0005", "Cough Syrup", 15, 9.99, "S0002"));
 		medicines.put("M0006", new Pharmacy.Medicine("M0006", "Antihistamine", 5, 6.60, "S0002"));
-		medicineCounter = 6; // next id will be M0006
+		medicineCounter = 7; // next id will be M0007
 
 		// Initial dispensed counts 
 		dispenseCounts.put("M0001", 120);
 		dispenseCounts.put("M0002", 90);
 		dispenseCounts.put("M0003", 150);
 		dispenseCounts.put("M0004", 60);
+		dispenseCounts.put("M0005", 40);
+		dispenseCounts.put("M0006", 70);
 
 		String monthKey = java.time.LocalDate.now().toString().substring(0, 7);
 		HashMap<String, Integer> initMonth = new HashMap<>(32);
@@ -54,6 +56,8 @@ public class PharmacyController {
 		initMonth.put("M0002", 90);
 		initMonth.put("M0003", 150);
 		initMonth.put("M0004", 60);
+		initMonth.put("M0005", 40);
+		initMonth.put("M0006", 70);
 		monthlyDispense.put(monthKey, initMonth);
 
 		String prevMonthKey = java.time.LocalDate.now().minusMonths(1).toString().substring(0, 7);
@@ -63,6 +67,7 @@ public class PharmacyController {
 		prevMonth.put("M0003", 40);
 		prevMonth.put("M0004", 75);
 		prevMonth.put("M0005", 20);
+		prevMonth.put("M0006", 50);
 		monthlyDispense.put(prevMonthKey, prevMonth);
 	}
 
@@ -170,10 +175,19 @@ public class PharmacyController {
 			}
 
 			System.out.println("\nRemaining Medicines: ");
+			final String rowFormat = "%-11s | %-13s | %17d | %5.2f%n";
 			System.out.println("========================================================");
 			System.out.println("Medicine ID | Medicine Name | Quantity In Stock | Price");
 			System.out.println("========================================================");
-			medicines.forEach((mid, med) -> System.out.println(med));
+			final int[] count = {0};
+			medicines.forEach((mid, med) -> {
+				System.out.printf(rowFormat, med.getMedicineID(), med.getMedicineName(), med.getQuantityInStock(), med.getUnitPrice());
+				count[0]++;
+			});
+			if (count[0] == 0) {
+				System.out.println("(no medicines)");
+			}
+			
 
 			System.out.print("Do you want to delete another medicine? (Y/N): ");
 			choice = scanner.nextLine();
@@ -447,16 +461,24 @@ public class PharmacyController {
 				System.out.println("Supplier ID not found!");
 			}
 
+			final String rowFormat = "%-12s | %-30s | %-20s%n";
 			System.out.println("\nRemaining Suppliers:");
 			System.out.println("========================================================");
 			System.out.println("Supplier ID | Supplier Name         | Contact");
 			System.out.println("========================================================");
-			supplierMap.forEach((sid, sup) -> System.out.println(sup));
+			final int[] count = {0};
+			supplierMap.forEach((supID, sup) -> {
+				System.out.printf(rowFormat, sup.getSupplierID(), sup.getSupplierName(), sup.getContactNumber());
+				count[0]++;
+			});
+			if (count[0] == 0) {
+				System.out.println("(no suppliers)");
+			}
 
-			System.out.print("Do you want to delete another supplier? (Y/N): ");
-			choice = scanner.nextLine();
-		} while (choice.equalsIgnoreCase("Y"));
-	}
+				System.out.print("Do you want to delete another supplier? (Y/N): ");
+				choice = scanner.nextLine();
+			} while (choice.equalsIgnoreCase("Y"));
+		}
 
 	public void searchSupplier() {
 		System.out.print("Enter Supplier Name to search: ");
