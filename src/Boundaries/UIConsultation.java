@@ -107,22 +107,9 @@ public class UIConsultation {
                 continue;
             }
             
-            // Show patient status information
-            if (patientExists) {
-                if (patientController.isPatientInQueue(patientId)) {
-                    int position = patientController.getPatientQueuePosition(patientId);
-                    if (position == 1) {
-                        System.out.println("✓ Patient " + patientId + " is currently 1st in queue (NEXT)");
-                    } else {
-                        System.out.println("✓ Patient " + patientId + " is currently #" + position + " in queue");
-                    }
-                } else {
-                    System.out.println("✓ Patient " + patientId + " is registered but not currently in queue");
-                }
-            }
             
             if (hasHistory) {
-                System.out.println("✓ Patient " + patientId + " has consultation history available");
+                System.out.println("Patient " + patientId + " has consultation history available");
             }
             
             break; 
@@ -782,7 +769,7 @@ public class UIConsultation {
     }
 
     private void viewConsultationHistory() {
-        System.out.println("\n +------------------------- View Patient Consultation History (Doctor) -------------------------+ ");
+        System.out.println("\n +------------------------- View Patient Consultation History -------------------------+ ");
         System.out.println();
         
         try {
@@ -1021,16 +1008,28 @@ public class UIConsultation {
         Graph<String> graph = new Graph<>();
         ArrayList<Consultation> all = controller.getAllConsultations();
         if (all.isEmpty()) return graph;
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        java.time.LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusDays(30); // last 30 days
+
         for (int i = 0; i < all.size(); i++) {
             Consultation c = all.get(i);
-            if (c.getAppointmentDateTime().isAfter(startOfMonth) && c.getAppointmentDateTime().isBefore(now.plusMonths(1))) {
+            LocalDateTime appt = c.getAppointmentDateTime();
+
+            // Include consultations within last 30 days
+            if (!appt.isBefore(start) && !appt.isAfter(now)) {
                 String doctorId = c.getDoctorId();
                 String patientId = c.getPatientId();
-                if (!graph.hasVertex(doctorId)) graph.addVertex(doctorId);
-                if (!graph.hasVertex(patientId)) graph.addVertex(patientId);
-                if (!graph.hasEdge(doctorId, patientId)) graph.addEdge(doctorId, patientId);
+
+                if (!graph.hasVertex(doctorId)) {
+                    graph.addVertex(doctorId);
+                }
+                if (!graph.hasVertex(patientId)) {
+                    graph.addVertex(patientId);
+                }
+                if (!graph.hasEdge(doctorId, patientId)) {
+                    graph.addEdge(doctorId, patientId);
+                }
             }
         }
         return graph;
